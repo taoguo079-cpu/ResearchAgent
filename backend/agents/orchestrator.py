@@ -1,34 +1,47 @@
 import json
 import re
 from openai import AsyncOpenAI
+from backend.services.provider_retry import chat_completion
 from backend.agents.state import ResearchState
 from backend.config import settings
+from backend.services.run_context import context_from_state
+
+
+MIN_SUB_QUERIES = 3
+MAX_SUB_QUERIES = 3
 
 
 async def orchestrate(state: ResearchState) -> dict:
     """调 LLM 把研究问题拆解成多个子查询"""
     query = state["user_query"]
+    output_language = state.get("output_language", "en")
+    context = context_from_state(state)
+    if context:
+        context.raise_if_cancelled()
 
     system_prompt = """You are an academic research assistant.
-Your task is to break down the user's research question into 3-5 specific sub-queries.
-Each sub-query should be approached from a different perspective
-or sub-field to facilitate precise search in the thesis database.
-Only return a JSON array, no other content."""
+Break the research question into exactly 3 specific search angles.
+Return ONLY a JSON array of objects. Each object must have:
+- display_query: a concise query in the user's visible language
+- retrieval_query: a concise English academic database query
+Keep paper metadata and identifiers untranslated; translate only the search intent."""
 
-    user_message = f"""Break down this research question into 3-5 paper search sub-queries:
-    "{query}"
+    user_message = f"""Break down this research question into 3-5 paper search angles:
+    Original research question: "{query}"
+    Current retrieval focus: "{state.get('current_task', '')}"
+    Never replace the original topic with workflow instructions.
 
-    Return ONLY a JSON array:
-    ["sub-query 1: specific angle", "sub-query 2: specific angle", ...]"""
+    Return ONLY a JSON array of objects. The user's visible research language is {output_language}:
+    [{{"display_query":"...", "retrieval_query":"English academic query"}}]"""
 
     client = AsyncOpenAI(
-        api_key=settings.anthropic_api_key,
+        api_key=settings.deepseek_api_key,
         base_url=settings.base_url,
         timeout=60.0,
-        max_retries=2,
+        max_retries=0,
     )
-    response = await client.chat.completions.create(
-        model=settings.default_model,
+    response = await chat_completion(client,
+        model=settings.light_model or settings.default_model,
         max_tokens=800,
         messages=[
             {"role": "system", "content": system_prompt},
@@ -37,62 +50,175 @@ Only return a JSON array, no other content."""
     )
 
     text = response.choices[0].message.content
+    if context:
+        context.raise_if_cancelled()
 
     print(f"\n[Orchestrate] RAW LLM output ({len(text)} chars):")
     print(f"  {text[:500]}")
 
-    # 容错解析：LLM 可能返回 ```json ... ``` 包裹的内容
-    sub_queries = _parse_json_array(text)
+    query_plan = _normalize_query_plan(
+        _parse_json_value(text),
+        output_language=output_language,
+    )
 
-    print(f"\n[Orchestrate] Generated {len(sub_queries)} sub-queries:")
-    for i, q in enumerate(sub_queries, 1):
-        print(f"  {i}. {q[:120]}")
+    expanded = _ensure_sub_queries([item["display_query"] for item in query_plan], query)
+    query_plan = [{**next((item for item in query_plan if item["display_query"] == display), {"display_query": display, "retrieval_query": display if _looks_like_english_query(display) else ""})} for display in expanded]
 
-    plan = [{"sub_query": q, "status": "pending"} for q in sub_queries]
+    if output_language == "zh-CN" and any(
+        not item["retrieval_query"] for item in query_plan
+    ):
+        completion_response = await chat_completion(client,
+            model=settings.light_model,
+            max_tokens=600,
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "Translate research search intents into concise English academic "
+                        "database queries. Return ONLY a JSON array of strings."
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": json.dumps(
+                        [item["display_query"] for item in query_plan],
+                        ensure_ascii=False,
+                    ),
+                },
+            ],
+        )
+        completions = _parse_json_value(completion_response.choices[0].message.content)
+        for item, retrieval_query in zip(
+            query_plan,
+            _string_values(completions),
+        ):
+            if not item["retrieval_query"] and _looks_like_english_query(retrieval_query):
+                item["retrieval_query"] = retrieval_query.strip()[:200]
+
+    warnings = []
+    if any(not item["retrieval_query"] for item in query_plan):
+        warnings.append("QUERY_TRANSLATION_INCOMPLETE")
+
+    print(f"\n[Orchestrate] Generated {len(query_plan)} sub-queries:")
+    for i, item in enumerate(query_plan, 1):
+        print(f"  {i}. {item['retrieval_query'] or item['display_query'][:120]}")
+
+    plan = [
+        {
+            "sub_query": item["display_query"],
+            "display_query": item["display_query"],
+            "retrieval_query": item["retrieval_query"],
+            "status": "pending",
+        }
+        for item in query_plan
+    ]
 
     return {
         "research_plan": plan,
-        "search_round": 1,
+        "warnings": warnings,
     }
 
 
-def _parse_json_array(text: str) -> list[str]:
-    """从 LLM 返回的文本中提取 JSON 数组，兼容各种格式"""
+def _parse_json_value(text: str):
+    """Extract a JSON value from a model response."""
     text = text.strip()
 
-    # 尝试直接解析
     try:
-        result = json.loads(text)
-        if isinstance(result, list):
-            return result
+        return json.loads(text)
     except json.JSONDecodeError:
         pass
 
-    # 尝试提取 ```json ... ``` 代码块
-    match = re.search(r"```(?:json)?\s*(\[.*?\])\s*```", text, re.DOTALL)
+    match = re.search(r"```(?:json)?\s*([\[{].*?[\]}])\s*```", text, re.DOTALL)
     if match:
         try:
-            result = json.loads(match.group(1))
-            if isinstance(result, list):
-                return result
+            return json.loads(match.group(1))
         except json.JSONDecodeError:
             pass
 
-    # 尝试找到第一个 [...]
-    match = re.search(r"\[.*\]", text, re.DOTALL)  # 贪婪匹配拿完整数组
+    match = re.search(r"\[.*\]", text, re.DOTALL)
     if match:
         try:
-            result = json.loads(match.group(0))
-            if isinstance(result, list):
-                return result
+            return json.loads(match.group(0))
         except json.JSONDecodeError:
             pass
 
-    # 最后兜底：按行拆分
-    lines = [l.strip().strip('"').strip("'").lstrip("0123456789.- ").strip('"').strip("'") for l in text.split("\n") if l.strip()]
-    lines = [l for l in lines if len(l) > 5]
-    if lines:
-        return lines[:5]
+    return []
 
-    # 彻底失败：返回原始查询
-    return [text[:200]]
+
+def _normalize_query_plan(value, *, output_language: str) -> list[dict[str, str]]:
+    if not isinstance(value, list):
+        return []
+
+    normalized = []
+    for item in value[:5]:
+        if isinstance(item, dict):
+            display_query = str(
+                item.get("display_query") or item.get("sub_query") or ""
+            ).strip()
+            retrieval_query = str(item.get("retrieval_query") or "").strip()
+            if not retrieval_query and output_language == "en":
+                retrieval_query = display_query
+        elif isinstance(item, str):
+            display_query = item.strip()
+            retrieval_query = (
+                display_query
+                if output_language == "en" or _looks_like_english_query(display_query)
+                else ""
+            )
+        else:
+            continue
+
+        if display_query:
+            normalized.append(
+                {
+                    "display_query": display_query[:200],
+                    "retrieval_query": retrieval_query[:200],
+                }
+            )
+    return normalized
+
+
+def _string_values(value) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [item.strip() for item in value if isinstance(item, str) and item.strip()]
+
+
+def _looks_like_english_query(value: str) -> bool:
+    return bool(re.search(r"[A-Za-z]", value)) and not bool(re.search(r"[\u3400-\u9fff]", value))
+
+
+
+def _ensure_sub_queries(sub_queries: list[str], user_query: str) -> list[str]:
+    """保证检索计划始终包含 3 个与原问题相关且互不重复的查询。"""
+    user_query = user_query.strip()
+    if not user_query:
+        raise ValueError("user query must not be blank")
+
+    fallbacks = [
+        user_query,
+        f"{user_query} recent advances systematic review",
+        f"{user_query} methods approaches comparative study",
+        f"{user_query} empirical evaluation benchmarks results",
+        f"{user_query} limitations challenges future directions",
+    ]
+
+    unique: list[str] = []
+    seen: set[str] = set()
+    for item in [*sub_queries, *fallbacks]:
+        query = " ".join(str(item).split()).strip()
+        key = query.casefold()
+        if not query or key in seen:
+            continue
+        seen.add(key)
+        unique.append(query)
+        if len(unique) >= MAX_SUB_QUERIES:
+            break
+
+    if len(unique) < MIN_SUB_QUERIES:
+        # user_query 为空只会在绕过 API schema 直接调用 Agent 时发生。
+        base = user_query or "academic research topic"
+        while len(unique) < MIN_SUB_QUERIES:
+            unique.append(f"{base} research perspective {len(unique) + 1}")
+
+    return unique

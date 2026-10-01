@@ -2,83 +2,65 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from langgraph.graph import StateGraph, END
+from langgraph.graph import StateGraph, START, END
 from backend.agents.state import ResearchState
-from backend.agents.orchestrator import orchestrate
-from backend.agents.search import search_papers
-from backend.agents.read import read_papers
 from backend.agents.analyze import analyze_papers
 from backend.agents.synthesize import synthesize_review
 from backend.agents.critic import critique_output
-from backend.agents.filter import filter_papers
+from backend.agents.supervisor import supervisor
+from backend.agents.retrieval_graph import build_retrieval_graph
+from backend.agents.instrumentation import instrument, instrument_supervisor
 
 
-def decide_after_search(state: ResearchState) -> str:
-    papers = state.get("raw_papers", [])
-    round_num = state.get("search_round", 1)
-
-    if len(papers) >= 5:
-        return "enough"
-    elif round_num >= 3:
-        if len(papers) == 0:
-            return "no_results"
-        return "enough"
-    else:
-        return "not_enough"
-
-
-def decide_approval(state: ResearchState) -> str:
-    critique = state.get("critique", {})
-    if critique.get("approved", True):
-        return "approved"
-    if state.get("critique_round", 0) >= 2:
-        return "approved"
-    return "rejected"
+def finish(state: ResearchState) -> dict:
+    from backend.domain.errors import ResearchPipelineError
+    from backend.domain.reports import report_has_substantive_body
+    if not state.get("paper_insights"):
+        raise ResearchPipelineError("NO_READABLE_PAPERS" if state.get("raw_papers") else "NO_RESEARCH_RESULTS")
+    draft = state.get("draft_sections") or []
+    if not draft:
+        raise ResearchPipelineError("EMPTY_REPORT")
+    final_answer = state.get("final_answer") or "\n\n".join(item.get("content", "") for item in draft)
+    if not report_has_substantive_body(final_answer):
+        raise ResearchPipelineError("EMPTY_REPORT")
+    return {"status": "completed", "finish_reason": state.get("finish_reason", "研究收尾完成"),
+            "final_answer": final_answer,
+            "warnings": [] if (state.get("critique") or {}).get("approved") is True else ["CRITIQUE_NOT_APPROVED"]}
 
 
-def build_graph() -> StateGraph:
+def build_graph(run_context=None) -> StateGraph:
     graph = StateGraph(ResearchState)
 
-    graph.add_node("orchestrate", orchestrate)
-    graph.add_node("search", search_papers)
-    graph.add_node("read", read_papers)
-    graph.add_node("analyze", analyze_papers)
-    graph.add_node("synthesize", synthesize_review)
-    graph.add_node("filter", filter_papers)
-    graph.add_node("critic", critique_output)
+    graph.add_node("supervisor", instrument_supervisor(supervisor, run_context))
+    graph.add_node("retrieval", build_retrieval_graph(run_context))
+    graph.add_node("analysis", instrument(analyze_papers, "analyze", run_context))
+    graph.add_node("writer", instrument(synthesize_review, "synthesize", run_context))
+    graph.add_node("critic", instrument(critique_output, "critic", run_context))
+    graph.add_node("finish", finish)
 
-    # entry
-    graph.set_entry_point("orchestrate")
+    graph.add_edge(START, "supervisor")
 
-    # pipeline
-    graph.add_edge("orchestrate", "search")
-    graph.add_conditional_edges("search", decide_after_search, {
-        "enough": "filter",
-        "not_enough": "search",
-        "no_results": END,
-    })
-    graph.add_edge("filter", "read")
-    graph.add_edge("read", "analyze")
-    graph.add_edge("analyze", "synthesize")
-    graph.add_edge("synthesize", "critic")
-    graph.add_conditional_edges("critic", decide_approval, {
-        "approved": END,
-        "rejected": "synthesize",
-    })
+    graph.add_edge("retrieval", "supervisor")
+    graph.add_edge("analysis", "supervisor")
+    graph.add_edge("writer", "supervisor")
+    graph.add_edge("critic", "supervisor")
+
+    graph.add_edge("finish", END)
 
     return graph.compile()
 
-
 async def main():
     app = build_graph()
-    result = await app.ainvoke({"user_query": "测试:Transformer注意力机制最新进展"})
-    print("✅ 图跑通了！")
-    print(f"研究计划: {result['research_plan']}")
-    print(f"论文列表: {result['raw_papers']}")
-    print(f"搜索轮数: {result['search_round']}")
-    print(f"\n📝 答案摘要:")
-    print(result.get("final_answer", "暂无")[:500])
-
+    result = await app.ainvoke({
+        "user_query": "2023 年以来 Transformer 注意力机制有哪些最新进展？",
+        "search_round": 0,
+        "critique_round": 0,
+        "step_count": 0,
+        "max_steps": 12,
+        "status": "running",
+        "max_papers": 15,
+    })
+    print(result.get("final_answer", ""))
 
 if __name__ == "__main__":
     import asyncio

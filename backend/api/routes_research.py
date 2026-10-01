@@ -1,15 +1,17 @@
+"""Streamlit compatibility transport over the canonical task lifecycle."""
+import asyncio
 import json
 import uuid
-from fastapi import APIRouter
+import re
+from fastapi import APIRouter, Request, Query
 from fastapi.responses import StreamingResponse
-from backend.agents.graph import build_graph
-from backend.api.schemas import ResearchRequest, ResearchResponse
-from backend.services.session_store import save_session, get_sessions, get_session
-
+from backend.api.errors import ApiError
+from backend.api.schemas import ResearchRequest, ResearchResponse, FollowUpRequest, FollowUpResponse
+from backend.api.schemas.tasks import CreateResearchTaskRequest, ResearchTaskOptions
+from backend.domain.tasks import is_terminal
+from backend.services.task_manager import ActiveTaskError
 
 router = APIRouter(prefix="/research", tags=["research"])
-
-# 阶段→中文标签
 STAGE_LABELS = {
     "orchestrate": "🧠 拆解研究问题",
     "search": "🔍 4源搜论文",
@@ -21,220 +23,120 @@ STAGE_LABELS = {
 }
 
 
-@router.post("/", response_model=ResearchResponse)
-async def start_research(req: ResearchRequest):
-    """普通模式：一次性返回完整结果"""
-    app = build_graph()
-    result = await app.ainvoke({
-        "user_query": req.query,
-        "search_round": 0,
-    })
-    papers = result.get("raw_papers", [])
-    return ResearchResponse(
-        session_id=str(uuid.uuid4()),
-        research_plan=result.get("research_plan", []),
-        papers_count=len(papers),
-        final_answer=result.get("final_answer", "Research Done"),
-    )
+async def _create(req, request):
+    manager = request.app.state.task_manager
+    try:
+        task = await manager.create_task(CreateResearchTaskRequest(
+            client_request_id=str(uuid.uuid4()), query=req.query,
+            options=ResearchTaskOptions(max_papers=req.max_papers)))
+    except ActiveTaskError as exc:
+        raise ApiError("ACTIVE_TASK_EXISTS", "An active task already exists", status_code=409, details={"task_id": exc.task.id})
+    return manager, task
 
+def _legacy(result):
+    return {**result.model_dump(mode="json"), **result.run_metadata,
+            "final_answer": _legacy_markdown(result.report_markdown, result)}
+
+
+def _legacy_markdown(markdown, result):
+    citations = _legacy_citation_sources(result)
+    return re.sub(r"\[\[CITE:([^\]]+)\]\]", lambda m: f"[Source {citations[m[1]]}]" if citations.get(m[1]) else "[unverified citation]", markdown)
+
+
+def _legacy_citation_sources(result):
+    papers = {p.get("paper_id"): p.get("source_id") or p.get("paper_id") for p in result.papers}
+    return {c.get("citation_id"): papers.get(c.get("paper_id")) for c in result.citations if c.get("valid")}
+
+async def _wait_result(manager, task_id):
+    while True:
+        task = await manager.get_task(task_id)
+        if task is None:
+            raise ApiError("TASK_NOT_FOUND", "Task not found", status_code=404)
+        if is_terminal(task.status):
+            result = await manager.results.get(task_id)
+            if task.status.value != "completed" or result is None:
+                raise ApiError(task.error_code or "RESEARCH_FAILED", "Research did not complete", status_code=422)
+            return result
+        await asyncio.sleep(0.1)
+
+@router.post("/", response_model=ResearchResponse)
+async def start_research(req: ResearchRequest, request: Request):
+    manager, task = await _create(req, request)
+    result = await _wait_result(manager, task.id)
+    return ResearchResponse(session_id=task.id, research_plan=result.research_plan,
+        papers_count=len(result.papers), final_answer=_legacy_markdown(result.report_markdown, result))
 
 @router.post("/stream")
-async def start_research_stream(req: ResearchRequest):
-    """流式模式: SSE 实时推送每个阶段的进度和数据"""
+async def start_research_stream(req: ResearchRequest, request: Request):
+    manager, task = await _create(req, request)
+    async def events():
+        cursor = 0
+        while True:
+            batch = await manager.events.list_events_after(task.id, cursor)
+            for event in batch:
+                cursor = event.sequence
+                if event.event_type.value == "agent.delegated":
+                    yield _sse("agent", event.payload)
+                elif event.stage and event.event_type.value in {"stage.started", "stage.completed"}:
+                    yield _sse("stage", {"stage": event.stage.value,
+                        "label": STAGE_LABELS[event.stage.value], **event.payload.get("legacy", event.payload)})
+                if event.event_type.value == "task.completed":
+                    result = await manager.results.get(task.id)
+                    yield _sse("done", {**_legacy(result), "session_id": task.id})
+                    return
+                if event.event_type.value in {"task.failed","task.cancelled","task.interrupted"}:
+                    yield _sse("error", {"message": "Research did not complete", **event.payload})
+                    return
+            yield ": keepalive\n\n"
+            await asyncio.sleep(0.5)
+    return StreamingResponse(events(), media_type="text/event-stream",
+        headers={"X-Accel-Buffering": "no", "Cache-Control": "no-cache"})
 
-    async def event_stream():
-        try:
-            app = build_graph()
-            seen = set()
-
-            async for state in app.astream(
-                {"user_query": req.query, "search_round": 0, "max_papers": req.max_papers},
-                stream_mode="values",
-            ):
-                plan = state.get("research_plan", [])
-                papers = state.get("raw_papers", [])
-                selected = state.get("selected_papers", [])
-                insights = state.get("paper_insights", [])
-                analysis = state.get("analysis_report")
-                draft = state.get("draft_sections", [])
-                critique = state.get("critique")
-
-                if plan and "plan" not in seen:
-                    seen.add("plan")
-                    yield _sse("stage", {
-                        "stage": "orchestrate",
-                        "label": STAGE_LABELS["orchestrate"],
-                        "sub_queries": [t.get("sub_query", "") for t in plan],
-                    })
-
-                if papers and "papers" not in seen:
-                    seen.add("papers")
-                    arxiv = sum(1 for p in papers if p.get("source") == "arxiv")
-                    s2 = sum(1 for p in papers if p.get("source") == "semantic_scholar")
-                    pubmed = sum(1 for p in papers if p.get("source") == "pubmed")
-                    crossref = sum(1 for p in papers if p.get("source") == "crossref")
-                    yield _sse("stage", {
-                        "stage": "search",
-                        "label": STAGE_LABELS["search"],
-                        "total": len(papers),
-                        "arxiv": arxiv, "s2": s2, "pubmed": pubmed, "crossref": crossref,
-                        "papers_preview": [
-                            {
-                                "title": p.get("title", ""),
-                                "authors": (p.get("authors") or [])[:3],
-                                "abstract": (p.get("abstract") or "")[:300],
-                                "source": p.get("source", ""),
-                                "source_id": p.get("source_id", ""),
-                                "published_date": str(p.get("published_date", "")),
-                                "citation_count": p.get("citation_count", 0),
-                            }
-                            for p in papers[:30]
-                        ],
-                    })
-
-                if selected and "selected" not in seen:
-                    seen.add("selected")
-                    yield _sse("stage", {
-                        "stage": "filter",
-                        "label": STAGE_LABELS["filter"],
-                        "count": len(selected),
-                        "papers": [
-                            {
-                                "title": p.get("title", ""),
-                                "pdf_url": p.get("pdf_url", ""),
-                                "source": p.get("source", ""),
-                                "source_id": p.get("source_id", ""),
-                                "relevance_score": p.get("relevance_score", 0),
-                                "relevance_reason": p.get("relevance_reason", ""),
-                            }
-                            for p in selected
-                        ],
-                    })
-
-                if insights and "insights" not in seen:
-                    seen.add("insights")
-                    yield _sse("stage", {
-                        "stage": "read",
-                        "label": STAGE_LABELS["read"],
-                        "papers_read": len(insights),
-                        "preview": insights[0].get("answer", "")[:300] if insights else "",
-                    })
-
-                if analysis and isinstance(analysis, dict) and "analysis" not in seen:
-                    seen.add("analysis")
-                    yield _sse("stage", {
-                        "stage": "analyze",
-                        "label": STAGE_LABELS["analyze"],
-                        "agreements": len(analysis.get("agreements", [])),
-                        "contradictions": len(analysis.get("contradictions", [])),
-                        "gaps": len(analysis.get("gaps", [])),
-                    })
-
-                if draft and "draft" not in seen:
-                    seen.add("draft")
-                    content = draft[0].get("content", "") if draft else ""
-                    yield _sse("stage", {
-                        "stage": "synthesize",
-                        "label": STAGE_LABELS["synthesize"],
-                        "length": len(content),
-                        "preview": content[:300],
-                    })
-
-                if critique and isinstance(critique, dict) and "critique" not in seen:
-                    seen.add("critique")
-                    yield _sse("stage", {
-                        "stage": "critic",
-                        "label": STAGE_LABELS["critic"],
-                        "score": critique.get("score", "?"),
-                        "approved": critique.get("approved", False),
-                    })
-
-            # ---- async for 结束后 ----
-            session_id = str(uuid.uuid4())
-
-            final_papers = state.get("raw_papers", []) if state else []
-
-            # 搜索阶段结束后，如果一篇论文都没搜到 → 提前终止，不跑后续无用阶段
-            if not final_papers and "papers" not in seen:
-                yield _sse("error", {
-                    "message": (
-                        "未搜到任何论文。可能原因：① 网络无法访问学术 API；"
-                        "② 研究问题过于冷门；③ API 超时。请检查网络或尝试其他问题。"
-                    ),
-                })
-                return
-
-            paper_list = [
-                {
-                    "title": p.get("title", ""),
-                    "authors": p.get("authors", []),
-                    "abstract": p.get("abstract", ""),
-                    "source": p.get("source", ""),
-                    "source_id": p.get("source_id", ""),
-                    "published_date": str(p.get("published_date", "")),
-                    "citation_count": p.get("citation_count", 0),
-                }
-                for p in final_papers
-            ]
-
-            final_insights = state.get("paper_insights", []) if state else []
-            final_analysis = state.get("analysis_report") if state else {}
-            final_critique = state.get("critique") if state else None
-            final_answer = state.get("final_answer", "") if state else ""
-
-            yield _sse("done", {
-                "final_answer": final_answer,
-                "critique": final_critique,
-                "papers": paper_list,
-                "paper_insights": final_insights,
-                "analysis": final_analysis,
-                "session_id": session_id,
-            })
-
-            # 保存到历史记录（失败不影响主流程）
-            try:
-                await save_session(
-                    session_id=session_id,
-                    query=req.query,
-                    result={
-                        "final_answer": final_answer,
-                        "critique": final_critique,
-                        "papers": paper_list,
-                        "paper_insights": final_insights,
-                        "analysis": final_analysis,
-                    },
-                )
-            except Exception as e:
-                print(f"[SessionStore] Save failed: {e}")
-
-        except Exception as e:
-            yield _sse("error", {"message": str(e)})
-
-    return StreamingResponse(
-        event_stream(),
-        media_type="text/event-stream",
-        headers={"X-Accel-Buffering": "no", "Cache-Control": "no-cache"},
-    )
-
-
-def _sse(event: str, data: dict) -> str:
-    """格式化 SSE 消息"""
-    data["event"] = event
-    return f"data: {json.dumps(data, ensure_ascii=False)}\n\n"
-
+def _sse(event, data):
+    return f"data: {json.dumps({**data, 'event': event}, ensure_ascii=False)}\n\n"
 
 @router.get("/history")
-async def research_history(limit: int = 20):
-    """获取历史研究记录列表"""
-    sessions = await get_sessions(limit)
-    return sessions
-
+async def research_history(request: Request, limit: int = Query(20, ge=1, le=100)):
+    tasks = await request.app.state.task_manager.tasks.list_history(limit)
+    return [{"session_id": t.id, "query": t.query, "created_at": t.created_at,
+             "papers_count": t.statistics.get("papers_count", 0),
+             "score": t.statistics.get("critique_score", "")} for t in tasks]
 
 @router.get("/{session_id}")
-async def research_detail(session_id: str):
-    """获取某次研究的完整结果"""
-    session = await get_session(session_id)
-    if session is None:
-        from fastapi.responses import JSONResponse
-        return JSONResponse({"error": "session not found"}, status_code=404)
-    return session
+async def research_detail(session_id: str, request: Request):
+    manager = request.app.state.task_manager
+    task = await manager.get_task(session_id)
+    if task is None:
+        raise ApiError("TASK_NOT_FOUND", "Task not found", status_code=404)
+    result = await manager.results.get(session_id)
+    return {"session_id": task.id, "query": task.query, "created_at": task.created_at,
+            "result": _legacy(result) if result else {}}
+
+@router.get("/{session_id}/messages")
+async def research_messages(session_id: str, request: Request, limit: int = Query(50, ge=1, le=200)):
+    snapshot = await request.app.state.followup_manager.repository.snapshot(session_id)
+    result = await request.app.state.task_manager.results.get(session_id)
+    citations = _legacy_citation_sources(result) if result else {}
+    return [{**m, "session_id": session_id,
+        "content": _legacy_markdown(m["content"], result) if result and m["role"] == "assistant" else m["content"],
+        "citations": [citations.get(c) or c for c in m["citations"]]}
+        for m in snapshot["messages"][-limit:]]
+
+@router.post("/{session_id}/chat", response_model=FollowUpResponse)
+async def followup_chat(session_id: str, req: FollowUpRequest, request: Request):
+    manager = request.app.state.followup_manager
+    await manager.repository.put(session_id, req.message_id, req.message)
+    manager.wake()
+    while True:
+        snapshot = await manager.repository.snapshot(session_id)
+        for message in snapshot["messages"]:
+            if message["message_id"] == req.message_id and message["role"] == "assistant":
+                result = await manager.results.get(session_id)
+                citations = _legacy_citation_sources(result) if result else {}
+                return FollowUpResponse(session_id=session_id,
+                    answer=_legacy_markdown(message["content"], result) if result else message["content"],
+                    citations=[citations.get(c) or c for c in message["citations"]], mode="answer_from_context")
+        pending = snapshot["pending"]
+        if not pending or pending["message_id"] != req.message_id or pending["status"] == "failed":
+            raise ApiError("FOLLOWUP_UNAVAILABLE", "Follow-up could not complete", status_code=409)
+        await asyncio.sleep(0.1)

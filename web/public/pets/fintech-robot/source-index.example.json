@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "origin": {
+    "provider": "Canva",
+    "exportMethod": "transparent GIF",
+    "designUrl": null
+  },
+  "exportedAt": null,
+  "assets": [
+    {
+      "name": "Fintech Robot Waving",
+      "assetId": null,
+      "file": "source/idle.gif",
+      "sha256": null,
+      "originalDurationMs": null
+    },
+    {
+      "name": "Fintech Robot Looking for a Location",
+      "assetId": null,
+      "file": "source/orchestrate.gif",
+      "sha256": null,
+      "originalDurationMs": null
+    },
+    {
+      "name": "Fintech Robot Doing Research",
+      "assetId": "VAFNUvfhgpg",
+      "file": "source/search.gif",
+      "sha256": null,
+      "originalDurationMs": 5000
+    },
+    {
+      "name": "Fintech Robot Marking Its Checklist",
+      "assetId": null,
+      "file": "source/filter.gif",
+      "sha256": null,
+      "originalDurationMs": null
+    },
+    {
+      "name": "Fintech Robot Looking Through Its Phone Contacts",
+      "assetId": null,
+      "file": "source/read.gif",
+      "sha256": null,
+      "originalDurationMs": null
+    },
+    {
+      "name": "Fintech Robot Thinking",
+      "assetId": null,
+      "file": "source/analyze.gif",
+      "sha256": null,
+      "originalDurationMs": null
+    },
+    {
+      "name": "Fintech Robot Completing a Puzzle",
+      "assetId": null,
+      "file": "source/synthesize.gif",
+      "sha256": null,
+      "originalDurationMs": null
+    },
+    {
+      "name": "Fintech Robot Giving a Rating",
+      "assetId": null,
+      "file": "source/critic.gif",
+      "sha256": null,
+      "originalDurationMs": null
+    },
+    {
+      "name": "Fintech Robot Flying",
+      "assetId": null,
+      "file": "source/dragging.gif",
+      "sha256": null,
+      "originalDurationMs": null
+    },
+    {
+      "name": "Fintech Robot Raising Its Hands",
+      "assetId": null,
+      "file": "source/completed.gif",
+      "sha256": null,
+      "originalDurationMs": null
+    },
+    {
+      "name": "Fintech Robot with Error",
+      "assetId": null,
+      "file": "source/failed.gif",
+      "sha256": null,
+      "originalDurationMs": null
+    }
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "origin": {
+    "provider": "Canva",
+    "exportMethod": "transparent GIF",
+    "suppliedBy": "user",
+    "suppliedFolder": "C:\\Users\\54912\\Desktop\\gif",
+    "mapping": "2–12 match the plan's 11 states in order, explicitly confirmed by the user"
+  },
+  "exportedAt": "2026-10-01T12:14:59.647Z",
+  "exportedAtBasis": "latest local source file modification time; Canva export timestamp not independently verified",
+  "importedAt": "2026-10-01T12:33:18.032Z",
+  "assets": [
+    {
+      "name": "Fintech Robot Waving",
+      "assetId": null,
+      "attributionStatus": "user-supplied-export",
+      "nameBasis": "user-declared-file-order",
+      "originalFile": "2.gif",
+      "file": "source/idle.gif",
+      "sha256": "0f9346e33bf76a573953aea150b52e4522d31f97c31f429f91f48bbd3140aa40",
+      "originalDurationMs": null,
+      "exportDurationMs": 6000
+    },
+    {
+      "name": "Fintech Robot Looking for a Location",
+      "assetId": null,
+      "attributionStatus": "user-supplied-export",
+      "nameBasis": "user-declared-file-order",
+      "originalFile": "3.gif",
+      "file": "source/orchestrate.gif",
+      "sha256": "b77e470abf8690e4ef7966ca04e4f4cf84ebfe3c4c60f46e8dcc17e8fd0859bf",
+      "originalDurationMs": null,
+      "exportDurationMs": 6000
+    },
+    {
+      "name": "Fintech Robot Doing Research",
+      "assetId": "VAFNUvfhgpg",
+      "attributionStatus": "user-supplied-export",
+      "nameBasis": "user-declared-file-order",
+      "originalFile": "4.gif",
+      "file": "source/search.gif",
+      "sha256": "222425bd49d9fdd048b9deaa381afa5c9e33c24473500a3ecf22ce3553e6d397",
+      "originalDurationMs": 5000,
+      "exportDurationMs": 5000
+    },
+    {
+      "name": "Fintech Robot Marking Its Checklist",
+      "assetId": null,
+      "attributionStatus": "user-supplied-export",
+      "nameBasis": "user-declared-file-order",
+      "originalFile": "5.gif",
+      "file": "source/filter.gif",
+      "sha256": "bcea1fb04db1be4958388f01a0ef70f753d5661cbf26958c3dcd150e89108d2c",
+      "originalDurationMs": null,
+      "exportDurationMs": 6000
+    },
+    {
+      "name": "Fintech Robot Looking Through Its Phone Contacts",
+      "assetId": null,
+      "attributionStatus": "user-supplied-export",
+      "nameBasis": "user-declared-file-order",
+      "originalFile": "6.gif",
+      "file": "source/read.gif",
+      "sha256": "54c7c4b2b06de0ab38bc5aa91d9aded3ee2b8c2d2b3519b850a44fd65db3dc9b",
+      "originalDurationMs": null,
+      "exportDurationMs": 6000
+    },
+    {
+      "name": "Fintech Robot Thinking",
+      "assetId": null,
+      "attributionStatus": "user-supplied-export",
+      "nameBasis": "user-declared-file-order",
+      "originalFile": "7.gif",
+      "file": "source/analyze.gif",
+      "sha256": "630ed95a91094c63864cf8266e6e75594c7f5ab3bcfcef6b0f63d323e932f5ca",
+      "originalDurationMs": null,
+      "exportDurationMs": 5000
+    },
+    {
+      "name": "Fintech Robot Completing a Puzzle",
+      "assetId": null,
+      "attributionStatus": "user-supplied-export",
+      "nameBasis": "user-declared-file-order",
+      "originalFile": "8.gif",
+      "file": "source/synthesize.gif",
+      "sha256": "c130e52d6fc2e59580dbc28c9408201b542b5eb956659f2a1ae5e7606f368fdc",
+      "originalDurationMs": null,
+      "exportDurationMs": 6000
+    },
+    {
+      "name": "Fintech Robot Giving a Rating",
+      "assetId": null,
+      "attributionStatus": "user-supplied-export",
+      "nameBasis": "user-declared-file-order",
+      "originalFile": "9.gif",
+      "file": "source/critic.gif",
+      "sha256": "de9415262f3c739176accdc9715b90b1da272d21d50e851567d5a34dc320c50e",
+      "originalDurationMs": null,
+      "exportDurationMs": 6000
+    },
+    {
+      "name": "Fintech Robot Flying",
+      "assetId": null,
+      "attributionStatus": "user-supplied-export",
+      "nameBasis": "user-declared-file-order",
+      "originalFile": "10.gif",
+      "file": "source/dragging.gif",
+      "sha256": "fe2418fc9cf7ab1d5d34c870795cee644ffc4798c8af302d149c24ef2cff5a29",
+      "originalDurationMs": null,
+      "exportDurationMs": 6000
+    },
+    {
+      "name": "Fintech Robot Raising Its Hands",
+      "assetId": null,
+      "attributionStatus": "user-supplied-export",
+      "nameBasis": "user-declared-file-order",
+      "originalFile": "11.gif",
+      "file": "source/completed.gif",
+      "sha256": "e2f65aae701cd924ef831657603f448fc64dee807226317369c3fb405d128cb8",
+      "originalDurationMs": null,
+      "exportDurationMs": 6000,
+      "appearanceNote": "User assigned 11.gif: sunglasses and relaxed/celebratory pose; does not depict the planned raised-hands pose. Catalog identity unverified."
+    },
+    {
+      "name": "Fintech Robot with Error",
+      "assetId": null,
+      "attributionStatus": "user-supplied-export",
+      "nameBasis": "user-declared-file-order",
+      "originalFile": "12.gif",
+      "file": "source/failed.gif",
+      "sha256": "35fd14765d9816c94606b7b5bb85227c480c88b5aedacad56892002abc49ada4",
+      "originalDurationMs": null,
+      "exportDurationMs": 5000,
+      "appearanceNote": "User assigned 12.gif: gears and repair/troubleshooting pose; catalog identity unverified."
+    }
+  ]
+}

@@ -1,5 +1,8 @@
+from backend.sources.errors import SourceSearchError
 import asyncio
 import httpx
+
+from backend.config import settings
 
 BASE_URL = "https://api.crossref.org/works"
 
@@ -12,11 +15,20 @@ async def search_crossref(query: str, max_results: int = 10, timeout: int = 30) 
         "rows": min(max_results, 100),
         "sort": "relevance",
     }
+    if settings.crossref_email:
+        params["mailto"] = settings.crossref_email
+    headers = {
+        "User-Agent": (
+            f"BIGONE/1.0 (mailto:{settings.crossref_email})"
+            if settings.crossref_email
+            else "BIGONE/1.0"
+        )
+    }
 
     for attempt in range(2):
         try:
             async with httpx.AsyncClient(timeout=timeout) as client:
-                resp = await client.get(url, params=params)
+                resp = await client.get(url, params=params, headers=headers)
                 if resp.status_code == 429:
                     wait = 5 * (attempt + 1)
                     print(f"    [crossref] 429 rate limited, waiting {wait}s...")
@@ -29,13 +41,13 @@ async def search_crossref(query: str, max_results: int = 10, timeout: int = 30) 
                 print(f"    [crossref] timeout ({timeout}s), retrying...")
                 await asyncio.sleep(2)
                 continue
-            print(f"    [crossref] timeout after retry, giving up")
+            raise SourceSearchError("crossref", "SOURCE_TIMEOUT", "Academic source request timed out")
         except Exception as e:
             if attempt == 0:
                 await asyncio.sleep(2)
                 continue
-            print(f"    [crossref] error: {type(e).__name__}: {e}")
-    return []
+            raise SourceSearchError("crossref", "SOURCE_HTTP_ERROR" if isinstance(e, httpx.HTTPStatusError) else "SOURCE_REQUEST_FAILED", "Academic source request failed") from None
+    raise SourceSearchError("crossref", "SOURCE_RATE_LIMITED", "Academic source rate limit reached")
 
 
 def _parse_response(data: dict) -> list[dict]:

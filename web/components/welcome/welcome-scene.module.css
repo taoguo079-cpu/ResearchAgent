@@ -1,0 +1,64 @@
+.scene {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.scene canvas {
+  display: block;
+  pointer-events: none;
+}
+.atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+.wash {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 40%, #12396566, transparent 55%),
+    radial-gradient(ellipse at 50% 95%, #147bc22e, transparent 46%);
+}
+.grid {
+  position: absolute;
+  inset: 58% -45% -80%;
+  transform: perspective(500px) rotateX(58deg);
+  transform-origin: center top;
+  background-image:
+    linear-gradient(#468ec412 1px, transparent 1px),
+    linear-gradient(90deg, #468ec412 1px, transparent 1px);
+  background-size: 70px 70px;
+  mask-image: linear-gradient(transparent, #0008 20%, transparent 65%);
+}
+.stars {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 13% 23%, #72e9ff80 0 1px, transparent 2px),
+    radial-gradient(circle at 83% 21%, #72e9ff80 0 1px, transparent 2px),
+    radial-gradient(circle at 64% 17%, #90aee966 0 1px, transparent 2px),
+    radial-gradient(circle at 24% 65%, #72e9ff55 0 1px, transparent 2px),
+    radial-gradient(circle at 74% 72%, #72e9ff66 0 1px, transparent 2px),
+    radial-gradient(circle at 90% 56%, #72e9ff55 0 1px, transparent 2px),
+    radial-gradient(circle at 5% 46%, #72e9ff55 0 1px, transparent 2px);
+}
+.floorLight {
+  position: absolute;
+  bottom: -90px;
+  left: 50%;
+  width: min(1000px, 140vw);
+  height: 280px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse, #2a98ff26, transparent 66%);
+}
+.floorLine {
+  position: absolute;
+  bottom: 16px;
+  left: 9%;
+  right: 9%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #72e9ff40, transparent);
+}

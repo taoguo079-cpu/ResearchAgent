@@ -1,0 +1,14 @@
+{
+  "screenLabel": "Click anywhere to drop the magnifier and research companion, or press Enter or Space",
+  "robotLabel": "Research companion; double-click to explore, or press Enter or Space; click when still to restore guidance after dragging",
+  "magnifierLabel": "Magnifying glass; drag, throw, or place it in your companion's hand",
+  "playHint": "Drag me to play. Click when still to restore guidance.",
+  "greeting": "Hello! I'm your research companion.",
+  "hint": "Double-click me. Let's explore.",
+  "enter": "What would you like to research?",
+  "sceneLabel": "A SPACE FOR CURIOSITY",
+  "dropHint": "Click anywhere. Meet your research companion.",
+  "skip": "Skip introduction",
+  "footer": "EVERY DISCOVERY BEGINS WITH A QUESTION",
+  "fallback": "The 3D scene is unavailable. You can still enter the workspace."
+}
