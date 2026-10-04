@@ -3,21 +3,23 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, type FieldErrors } from "react-hook-form";
 import { z } from "zod";
+import { DesignText } from "@/components/entry/design-text";
 
 import { AdvancedSettings } from "@/components/research/advanced-settings";
 import { ExampleQueries } from "@/components/research/example-queries";
-import { Button } from "@/components/ui/button";
 import { InlineAlert } from "@/components/ui/inline-alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Textarea } from "@/components/ui/textarea";
 import { useCreateTask } from "@/features/tasks/hooks/use-create-task";
 import type { CreateTaskRequest } from "@/lib/api/client";
 import {
   ACADEMIC_SOURCES,
   usePreferencesStore,
 } from "@/features/preferences/preferences-store";
+import { Link } from "@/i18n/navigation";
+
+import styles from "./research-entry.module.css";
 
 const sourceSchema = z.enum(ACADEMIC_SOURCES);
 
@@ -50,10 +52,14 @@ export function ResearchComposer({
   const t = useTranslations();
   const mutation = useCreateTask();
   const requestId = useRef<string | null>(null);
+  const submissionLock = useRef(false);
+  const isComposing = useRef(false);
+  const optionsDisclosure = useRef<HTMLDetailsElement>(null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [submitError, setSubmitError] = useState<unknown>(null);
-  const [customSubmitting, setCustomSubmitting] = useState(false);
+  const [submissionPending, setSubmissionPending] = useState(false);
   const researchDefaults = usePreferencesStore((state) => state.research);
+  const appliedDefaults = useRef<typeof researchDefaults | null>(null);
   const preferencesHydrated = usePreferencesStore((state) => state.hasHydrated);
   const form = useForm<ResearchComposerValues>({
     resolver: zodResolver(researchComposerSchema),
@@ -63,18 +69,26 @@ export function ResearchComposer({
   const formIsDirty = form.formState.isDirty;
 
   useEffect(() => {
-    if (!preferencesHydrated || formIsDirty) return;
-    form.reset({
-      query: form.getValues("query"),
-      maxPapers: researchDefaults.maxPapers,
-      sources: researchDefaults.sources,
-    });
+    if (
+      !preferencesHydrated ||
+      formIsDirty ||
+      appliedDefaults.current === researchDefaults
+    )
+      return;
+    appliedDefaults.current = researchDefaults;
+    // Hydrating preferences must never reset an in-progress question field.
+    form.setValue("maxPapers", researchDefaults.maxPapers);
+    form.setValue("sources", researchDefaults.sources);
   }, [form, formIsDirty, preferencesHydrated, researchDefaults]);
   const queryValue = useWatch({ control: form.control, name: "query" });
 
-  const isSubmitting = createTask ? customSubmitting : mutation.isPending;
+  const isSubmitting = submissionPending || mutation.isPending;
 
   async function onSubmit(values: ResearchComposerValues) {
+    // State alone does not guard simultaneous keyboard/form submissions.
+    if (submissionLock.current) return;
+    submissionLock.current = true;
+    setSubmissionPending(true);
     setSubmitError(null);
     requestId.current ??= createClientRequestId();
     const request: CreateTaskRequest = {
@@ -88,22 +102,34 @@ export function ResearchComposer({
     };
 
     try {
-      if (createTask) setCustomSubmitting(true);
       const response = createTask
         ? await createTask(request)
         : await mutation.mutateAsync(request);
       if (response.task.id) onCreated?.(response.task.id);
     } catch (error) {
       setSubmitError(error);
-    } finally {
-      if (createTask) setCustomSubmitting(false);
+      submissionLock.current = false;
+      setSubmissionPending(false);
     }
   }
 
+  function onInvalid(errors: FieldErrors<ResearchComposerValues>) {
+    if (!errors.maxPapers && !errors.sources) return;
+    if (optionsDisclosure.current) optionsDisclosure.current.open = true;
+    setAdvancedOpen(true);
+  }
+
   function handleQueryKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (
+      isComposing.current ||
+      event.nativeEvent.isComposing ||
+      event.nativeEvent.keyCode === 229 ||
+      isSubmitting
+    )
+      return;
     if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
       event.preventDefault();
-      void form.handleSubmit(onSubmit)();
+      void form.handleSubmit(onSubmit, onInvalid)();
     }
   }
 
@@ -111,28 +137,29 @@ export function ResearchComposer({
   const errors = form.formState.errors;
 
   return (
-    <section className="rounded-[var(--radius-panel)] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 sm:p-8">
+    <section className={styles.composer} aria-labelledby="new-research-title">
       <div>
-        <p className="text-xs font-medium uppercase tracking-[0.08em] text-[var(--color-primary)]">
-          {t("composer.eyebrow")}
-        </p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-[var(--color-text)]">
-          {t("composer.title")}
+        <h1 id="new-research-title" className={`entry-pixel ${styles.title}`}>
+          <DesignText asset="question-title" className={styles.titleLabel}>
+            {t("entry.questionTitle")}
+          </DesignText>
         </h1>
-        <p className="mt-2 text-sm leading-6 text-[var(--color-text-muted)]">
-          {t("composer.description")}
+        <p className={`entry-rounded ${styles.prompt}`}>
+          <DesignText asset="question-prompt" className={styles.promptLabel}>
+            {t("entry.questionPrompt")}
+          </DesignText>
         </p>
       </div>
 
       {submitError && conflictTaskId ? (
         <InlineAlert tone="warning" className="mt-5">
           {t("composer.conflict")}{" "}
-          <a
+          <Link
             className="font-medium underline"
             href={`/research/${encodeURIComponent(conflictTaskId)}`}
           >
             {t("composer.returnToActive")}
-          </a>
+          </Link>
         </InlineAlert>
       ) : submitError ? (
         <InlineAlert tone="error" className="mt-5">
@@ -141,65 +168,103 @@ export function ResearchComposer({
       ) : null}
 
       <form
-        className="mt-6"
-        onSubmit={(event) => void form.handleSubmit(onSubmit)(event)}
+        onSubmit={(event) => void form.handleSubmit(onSubmit, onInvalid)(event)}
       >
-        <label
-          htmlFor="research-question"
-          className="text-sm font-medium text-[var(--color-text)]"
-        >
-          {t("composer.questionLabel")}
-        </label>
-        <Textarea
-          id="research-question"
-          aria-label={t("composer.questionLabel")}
-          aria-invalid={Boolean(errors.query)}
-          placeholder={t("composer.questionPlaceholder")}
-          {...form.register("query")}
-          onKeyDown={handleQueryKeyDown}
-        />
-        <div className="mt-1 flex justify-between gap-3 text-xs text-[var(--color-text-subtle)]">
-          <span>
-            {errors.query
-              ? errors.query.type === "too_big"
-                ? t("composer.questionTooLong")
-                : t("composer.questionRequired")
-              : t("composer.shortcut")}
-          </span>
-          <span>{queryValue.length}/2,000</span>
+        <div className={styles.computer}>
+          <div className={styles.monitor}>
+            <label htmlFor="research-question" className="sr-only">
+              {t("composer.questionLabel")}
+            </label>
+            <div className={styles.questionField}>
+              <textarea
+                id="research-question"
+                rows={4}
+                aria-invalid={Boolean(errors.query)}
+                aria-describedby="research-question-hint"
+                placeholder={t("entry.questionPlaceholder")}
+                className={`entry-rounded ${styles.question} ${locale === "en" ? styles.outlinedPlaceholder : ""}`}
+                {...form.register("query")}
+                onCompositionStart={() => {
+                  isComposing.current = true;
+                }}
+                onCompositionEnd={() => {
+                  isComposing.current = false;
+                }}
+                onKeyDown={handleQueryKeyDown}
+              />
+              {locale === "en" && !queryValue.length ? (
+                <span className={styles.placeholderArtwork} aria-hidden="true">
+                  <DesignText asset="question-placeholder">
+                    {t("entry.questionPlaceholder")}
+                  </DesignText>
+                </span>
+              ) : null}
+            </div>
+            <div className={styles.sendRow}>
+              <button
+                className={`entry-pixel ${styles.send}`}
+                type="submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  t("composer.starting")
+                ) : (
+                  <DesignText
+                    asset="question-send"
+                    className={styles.sendLabel}
+                  >
+                    {t("entry.send")}
+                  </DesignText>
+                )}
+              </button>
+            </div>
+          </div>
+          <div className={styles.stand} aria-hidden="true" />
+          <div className={styles.base} aria-hidden="true" />
         </div>
+        <div className={styles.support}>
+          <div className={styles.questionHint}>
+            <span id="research-question-hint" aria-live="polite">
+              {errors.query
+                ? errors.query.type === "too_big"
+                  ? t("composer.questionTooLong")
+                  : t("composer.questionRequired")
+                : t("composer.shortcut")}
+            </span>
+            <span>{queryValue.length}/2,000</span>
+          </div>
+          <details ref={optionsDisclosure} className={styles.options}>
+            <summary className={styles.optionsSummary}>
+              {t("entry.researchOptions")}
+            </summary>
+            <ExampleQueries
+              onSelect={(query) =>
+                form.setValue("query", query, {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+              }
+            />
+            <AdvancedSettings
+              open={advancedOpen}
+              onToggle={() => setAdvancedOpen((open) => !open)}
+              register={form.register}
+            />
+            {errors.sources?.message ? (
+              <p className="mt-2 text-xs text-[var(--color-error)]">
+                {t("composer.selectSource")}
+              </p>
+            ) : null}
+            {errors.maxPapers?.message ? (
+              <p className="mt-2 text-xs text-[var(--color-error)]">
+                {t("composer.maxPapersInvalid")}
+              </p>
+            ) : null}
 
-        <ExampleQueries
-          onSelect={(query) =>
-            form.setValue("query", query, {
-              shouldDirty: true,
-              shouldValidate: true,
-            })
-          }
-        />
-        <AdvancedSettings
-          open={advancedOpen}
-          onToggle={() => setAdvancedOpen((open) => !open)}
-          register={form.register}
-        />
-        {errors.sources?.message ? (
-          <p className="mt-2 text-xs text-[var(--color-error)]">
-            {t("composer.selectSource")}
-          </p>
-        ) : null}
-        {errors.maxPapers?.message ? (
-          <p className="mt-2 text-xs text-[var(--color-error)]">
-            {t("composer.maxPapersInvalid")}
-          </p>
-        ) : null}
-
-        <div className="mt-6 flex items-center justify-between gap-4">
-          <p className="text-xs text-[var(--color-text-subtle)]">
-            {t("composer.summary")}
-          </p>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? t("composer.starting") : t("composer.start")}
-          </Button>
+            <p className="mt-4 text-xs text-[var(--color-text-subtle)]">
+              {t("composer.summary")}
+            </p>
+          </details>
         </div>
       </form>
     </section>
@@ -208,12 +273,11 @@ export function ResearchComposer({
 
 export function ResearchComposerSkeleton() {
   return (
-    <section className="rounded-[var(--radius-panel)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8">
+    <section className={styles.composer} aria-busy="true">
       <Skeleton className="h-3 w-24" />
       <Skeleton className="mt-4 h-8 w-64" />
       <Skeleton className="mt-3 h-4 w-full max-w-xl" />
-      <Skeleton className="mt-8 h-32 w-full" />
-      <Skeleton className="mt-6 h-9 w-32" />
+      <Skeleton className="mt-8 h-[388px] w-full rounded-3xl" />
     </section>
   );
 }

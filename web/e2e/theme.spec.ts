@@ -138,7 +138,7 @@ test("clean storage and a system dark preference still open in light", async ({
   page.on("pageerror", (error) => errors.push(error.message));
   await mockConfiguredApp(page);
 
-  await page.goto("/en/workspace");
+  await page.goto("/en/settings");
   await page.evaluate((key) => localStorage.removeItem(key), THEME_STORAGE_KEY);
   await page.emulateMedia({ colorScheme: "dark" });
   await page.reload();
@@ -241,14 +241,14 @@ test("a persisted dark theme is applied before the first animation frame", async
   expect(errors).toEqual([]);
 });
 
-test("workspace and history keep choice across refresh and route changes", async ({
+test("settings and history keep choice across refresh and route changes", async ({
   page,
 }) => {
   await mockConfiguredApp(page);
-  await page.goto("/en/workspace");
+  await page.goto("/en/settings");
   await page.evaluate((key) => localStorage.removeItem(key), THEME_STORAGE_KEY);
   await page.reload();
-  await expect(page.getByLabel("Research question")).toBeVisible();
+  await expect(page.getByLabel("Maximum papers")).toBeVisible();
 
   await page.getByRole("button", { name: "Switch to dark theme" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
@@ -283,7 +283,7 @@ test("invalid stored theme safely falls back to light", async ({ page }) => {
     (key) => localStorage.setItem(key, "auto"),
     THEME_STORAGE_KEY,
   );
-  await page.goto("/en/workspace");
+  await page.goto("/en/settings");
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await expect(
     page.getByRole("button", { name: "Switch to dark theme" }),
@@ -298,10 +298,10 @@ test("dark controls expose accent-colored primary, input focus, and tooltip", as
     (key) => localStorage.setItem(key, "dark"),
     THEME_STORAGE_KEY,
   );
-  await page.goto("/en/workspace");
-  await expect(page.getByLabel("Research question")).toBeVisible();
+  await page.goto("/en/settings");
+  await expect(page.getByLabel("Maximum papers")).toBeVisible();
 
-  const primary = page.locator('[data-variant="primary"]').first();
+  const primary = page.getByRole("button", { name: "Save settings" });
   await expect(primary).toBeVisible();
   const primaryStyle = await primary.evaluate((element) => {
     const styles = getComputedStyle(element);
@@ -328,7 +328,7 @@ test("dark controls expose accent-colored primary, input focus, and tooltip", as
     .toBe("rgb(224, 178, 46)");
   await page.mouse.up();
 
-  const input = page.getByLabel("Research question");
+  const input = page.getByLabel("Maximum papers");
   await expect(input).toBeVisible();
   expect(
     await input.evaluate(
@@ -359,7 +359,7 @@ test("dark controls expose accent-colored primary, input focus, and tooltip", as
   });
 });
 
-test("active task CTA reuses primary hover, active, and focus-visible states", async ({
+test("active task CTA retains the entry palette and visible interactive states with dark preference", async ({
   page,
 }) => {
   await mockConfiguredApp(page, { active: "task" });
@@ -367,26 +367,26 @@ test("active task CTA reuses primary hover, active, and focus-visible states", a
     (key) => localStorage.setItem(key, "dark"),
     THEME_STORAGE_KEY,
   );
-  await page.goto("/en/workspace");
+  await page.goto("/en/research/new");
 
   const cta = page.getByRole("link", { name: "Return to research task" });
   await expect(cta).toBeVisible();
   expect(
     await cta.evaluate((element) => getComputedStyle(element).backgroundColor),
-  ).toBe("rgb(255, 206, 71)");
+  ).toBe("rgb(31, 128, 255)");
 
   await cta.hover();
   await expect
     .poll(() =>
       cta.evaluate((element) => getComputedStyle(element).backgroundColor),
     )
-    .toBe("rgb(255, 214, 102)");
+    .toBe("rgb(20, 107, 224)");
   await page.mouse.down();
   await expect
     .poll(() =>
       cta.evaluate((element) => getComputedStyle(element).backgroundColor),
     )
-    .toBe("rgb(224, 178, 46)");
+    .toBe("rgb(15, 95, 208)");
   await page.mouse.move(0, 0);
   await page.mouse.up();
 
@@ -399,14 +399,14 @@ test("active task CTA reuses primary hover, active, and focus-visible states", a
   await expect(cta).toBeFocused();
   await expect
     .poll(() => cta.evaluate((element) => getComputedStyle(element).boxShadow))
-    .toContain("rgb(255, 206, 71)");
+    .toContain("rgb(31, 128, 255)");
 });
 
-test("workspace regions do not overlap and remain reachable at supported widths", async ({
+test("settings regions do not overlap and remain reachable at supported widths", async ({
   page,
 }) => {
   await mockConfiguredApp(page);
-  await page.goto("/en/workspace");
+  await page.goto("/en/settings");
 
   const regions = page.locator(
     'aside[aria-label="Task navigation"], main, aside[aria-label="Context panel"]',
@@ -475,8 +475,8 @@ test("dark links, active tab, and history badge use semantic colors", async ({
     (key) => localStorage.setItem(key, "dark"),
     THEME_STORAGE_KEY,
   );
-  await page.goto("/en/workspace");
-  await expect(page.getByLabel("Research question")).toBeVisible();
+  await page.goto("/en/settings");
+  await expect(page.getByLabel("Maximum papers")).toBeVisible();
 
   const historyLink = page.getByRole("link", { name: "History" });
   expect(
@@ -522,7 +522,7 @@ test("dark skeleton and alert keep their semantic two-tone and status colors", a
     (key) => localStorage.setItem(key, "dark"),
     THEME_STORAGE_KEY,
   );
-  await page.goto("/en/workspace");
+  await page.goto("/en/research/new");
 
   const skeleton = page.locator(".skeleton").first();
   await expect(skeleton).toBeVisible();
@@ -564,7 +564,7 @@ test("dark DeepSeek gate dialog uses surface tokens and keeps the control access
       }),
     });
   });
-  await page.goto("/en/workspace");
+  await page.goto("/en/settings");
 
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();

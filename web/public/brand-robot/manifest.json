@@ -1,0 +1,158 @@
+{
+  "canvas": {
+    "width": 192,
+    "height": 208
+  },
+  "source": {
+    "file": "source/canva-export.mp4",
+    "sha256": "0fa9b896d4c068567ca3fa9e8bd467fcaecd6f1c0c57043932426b7719f19139",
+    "originalDesignId": "DAHWvvAA1Ik",
+    "exportDesignId": "DAHXCDy2YTM",
+    "exportedAt": "2026-10-04",
+    "width": 1080,
+    "height": 1080,
+    "fps": 30,
+    "duration": 17,
+    "frames": 510
+  },
+  "states": {
+    "search": {
+      "src": "/brand-robot/search.mp4",
+      "posterSrc": "/brand-robot/search-poster.webp",
+      "width": 780,
+      "height": 930,
+      "fps": 30,
+      "duration": 5,
+      "frames": 150,
+      "background": "#f9fcfc",
+      "crop": {
+        "left": 154,
+        "top": 70,
+        "width": 780,
+        "height": 930
+      },
+      "placement": {
+        "left": 9.061409249563699,
+        "top": 4.994950345059753,
+        "width": 81.35634816753927,
+        "height": 90.0100993098805
+      },
+      "sha256": "f571486d4cc6d641dee0c085162000fa8f0e5a137ab9e12e0890a14a49fa5faa",
+      "posterSha256": "76f0bee968ee7b8a182de12e2408ada61273ccbc08246fa42e56153c1e502da4",
+      "source": {
+        "assetId": "VAFNUvfhgpg",
+        "start": 0,
+        "duration": 5,
+        "bounds": {
+          "left": 162,
+          "top": 78,
+          "width": 764,
+          "height": 914
+        }
+      },
+      "animation": {
+        "src": "/brand-robot/search.lottie.json",
+        "fps": 60,
+        "frames": 300,
+        "duration": 5,
+        "width": 1080,
+        "height": 1080,
+        "assetId": "VAFNUvfhgpg",
+        "sourceUrl": "https://video-public.canva.com/VAFNUvfhgpg/v/228c55771d.json",
+        "sha256": "4b61f2c35d8001e6a9fc57163bfd05925282aea59927b1a95291de7ba249fd45"
+      }
+    },
+    "idle": {
+      "src": "/brand-robot/idle.mp4",
+      "posterSrc": "/brand-robot/idle-poster.webp",
+      "width": 968,
+      "height": 956,
+      "fps": 30,
+      "duration": 6,
+      "frames": 180,
+      "background": "#ffffff",
+      "crop": {
+        "left": 8,
+        "top": 60,
+        "width": 968,
+        "height": 956
+      },
+      "placement": {
+        "left": 5.514705882352941,
+        "top": 9.416939443535188,
+        "width": 88.97058823529412,
+        "height": 81.16612111292963
+      },
+      "sha256": "77609e79d4e04d0f4cd4231600c45f21d29f475f29d93b17a25c6c3472de6f49",
+      "posterSha256": "fe10e6d2e5c61de6426890170633d1383fd62efa294d706c836c610b0533425e",
+      "source": {
+        "assetId": "VAFNUvR4cu8",
+        "start": 5,
+        "duration": 6,
+        "bounds": {
+          "left": 16,
+          "top": 68,
+          "width": 952,
+          "height": 940
+        }
+      },
+      "animation": {
+        "src": "/brand-robot/idle.lottie.json",
+        "fps": 60,
+        "frames": 360,
+        "duration": 6,
+        "width": 1080,
+        "height": 1080,
+        "assetId": "VAFNUvR4cu8",
+        "sourceUrl": "https://video-public.canva.com/VAFNUvR4cu8/v/7588ef7f55.json",
+        "sha256": "0de4f0c1dfed75462dda0c7217adcff6d1c2ffbf97e672d84f7202c98e4af35e"
+      }
+    },
+    "filter": {
+      "src": "/brand-robot/filter.mp4",
+      "posterSrc": "/brand-robot/filter-poster.webp",
+      "width": 842,
+      "height": 946,
+      "fps": 30,
+      "duration": 6,
+      "frames": 180,
+      "background": "#ffffff",
+      "crop": {
+        "left": 120,
+        "top": 70,
+        "width": 842,
+        "height": 946
+      },
+      "placement": {
+        "left": 6.469430992736077,
+        "top": 5.00827129859388,
+        "width": 86.54030468119451,
+        "height": 89.98345740281223
+      },
+      "sha256": "bb552bf07bf08f99110800f336422e5d6c502587995757a0f8a0745d36c71480",
+      "posterSha256": "22795417b19960fa550121d403c4b93ebb6f1b78aea6d585a621e22431199ac7",
+      "source": {
+        "assetId": "VAFNUlsKKYo",
+        "start": 11,
+        "duration": 6,
+        "bounds": {
+          "left": 128,
+          "top": 78,
+          "width": 826,
+          "height": 930
+        }
+      },
+      "animation": {
+        "src": "/brand-robot/filter.lottie.json",
+        "fps": 60,
+        "frames": 360,
+        "duration": 6,
+        "width": 1080,
+        "height": 1080,
+        "assetId": "VAFNUlsKKYo",
+        "sourceUrl": "https://video-public.canva.com/VAFNUlsKKYo/v/9d94422403.json",
+        "sha256": "373f819e317aadc10e6abc850dc276f6eeda9351544c3050fa25d1eeb0b86f9a"
+      }
+    }
+  }
+}

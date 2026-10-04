@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test("opens settings from the companion and restores access when hidden", async ({
   page,
 }) => {
-  await page.goto("/en/workspace", { waitUntil: "domcontentloaded" });
+  await page.goto("/en/history", { waitUntil: "domcontentloaded" });
   const companion = page.getByRole("button", {
     name: /Research companion: idle; open settings/i,
   });
@@ -20,18 +20,21 @@ test("opens settings from the companion and restores access when hidden", async 
     page.getByRole("button", { name: "Open settings" }),
   ).toBeVisible();
 
-  await page.goto("/en/workspace", { waitUntil: "domcontentloaded" });
+  await page.goto("/en/research/new", { waitUntil: "domcontentloaded" });
+  await page.getByText("Examples & research options", { exact: true }).click();
   await page.getByRole("button", { name: "This research overrides" }).click();
   await expect(page.getByLabel("Maximum papers")).toHaveValue("7");
+  await expect(page.locator("[data-pet-state]")).toHaveCount(0);
+  await page.goto("/en/workspace");
   await expect(
-    page.getByRole("button", { name: "Open settings" }),
+    page.getByRole("link", { name: "Settings", exact: true }),
   ).toBeVisible();
 });
 
 test("keeps the companion inside the viewport after dragging and reload", async ({
   page,
 }) => {
-  await page.goto("/en/workspace", { waitUntil: "domcontentloaded" });
+  await page.goto("/en/history", { waitUntil: "domcontentloaded" });
   const companion = page.locator("[data-pet-state]");
   await expect(companion).toBeVisible();
   const before = await companion.boundingBox();
@@ -62,7 +65,7 @@ test.describe("reduced motion", () => {
     page,
   }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto("/en/workspace", { waitUntil: "domcontentloaded" });
+    await page.goto("/en/history", { waitUntil: "domcontentloaded" });
     const sprite = page.locator("[data-pet-frame]");
     await expect(sprite).toBeVisible();
     const initialFrame = await sprite.getAttribute("data-pet-frame");

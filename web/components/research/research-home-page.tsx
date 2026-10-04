@@ -3,11 +3,13 @@
 import { useTranslations } from "next-intl";
 import { ArrowRight } from "lucide-react";
 
+import { BrandRobot } from "@/components/entry/brand-robot";
+import { EntryLanguageSwitcher } from "@/components/entry/entry-language-switcher";
+
 import {
   ResearchComposer,
   ResearchComposerSkeleton,
 } from "@/components/research/research-composer";
-import { ResearchShell } from "@/components/shell/research-shell";
 import { InlineAlert } from "@/components/ui/inline-alert";
 import { buttonVariants } from "@/components/ui/button";
 import { useActiveTask } from "@/features/tasks/hooks/use-active-task";
@@ -15,34 +17,46 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { taskStatusMessageKeys } from "@/i18n/task-labels";
 import { cn } from "@/lib/utils/cn";
 
+import styles from "./research-entry.module.css";
+
 export default function ResearchHomePage() {
   const router = useRouter();
   const t = useTranslations();
   const activeTask = useActiveTask();
 
   return (
-    <ResearchShell>
-      <div className="mx-auto flex min-h-full w-full max-w-4xl flex-col justify-center px-8 py-12">
-        {activeTask.isPending ? <ResearchComposerSkeleton /> : null}
-        {!activeTask.isPending && activeTask.data ? (
-          <ActiveTaskSummary task={activeTask.data} />
-        ) : null}
-        {!activeTask.isPending && !activeTask.data ? (
-          <>
-            {activeTask.isError ? (
-              <InlineAlert tone="warning" className="mb-4">
-                {t("composer.activeUnavailable")}
-              </InlineAlert>
-            ) : null}
-            <ResearchComposer
-              onCreated={(taskId) =>
-                router.push(`/research/${encodeURIComponent(taskId)}`)
-              }
-            />
-          </>
-        ) : null}
+    <main className={styles.page} data-testid="research-question-page">
+      <div className={styles.scene}>
+        <nav className={styles.navigation}>
+          <Link href="/workspace" className={styles.back}>
+            <span aria-hidden="true">←</span>
+            {t("entry.backToMenu")}
+          </Link>
+          <EntryLanguageSwitcher />
+        </nav>
+        <div className={styles.content}>
+          {activeTask.isPending ? <ResearchComposerSkeleton /> : null}
+          {!activeTask.isPending && activeTask.data ? (
+            <ActiveTaskSummary task={activeTask.data} />
+          ) : null}
+          {!activeTask.isPending && !activeTask.data ? (
+            <>
+              {activeTask.isError ? (
+                <InlineAlert tone="warning" className="mb-4">
+                  {t("composer.activeUnavailable")}
+                </InlineAlert>
+              ) : null}
+              <ResearchComposer
+                onCreated={(taskId) =>
+                  router.push(`/research/${encodeURIComponent(taskId)}`)
+                }
+              />
+            </>
+          ) : null}
+        </div>
+        <BrandRobot action="filter" flip className={styles.robot} />
       </div>
-    </ResearchShell>
+    </main>
   );
 }
 
@@ -59,7 +73,7 @@ function ActiveTaskSummary({
   const t = useTranslations();
   const taskT = useTranslations("task");
   return (
-    <section className="rounded-[var(--radius-panel)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8">
+    <section className={styles.active}>
       <p className="text-xs font-medium uppercase tracking-[0.08em] text-[var(--color-primary)]">
         {t("task.activeResearch")}
       </p>

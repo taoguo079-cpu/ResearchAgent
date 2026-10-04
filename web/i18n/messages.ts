@@ -24,8 +24,11 @@ import zhSettings from "@/messages/zh-CN/settings.json";
 import zhPet from "@/messages/zh-CN/pet.json";
 import enWelcome from "@/messages/en/welcome.json";
 import zhWelcome from "@/messages/zh-CN/welcome.json";
+import enEntry from "@/messages/en/entry.json";
+import zhEntry from "@/messages/zh-CN/entry.json";
 
 const zhMessages = {
+  entry: zhEntry,
   welcome: zhWelcome,
   followup: zhFollowup,
   common: zhCommon,
@@ -42,6 +45,7 @@ const zhMessages = {
 };
 
 const enMessages = {
+  entry: enEntry,
   welcome: enWelcome,
   followup: enFollowup,
   common: enCommon,

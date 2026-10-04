@@ -3,13 +3,13 @@ import { expect, test } from "@playwright/test";
 test("creates a deterministic research task and reaches the report", async ({
   page,
 }) => {
-  await page.goto("/en/workspace");
+  await page.goto("/en/research/new");
   await page
     .getByLabel("Research question")
     .fill("How do retrieval systems improve scientific discovery?");
-  await page.getByRole("button", { name: "Start research" }).click();
+  await page.getByRole("button", { name: /send to agent/i }).click();
 
-  await expect(page).toHaveURL(/\/research\//);
+  await expect(page).toHaveURL(/\/research\/(?!new$)[^/]+$/);
   await expect(page.getByText("Research synthesis")).toBeVisible({
     timeout: 15_000,
   });

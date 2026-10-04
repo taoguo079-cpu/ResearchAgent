@@ -1,0 +1,29 @@
+.stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 192 / 208;
+  pointer-events: none;
+}
+.visual {
+  position: absolute;
+}
+.media {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.poster {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+.animation {
+  position: absolute;
+  inset: 0;
+}
+.animation > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

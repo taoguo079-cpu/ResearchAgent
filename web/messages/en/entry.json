@@ -1,0 +1,12 @@
+{
+  "menuTitle": "Choose your next step",
+  "newResearch": "NEW RESEARCH",
+  "history": "history",
+  "settings": "Settings",
+  "questionTitle": "NEW RESEARCH",
+  "questionPrompt": "What would you like to research?",
+  "questionPlaceholder": "Type your research question here...",
+  "send": "SEND TO AGENT",
+  "backToMenu": "Back to menu",
+  "researchOptions": "Examples & research options"
+}

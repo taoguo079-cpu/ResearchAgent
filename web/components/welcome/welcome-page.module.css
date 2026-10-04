@@ -1,347 +1,98 @@
 .page {
+  display: grid;
+  place-items: center;
+  min-height: 100svh;
+  overflow: hidden;
+  background: #f9fcfc;
+  color: #545454;
+}
+.canvas {
+  container-type: inline-size;
   position: relative;
   isolation: isolate;
   width: 100%;
-  height: 100dvh;
-  min-height: 280px;
-  overflow: hidden;
-  background: #040a16;
-  color: #e9f4ff;
-  --color-focus: #72e9ff;
+  max-width: 1600px;
+  aspect-ratio: 1366 / 768;
 }
-.screenTrigger {
+.partner {
   position: absolute;
-  inset: 0;
   z-index: 2;
-  width: 100%;
-  height: 100%;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  cursor: pointer;
-  touch-action: manipulation;
-}
-.screenTrigger:focus-visible {
-  outline: 2px solid #72e9ff;
-  outline-offset: -8px;
-}
-.accessibleTitle {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-.placeholder {
-  position: absolute;
-  left: 50%;
-  top: 40%;
-  transform: translate(-50%, -50%);
-  width: 85%;
-  margin: 0;
-  text-align: center;
-  font-size: clamp(30px, 7.8vw, 116px);
-  font-weight: 700;
-  letter-spacing: -0.045em;
-  line-height: 1.2;
-  color: transparent;
-  -webkit-text-stroke: 1px #57c7ff;
-  text-shadow: 0 0 30px #168dff80;
-  pointer-events: none;
-}
-.placeholder span {
-  display: inline;
-}
-.microLabel {
-  position: absolute;
-  z-index: 3;
-  top: 28px;
-  left: 32px;
+  top: 8.45%;
+  left: 5.64%;
   display: flex;
   align-items: center;
-  gap: 10px;
-  color: #89a3bf;
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  pointer-events: none;
+  gap: 2.05cqw;
 }
-.microLabel::before {
-  content: "";
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #72e9ff;
-  box-shadow: 0 0 12px #28a7ff;
-}
-.introHint {
-  position: absolute;
-  z-index: 3;
-  top: calc(40% + clamp(42px, 7vw, 110px));
-  left: 50%;
-  width: calc(100% - 40px);
-  transform: translateX(-50%);
+.partner p {
+  display: flex;
+  align-items: center;
   margin: 0;
-  text-align: center;
-  color: #87a8c5;
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  pointer-events: none;
-}
-.hintLine {
-  display: block;
-  width: 1px;
-  height: 32px;
-  margin: 20px auto 0;
-  background: linear-gradient(#4c8cb888, transparent);
-}
-.skip {
-  position: absolute;
-  z-index: 7;
-  right: 28px;
-  bottom: 24px;
-  border: 1px solid #659ccb30;
-  border-radius: 999px;
-  padding: 10px 17px;
-  color: #9cbad5;
-  background: #09172bb3;
-  cursor: pointer;
-  font-size: 11px;
-  letter-spacing: 0.05em;
-  min-height: 44px;
-  backdrop-filter: blur(12px);
-}
-.skip:hover {
-  color: #e3f7ff;
-  border-color: #62c2fa80;
-  background: #163152cc;
-}
-.skip:focus-visible,
-.enterButton:focus-visible,
-.toy:focus-visible {
-  outline: 2px solid #72e9ff;
-  outline-offset: 4px;
-}
-.cornerNote {
-  position: absolute;
-  z-index: 3;
-  left: 32px;
-  bottom: 35px;
-  color: #57718d;
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  pointer-events: none;
-}
-.toy {
-  position: absolute;
-  z-index: 4;
-  min-width: 44px;
-  min-height: 44px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  border-radius: 16px;
-  transform: translate(-50%, -50%);
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-}
-.toy[data-motion="dragging"] {
-  cursor: grabbing;
-  z-index: 6;
-}
-.lensToy {
-  z-index: 5;
-}
-.toy:disabled {
-  pointer-events: none;
-}
-.guidance {
-  position: absolute;
-  z-index: 6;
-  width: min(304px, calc(100% - 32px));
-  pointer-events: none;
-  animation: appear 200ms ease-out;
-}
-.bubble {
-  position: relative;
-  width: 100%;
-  padding: 16px 20px;
-  border: 1px solid #69caff38;
-  border-radius: 18px;
-  background: #071629e8;
-  box-shadow:
-    0 12px 40px #0005,
-    inset 0 1px 0 #72e9ff13;
-  backdrop-filter: blur(14px);
-  text-align: center;
-}
-.bubble::after {
-  content: "";
-  position: absolute;
-  left: calc(50% - 6px);
-  bottom: -6px;
-  width: 11px;
-  height: 11px;
-  border-right: 1px solid #69caff38;
-  border-bottom: 1px solid #69caff38;
-  background: #08182c;
-  transform: rotate(45deg);
-}
-.greeting {
-  margin: 0;
-  color: #e3f6ff;
   font-size: 15px;
-  font-weight: 500;
-  line-height: 1.7;
+  line-height: 1;
 }
-.hint {
-  margin: 6px 0 0;
-  color: #89aac6;
-  font-size: 12px;
-  letter-spacing: 0.04em;
+.searchIcon {
+  display: grid;
+  place-items: center;
+  width: 3.15cqw;
+  height: 3.15cqw;
+  border-radius: 1.05cqw;
+  background: #bfe4fc;
+  color: #23384c;
 }
-.invitation {
+.searchIcon svg {
+  width: 62%;
+  height: 62%;
+}
+.language {
+  position: absolute;
+  z-index: 3;
+  top: 3.645833%;
+  right: 4.612006%;
+}
+.tagline,
+.brandTitle {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  margin: 0;
+  pointer-events: none;
+}
+.robot {
+  position: absolute;
+  z-index: 0;
+  top: -2.5%;
+  left: 23.5%;
+  width: 54%;
+  pointer-events: none;
+}
+.nextButton {
+  position: absolute;
+  z-index: 3;
+  top: 72.5%;
+  left: 10.9%;
   display: flex;
-  justify-content: center;
-  margin-bottom: 12px;
-  animation: appear 200ms ease-out;
-}
-.enterButton {
-  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  min-height: 48px;
-  min-width: min(260px, calc(100vw - 32px));
-  max-width: calc(100vw - 32px);
-  padding: 11px 22px;
-  border: 1px solid #7addff80;
-  border-radius: 999px;
-  background: linear-gradient(120deg, #135ce3, #168bdc);
+  width: 12.8cqw;
+  height: 5.85cqw;
+  min-height: 44px;
+  border: 0;
+  border-radius: 2.05cqw;
+  background: #1f80ff;
   color: #fff;
-  font-size: 14px;
-  font-weight: 500;
-  white-space: nowrap;
-  box-shadow:
-    0 0 30px #168dff30,
-    inset 0 1px 0 #ffffff30;
+  font-size: 2.4cqw;
+  line-height: 1;
   cursor: pointer;
-  pointer-events: auto;
 }
-.enterButton svg {
-  flex-shrink: 0;
+.nextLabel[data-design-vector="true"] {
+  position: absolute;
+  left: 20px;
+  top: 30.2px;
 }
-.enterButton:hover {
-  background: linear-gradient(120deg, #1c72ff, #1ca2ed);
-  box-shadow: 0 0 38px #168dff55;
+.nextButton:hover {
+  background: #116fe5;
 }
-.breaking {
-  animation: dissolve 220ms ease-in both;
-  pointer-events: none;
-}
-.page[data-intro-phase="leaving"] {
-  pointer-events: none;
-  animation: exit 200ms ease-in both;
-}
-@keyframes appear {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-@keyframes exit {
-  to {
-    opacity: 0;
-  }
-}
-@keyframes dissolve {
-  to {
-    opacity: 0;
-    transform: translateY(-10px) scale(0.96);
-    filter: blur(5px);
-  }
-}
-@media (max-width: 639px) {
-  .placeholder span {
-    display: block;
-  }
-  .placeholder {
-    font-size: clamp(44px, 13vw, 78px);
-    line-height: 1.38;
-  }
-  .introHint {
-    top: calc(40% + 100px);
-    font-size: 11px;
-  }
-  .microLabel {
-    left: 20px;
-    top: 22px;
-    font-size: 9px;
-  }
-  .cornerNote {
-    display: none;
-  }
-  .skip {
-    bottom: 18px;
-    right: 18px;
-  }
-}
-@media (max-height: 500px) {
-  .introHint {
-    top: 55%;
-    font-size: 10px;
-  }
-  .hintLine {
-    height: 18px;
-    margin-top: 10px;
-  }
-  .bubble {
-    padding: 8px 14px;
-  }
-  .greeting {
-    font-size: 12px;
-  }
-  .hint {
-    font-size: 10px;
-    margin-top: 2px;
-  }
-  .invitation {
-    margin-bottom: 8px;
-  }
-  .enterButton {
-    min-height: 44px;
-    padding: 9px 18px;
-    font-size: 12px;
-  }
-  .microLabel {
-    top: 16px;
-    left: 20px;
-  }
-  .skip {
-    bottom: 14px;
-    right: 18px;
-  }
-  .cornerNote {
-    bottom: 29px;
-    left: 20px;
-  }
-}
-@media (max-width: 360px) {
-  .enterButton {
-    font-size: 12px;
-    gap: 12px;
-  }
-}
-.page[data-reduced-motion="true"] .guidance,
-.page[data-reduced-motion="true"] .invitation {
-  animation: none;
+.nextButton:focus-visible {
+  outline: 3px solid #2a245e;
+  outline-offset: 5px;
 }

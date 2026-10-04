@@ -1,0 +1,12 @@
+{
+  "menuTitle": "选择下一步",
+  "newResearch": "新建研究",
+  "history": "历史记录",
+  "settings": "设置",
+  "questionTitle": "新建研究",
+  "questionPrompt": "你想研究什么问题？",
+  "questionPlaceholder": "在这里输入你的研究问题……",
+  "send": "发送给 Agent",
+  "backToMenu": "返回菜单",
+  "researchOptions": "示例与研究参数"
+}

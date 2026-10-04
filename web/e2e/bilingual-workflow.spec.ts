@@ -6,15 +6,11 @@ test("uses Chinese by default and persists an explicit English choice", async ({
 }) => {
   await page.goto("/workspace");
   await expect(page).toHaveURL(/\/workspace$/);
-  await expect(
-    page.getByRole("heading", { name: "开始一个研究任务" }),
-  ).toBeVisible();
+  await expect(page.getByRole("link", { name: /新建研究/ })).toBeVisible();
 
-  await page.getByRole("button", { name: "English" }).click();
+  await page.getByRole("button", { name: "语言选项" }).click();
   await expect(page).toHaveURL(/\/en\/workspace$/);
-  await expect(
-    page.getByRole("heading", { name: "Start a research task" }),
-  ).toBeVisible();
+  await expect(page.getByRole("link", { name: /NEW RESEARCH/ })).toBeVisible();
 
   await expect
     .poll(async () => {
@@ -25,9 +21,14 @@ test("uses Chinese by default and persists an explicit English choice", async ({
     })
     .toBe("en");
 
-  await page.getByRole("button", { name: "中文" }).click();
+  await page.getByRole("button", { name: "Languages" }).click();
   await expect(page).toHaveURL(/\/workspace$/);
-  await expect(
-    page.getByRole("heading", { name: "开始一个研究任务" }),
-  ).toBeVisible();
+  await expect(page.getByRole("link", { name: /新建研究/ })).toBeVisible();
+
+  await page.getByRole("link", { name: /新建研究/ }).click();
+  await expect(page).toHaveURL(/\/research\/new$/);
+  await expect(page.getByLabel("研究问题")).toBeVisible();
+  await page.getByRole("button", { name: "语言选项" }).click();
+  await expect(page).toHaveURL(/\/en\/research\/new$/);
+  await expect(page.getByLabel("Research question")).toBeVisible();
 });

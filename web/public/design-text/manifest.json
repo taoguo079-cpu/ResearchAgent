@@ -1,0 +1,125 @@
+{
+  "canvas": {
+    "width": 1366,
+    "height": 768
+  },
+  "assets": {
+    "home-data": {
+      "src": "/design-text/home-data.svg",
+      "source": "例子/Research Agent · 简洁首页.svg",
+      "sourceSha256": "5a0d46ed1f2e81f87e2e04ffd3e014edf1015c8982f07fd2eb48a66b29831117",
+      "x": 99,
+      "y": 286,
+      "width": 250,
+      "height": 82
+    },
+    "home-power": {
+      "src": "/design-text/home-power.svg",
+      "source": "例子/Research Agent · 简洁首页.svg",
+      "sourceSha256": "5a0d46ed1f2e81f87e2e04ffd3e014edf1015c8982f07fd2eb48a66b29831117",
+      "x": 74,
+      "y": 379,
+      "width": 321,
+      "height": 92
+    },
+    "home-research": {
+      "src": "/design-text/home-research.svg",
+      "source": "例子/Research Agent · 简洁首页.svg",
+      "sourceSha256": "5a0d46ed1f2e81f87e2e04ffd3e014edf1015c8982f07fd2eb48a66b29831117",
+      "x": 840,
+      "y": 110,
+      "width": 502,
+      "height": 84
+    },
+    "home-agent": {
+      "src": "/design-text/home-agent.svg",
+      "source": "例子/Research Agent · 简洁首页.svg",
+      "sourceSha256": "5a0d46ed1f2e81f87e2e04ffd3e014edf1015c8982f07fd2eb48a66b29831117",
+      "x": 988,
+      "y": 237,
+      "width": 235,
+      "height": 96
+    },
+    "home-partner": {
+      "src": "/design-text/home-partner.svg",
+      "source": "例子/Research Agent · 简洁首页.svg",
+      "sourceSha256": "5a0d46ed1f2e81f87e2e04ffd3e014edf1015c8982f07fd2eb48a66b29831117",
+      "x": 148,
+      "y": 81,
+      "width": 267,
+      "height": 11
+    },
+    "home-next": {
+      "src": "/design-text/home-next.svg",
+      "source": "例子/Research Agent · 简洁首页.svg",
+      "sourceSha256": "5a0d46ed1f2e81f87e2e04ffd3e014edf1015c8982f07fd2eb48a66b29831117",
+      "x": 169,
+      "y": 587,
+      "width": 126,
+      "height": 26
+    },
+    "language-zh": {
+      "src": "/design-text/language-zh.svg",
+      "source": "例子/Research Agent · 简洁首页.svg",
+      "sourceSha256": "5a0d46ed1f2e81f87e2e04ffd3e014edf1015c8982f07fd2eb48a66b29831117",
+      "x": 1237,
+      "y": 44,
+      "width": 52,
+      "height": 12
+    },
+    "menu-new": {
+      "src": "/design-text/menu-new.svg",
+      "source": "例子/2.svg",
+      "sourceSha256": "dffcb02eb43f55fcd3ab2c9a3487d1931ed2e5c91c6a2840a12945632721072e",
+      "x": 249,
+      "y": 275,
+      "width": 422,
+      "height": 31
+    },
+    "menu-history": {
+      "src": "/design-text/menu-history.svg",
+      "source": "例子/2.svg",
+      "sourceSha256": "dffcb02eb43f55fcd3ab2c9a3487d1931ed2e5c91c6a2840a12945632721072e",
+      "x": 373,
+      "y": 496,
+      "width": 212,
+      "height": 73
+    },
+    "question-title": {
+      "src": "/design-text/question-title.svg",
+      "source": "例子/3.svg",
+      "sourceSha256": "b3023d4a1067668639025972b29555dd5b46e185a7dbba38a4ac1fb4a64c3209",
+      "x": 79,
+      "y": 92,
+      "width": 468,
+      "height": 31
+    },
+    "question-prompt": {
+      "src": "/design-text/question-prompt.svg",
+      "source": "例子/3.svg",
+      "sourceSha256": "b3023d4a1067668639025972b29555dd5b46e185a7dbba38a4ac1fb4a64c3209",
+      "x": 80,
+      "y": 155,
+      "width": 579,
+      "height": 36
+    },
+    "question-placeholder": {
+      "src": "/design-text/question-placeholder.svg",
+      "source": "例子/3.svg",
+      "sourceSha256": "b3023d4a1067668639025972b29555dd5b46e185a7dbba38a4ac1fb4a64c3209",
+      "x": 125,
+      "y": 278,
+      "width": 511,
+      "height": 31
+    },
+    "question-send": {
+      "src": "/design-text/question-send.svg",
+      "source": "例子/3.svg",
+      "sourceSha256": "b3023d4a1067668639025972b29555dd5b46e185a7dbba38a4ac1fb4a64c3209",
+      "x": 593,
+      "y": 509,
+      "width": 176,
+      "height": 13
+    }
+  }
+}

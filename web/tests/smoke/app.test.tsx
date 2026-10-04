@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
@@ -21,20 +21,28 @@ describe("home page", () => {
     );
   });
 
-  it("renders the Research Agent workspace entry point", async () => {
+  it("renders the menu and routes each action to its page", () => {
     render(
       <Providers locale="en">
         <Home />
       </Providers>,
     );
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole("heading", { name: /start a research task/i }),
-      ).toBeInTheDocument();
-    });
-    expect(screen.getAllByText(/research workspace/i).length).toBeGreaterThan(
-      0,
+    expect(
+      screen.getByRole("heading", { name: /choose your next step/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /new research/i })).toHaveAttribute(
+      "href",
+      "/research/new",
     );
+    expect(screen.getByRole("link", { name: "history" })).toHaveAttribute(
+      "href",
+      "/history",
+    );
+    expect(screen.getByRole("link", { name: "Settings" })).toHaveAttribute(
+      "href",
+      "/settings",
+    );
+    expect(document.querySelector("[data-pet-state]")).toBeNull();
   });
 });

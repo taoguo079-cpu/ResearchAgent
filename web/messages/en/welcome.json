@@ -1,4 +1,6 @@
 {
+  "next": "NEXT",
+  "partner": "YOUR AI RESEARCH PARTNER",
   "screenLabel": "Click anywhere to drop the magnifier and research companion, or press Enter or Space",
   "robotLabel": "Research companion; double-click to explore, or press Enter or Space; click when still to restore guidance after dragging",
   "magnifierLabel": "Magnifying glass; drag, throw, or place it in your companion's hand",

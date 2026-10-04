@@ -16,6 +16,16 @@ const spec: PetAnimationSpec = {
 };
 
 describe("PetSprite", () => {
+  it("aligns responsive hero frames across atlas columns and rows", () => {
+    const { container } = render(
+      <PetSprite state="read" frame={12} size="large" responsive spec={spec} />,
+    );
+    const sprite = container.querySelector<HTMLElement>("[data-pet-frame]");
+    expect(sprite?.style.width).toBe("100%");
+    expect(sprite?.style.aspectRatio).toBe("192 / 208");
+    expect(sprite?.style.backgroundSize).toBe("1200% 200%");
+    expect(sprite?.style.backgroundPosition).toBe("0% 100%");
+  });
   it("wraps frames after column 12 onto the next atlas row", () => {
     const { container } = render(
       <PetSprite state="read" frame={12} size="medium" spec={spec} />,

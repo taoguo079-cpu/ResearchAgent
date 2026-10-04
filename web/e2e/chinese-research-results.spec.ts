@@ -3,13 +3,13 @@ import { expect, test } from "@playwright/test";
 test("Chinese research results expose multiple sources and accurate text states", async ({
   page,
 }) => {
-  await page.goto("/workspace");
+  await page.goto("/research/new");
   await page
     .getByLabel("研究问题")
     .fill("请比较多来源检索在科研问答中的优势和局限。");
-  await page.getByRole("button", { name: "开始研究" }).click();
+  await page.getByRole("button", { name: /发送给 Agent/ }).click();
 
-  await expect(page).toHaveURL(/\/research\//);
+  await expect(page).toHaveURL(/\/research\/(?!new$)[^/]+$/);
   await expect(page.getByText("研究综合报告")).toBeVisible({
     timeout: 15_000,
   });

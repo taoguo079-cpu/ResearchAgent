@@ -42,7 +42,7 @@ export default function HistoryPage() {
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <Link
-              href="/workspace"
+              href="/research/new"
               className="text-sm font-medium text-[var(--color-primary)] hover:text-[var(--color-primary-hover)]"
             >
               {t("navigation.newResearch")}
@@ -66,7 +66,7 @@ export default function HistoryPage() {
               description={t("history.emptyDescription")}
               action={
                 <Link
-                  href="/workspace"
+                  href="/research/new"
                   className="text-sm font-medium text-[var(--color-primary)]"
                 >
                   {t("history.createFirst")}

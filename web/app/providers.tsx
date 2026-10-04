@@ -54,10 +54,12 @@ function AppContents({
   const isWelcomePage = /^\/(?:en\/?|zh-CN\/?)?$/.test(pathname);
   if (isWelcomePage) return children;
 
+  const isEntryPage = /\/(?:workspace|research\/new)\/?$/.test(pathname);
+
   const content = (
     <>
       {children}
-      <PetOverlay />
+      {!isEntryPage && <PetOverlay />}
     </>
   );
   return (

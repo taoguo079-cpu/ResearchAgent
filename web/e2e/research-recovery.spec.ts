@@ -3,10 +3,10 @@ import { expect, test } from "@playwright/test";
 test("recovers a running task after refresh and re-entry from history", async ({
   page,
 }) => {
-  await page.goto("/en/workspace");
+  await page.goto("/en/research/new");
   await page.getByLabel("Research question").fill("History recovery demo");
-  await page.getByRole("button", { name: "Start research" }).click();
-  await expect(page).toHaveURL(/\/research\//);
+  await page.getByRole("button", { name: /send to agent/i }).click();
+  await expect(page).toHaveURL(/\/research\/(?!new$)[^/]+$/);
   await expect(
     page.getByRole("navigation", { name: "Stage detail" }),
   ).toBeVisible();
@@ -34,12 +34,12 @@ test("recovers a running task after refresh and re-entry from history", async ({
 test("cancels an active task and preserves the terminal recovery path", async ({
   page,
 }) => {
-  await page.goto("/en/workspace");
+  await page.goto("/en/research/new");
   await page
     .getByLabel("Research question")
     .fill("Cancel this deterministic task");
-  await page.getByRole("button", { name: "Start research" }).click();
-  await expect(page).toHaveURL(/\/research\//);
+  await page.getByRole("button", { name: /send to agent/i }).click();
+  await expect(page).toHaveURL(/\/research\/(?!new$)[^/]+$/);
   await page.getByRole("button", { name: "Stop research" }).first().click();
   await page
     .getByRole("dialog")

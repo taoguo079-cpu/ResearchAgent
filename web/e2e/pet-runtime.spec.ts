@@ -369,7 +369,7 @@ for (const [size, width, height] of [
   }) => {
     await persistPet(page, { size });
     await mockPetTask(page);
-    await page.goto("/en/workspace", { waitUntil: "domcontentloaded" });
+    await page.goto("/en/history", { waitUntil: "domcontentloaded" });
     const pet = page.locator("[data-pet-state]");
     await expect(pet).toBeVisible();
     const initial = await pet.boundingBox();
@@ -416,7 +416,7 @@ test("drag lock keeps the saved position and clicking still opens settings", asy
 }) => {
   await persistPet(page, { dragLocked: true });
   await mockPetTask(page);
-  await page.goto("/en/workspace", { waitUntil: "domcontentloaded" });
+  await page.goto("/en/history", { waitUntil: "domcontentloaded" });
   const pet = page.locator("[data-pet-state]");
   await expect(pet).toBeVisible();
   const before = await pet.boundingBox();

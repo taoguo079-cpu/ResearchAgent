@@ -14,6 +14,7 @@ export function PetSprite({
   frame,
   size,
   displayWidth,
+  responsive = false,
   spec,
   assetStatus = "ready",
   fallbackPosterSrc,
@@ -22,6 +23,7 @@ export function PetSprite({
   frame: number;
   size: PetSize;
   displayWidth?: number;
+  responsive?: boolean;
   spec: PetAnimationSpec;
   assetStatus?: PetAssetStatus;
   fallbackPosterSrc?: string;
@@ -50,15 +52,26 @@ export function PetSprite({
       data-pet-asset={assetStatus}
       className="block bg-no-repeat"
       style={{
-        width: dimensions.width,
-        height: dimensions.height,
+        width: responsive ? "100%" : dimensions.width,
+        height: responsive ? "auto" : dimensions.height,
+        aspectRatio: responsive
+          ? `${PET_CELL.width} / ${PET_CELL.height}`
+          : undefined,
         backgroundImage: `url(${showPoster ? posterSrc : spec.src})`,
-        backgroundSize: showPoster
-          ? `${dimensions.width}px ${dimensions.height}px`
-          : `${dimensions.width * spec.columns}px ${dimensions.height * spec.rows}px`,
-        backgroundPosition: showPoster
-          ? "0 0"
-          : `${-column * dimensions.width}px ${-row * dimensions.height}px`,
+        backgroundSize: responsive
+          ? showPoster
+            ? "100% 100%"
+            : `${spec.columns * 100}% ${spec.rows * 100}%`
+          : showPoster
+            ? `${dimensions.width}px ${dimensions.height}px`
+            : `${dimensions.width * spec.columns}px ${dimensions.height * spec.rows}px`,
+        backgroundPosition: responsive
+          ? showPoster
+            ? "0% 0%"
+            : `${spec.columns > 1 ? (column / (spec.columns - 1)) * 100 : 0}% ${spec.rows > 1 ? (row / (spec.rows - 1)) * 100 : 0}%`
+          : showPoster
+            ? "0 0"
+            : `${-column * dimensions.width}px ${-row * dimensions.height}px`,
       }}
     />
   );

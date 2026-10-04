@@ -1,3 +1,3 @@
-import ResearchHomePage from "@/components/research/research-home-page";
+import ResearchMenuPage from "@/components/entry/research-menu-page";
 
-export default ResearchHomePage;
+export default ResearchMenuPage;

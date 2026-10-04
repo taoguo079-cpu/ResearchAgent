@@ -41,7 +41,7 @@ export function TaskSidebar({ taskId }: { taskId?: string }) {
 
       <div className="flex-1 overflow-y-auto p-3">
         <Link
-          href="/workspace"
+          href="/research/new"
           className={cn(
             buttonVariants({ variant: "secondary" }),
             "mb-4 w-full justify-start",

@@ -1,0 +1,234 @@
+.language {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 14px;
+  color: #70868f;
+  background: transparent;
+  font-size: 13px;
+  cursor: pointer;
+  border-left: 1px solid #dfe9ec;
+}
+.language:focus-visible,
+.menuPage a:focus-visible {
+  outline: 3px solid #1f80ff;
+  outline-offset: 7px;
+}
+.menuPage {
+  width: 100%;
+  min-height: 100svh;
+  background: #fff;
+  color: #2a245e;
+  color-scheme: light;
+  overflow-x: clip;
+}
+.menuCanvas {
+  position: relative;
+  width: min(100%, 1600px);
+  min-height: max(768px, 100svh);
+  margin-inline: auto;
+}
+.languagePosition {
+  position: absolute;
+  top: 28px;
+  right: 5%;
+  z-index: 3;
+}
+.menuLinks {
+  position: absolute;
+  top: 185.5px;
+  left: 4.465593%;
+  width: min(668px, 49%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 87.5px;
+}
+.newResearchLink,
+.historyLink {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  min-width: 0;
+  border-radius: 48px;
+}
+.newResearchPill,
+.historyPill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  position: relative;
+  width: 500px;
+  flex: 1;
+  min-height: 95px;
+  border-radius: 48px;
+  white-space: nowrap;
+  transition:
+    transform 0.15s,
+    background 0.15s;
+}
+.newResearchLink {
+  width: calc(100% - 13px);
+}
+.newResearchPill {
+  background: #1f80ff;
+  color: #fff;
+  font-size: clamp(23px, 3.22vw, 44px);
+  line-height: 1.2;
+}
+.newResearchLabel[data-design-vector="true"] {
+  position: absolute;
+  left: 33px;
+  top: 37px;
+}
+.historyLabel[data-design-vector="true"] {
+  position: absolute;
+  left: 144px;
+  top: 13px;
+}
+.historyPill {
+  color: #2a245e;
+  font-size: clamp(54px, 5.9vw, 90px);
+  font-weight: 300;
+  line-height: 1;
+}
+.newResearchLink:hover .newResearchPill {
+  background: #086feb;
+  transform: translateY(-2px);
+}
+.historyLink:hover .historyPill {
+  background: #f4fafb;
+  transform: translateY(-2px);
+}
+.searchDrawing {
+  width: 137px;
+  flex: 0 0 137px;
+  height: 200px;
+}
+.searchDrawing svg {
+  width: 137px;
+  height: 200px;
+}
+.bookDrawing {
+  width: 150px;
+  flex: 0 0 150px;
+  height: 115px;
+}
+.bookDrawing svg {
+  width: 140px;
+  height: 115px;
+  margin-left: 13px;
+}
+.historyOutline {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.menuRobot {
+  position: absolute;
+  top: 3.8%;
+  right: -2%;
+  width: 50.5%;
+  pointer-events: none;
+}
+.settings {
+  position: absolute;
+  bottom: 24px;
+  left: 30px;
+  width: 76px;
+  height: 68px;
+  display: grid;
+  place-items: center;
+  color: #2a245e;
+  border-radius: 12px;
+  z-index: 3;
+}
+.settings svg {
+  width: 64px;
+  height: 64px;
+}
+.gearCenter {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: #2a245e;
+  border: 2px solid #fff;
+  border-radius: 100%;
+  pointer-events: none;
+}
+@media (min-width: 1600px) {
+  .menuCanvas {
+    min-height: 900px;
+  }
+}
+@media (max-width: 900px) {
+  .menuCanvas {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100svh;
+    padding: 70px 22px 100px;
+  }
+  .languagePosition {
+    top: 12px;
+    right: 18px;
+  }
+  .menuRobot {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: min(360px, 95%);
+    order: -1;
+  }
+  .menuLinks {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: min(640px, 100%);
+    gap: 24px;
+    margin-top: 12px;
+  }
+  .newResearchLink,
+  .historyLink {
+    gap: 14px;
+  }
+  .searchDrawing {
+    flex-basis: 64px;
+    width: 64px;
+    height: 90px;
+  }
+  .bookDrawing {
+    flex-basis: 64px;
+    width: 64px;
+    height: 62px;
+  }
+  .newResearchPill,
+  .historyPill {
+    min-height: 72px;
+    width: auto;
+    padding: 12px;
+  }
+  .newResearchPill {
+    font-size: clamp(17px, 3vw, 25px);
+    gap: 8px;
+    white-space: normal;
+    text-align: center;
+  }
+  .historyPill {
+    font-size: 58px;
+  }
+  .settings {
+    width: 52px;
+    height: 52px;
+    left: 22px;
+    bottom: 22px;
+  }
+  .settings svg {
+    width: 48px;
+    height: 48px;
+  }
+}

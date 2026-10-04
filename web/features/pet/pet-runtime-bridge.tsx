@@ -9,7 +9,8 @@ import { usePathname } from "@/i18n/navigation";
 
 export function PetRuntimeBridge() {
   const pathname = usePathname();
-  const isResearchPage = pathname.includes("/research/");
+  const isResearchPage =
+    pathname.includes("/research/") && !pathname.endsWith("/research/new");
   const activeTask = useActiveTask({ enabled: !isResearchPage });
   const syncTaskSnapshot = usePetRuntimeStore(
     (state) => state.syncTaskSnapshot,
