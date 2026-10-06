@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { BrandRobot } from "@/components/entry/brand-robot";
 import { EntryLanguageSwitcher } from "@/components/entry/entry-language-switcher";
 import { DesignText } from "@/components/entry/design-text";
+import { useEntryNavigation } from "@/components/entry/entry-transition-provider";
 import designText from "@/public/design-text/manifest.json";
 import { WELCOME_SESSION_KEY } from "@/features/welcome/welcome-state";
 import { useRouter } from "@/i18n/navigation";
@@ -15,6 +16,7 @@ import styles from "./welcome-page.module.css";
 export function WelcomePage() {
   const t = useTranslations("welcome");
   const router = useRouter();
+  const { navigate } = useEntryNavigation();
   const navigated = useRef(false);
   const goToWorkspace = useCallback(() => {
     if (navigated.current) return;
@@ -41,12 +43,16 @@ export function WelcomePage() {
 
   function enter() {
     if (navigated.current) return;
+    navigated.current = true;
     try {
       sessionStorage.setItem(WELCOME_SESSION_KEY, "complete");
     } catch {
       // Entering the workspace does not depend on browser storage.
     }
-    goToWorkspace();
+    void navigate("/workspace", { replace: true }).finally(() => {
+      // A failed or timed-out transition leaves NEXT available for retry.
+      navigated.current = false;
+    });
   }
 
   function placement(asset: keyof typeof designText.assets) {

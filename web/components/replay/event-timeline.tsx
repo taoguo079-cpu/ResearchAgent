@@ -2,6 +2,7 @@
 
 import type { ResearchEvent } from "@/lib/events/types";
 import { useTranslations } from "next-intl";
+import styles from "./replay.module.css";
 
 export function EventTimeline({
   events,
@@ -14,8 +15,8 @@ export function EventTimeline({
 }) {
   const t = useTranslations("replay");
   return (
-    <section aria-label={t("eventTimeline")} className="space-y-2">
-      <div className="flex items-center justify-between text-xs text-[var(--color-text-muted)]">
+    <section aria-label={t("eventTimeline")} className={styles.timeline}>
+      <div className={styles.timelineLabels}>
         <span>
           {t("eventCount", { current: cursor, total: events.length })}
         </span>
@@ -28,20 +29,17 @@ export function EventTimeline({
         max={events.length}
         value={cursor}
         onChange={(event) => onSeek(Number(event.target.value))}
-        className="w-full accent-[var(--color-primary)]"
+        className={styles.range}
       />
-      <div className="flex gap-1 overflow-x-auto pb-1">
+      <div className={styles.events}>
         {events.map((event, index) => (
           <button
             key={event.sequence}
             type="button"
+            data-played={index < cursor}
             aria-label={t("goToEvent", { sequence: event.sequence })}
             onClick={() => onSeek(index + 1)}
-            className={
-              index < cursor
-                ? "h-1.5 min-w-5 rounded-full bg-[var(--color-primary)]"
-                : "h-1.5 min-w-5 rounded-full bg-[var(--color-border-strong)]"
-            }
+            className={styles.event}
           />
         ))}
       </div>

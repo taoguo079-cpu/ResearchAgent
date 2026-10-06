@@ -12,6 +12,8 @@ import {
   useUpdateDeepSeekSettings,
 } from "@/features/settings/use-deepseek-settings";
 
+import styles from "./settings-page.module.css";
+
 export function DeepSeekSettingsSection() {
   const t = useTranslations("settings.deepseek");
   const settingsQuery = useDeepSeekSettings();
@@ -29,18 +31,23 @@ export function DeepSeekSettingsSection() {
   }
 
   return (
-    <section className="rounded-[var(--radius-panel)] border border-[var(--color-border)] bg-[var(--color-surface)] p-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <section
+      className={`${styles.section} ${styles.modelSection}`}
+      aria-labelledby="deepseek-model-settings-title"
+    >
+      <div className={styles.modelHeader}>
         <div>
-          <h2 className="text-lg font-semibold text-[var(--color-text)]">
+          <h2
+            id="deepseek-model-settings-title"
+            className={styles.sectionTitle}
+          >
             {t("sectionTitle")}
           </h2>
-          <p className="mt-1 text-sm text-[var(--color-text-muted)]">
-            {t("sectionDescription")}
-          </p>
+          <p className={styles.sectionDescription}>{t("sectionDescription")}</p>
         </div>
         {settingsQuery.data ? (
           <Badge
+            className={styles.configurationBadge}
             variant={
               settingsQuery.data.api_key_configured ? "success" : "warning"
             }
@@ -53,17 +60,14 @@ export function DeepSeekSettingsSection() {
       </div>
 
       {settingsQuery.isPending ? (
-        <p
-          role="status"
-          className="mt-5 text-sm text-[var(--color-text-muted)]"
-        >
+        <p role="status" className={styles.modelStatus}>
           {t("checking")}
         </p>
       ) : settingsQuery.isError ? (
-        <div className="mt-5">
+        <div className={styles.sectionBody}>
           <InlineAlert tone="error">{t("unavailableError")}</InlineAlert>
           <Button
-            className="mt-3"
+            className={`${styles.secondaryButton} ${styles.retryButton}`}
             type="button"
             variant="secondary"
             disabled={settingsQuery.isFetching}
@@ -74,28 +78,32 @@ export function DeepSeekSettingsSection() {
         </div>
       ) : (
         <>
-          <dl className="mt-5 grid gap-4 rounded-[var(--radius-panel)] bg-[var(--color-surface-subtle)] p-4 sm:grid-cols-2">
+          <dl className={styles.modelMetadata}>
             <MetadataItem label={t("providerLabel")} value="DeepSeek" />
             <MetadataItem
               label={t("defaultModelLabel")}
               value={settingsQuery.data.default_model}
             />
           </dl>
-          <form className="mt-5" onSubmit={(event) => void save(event)}>
+          <form
+            className={styles.modelForm}
+            onSubmit={(event) => void save(event)}
+          >
             <label
               htmlFor="deepseek-api-key-settings"
-              className="block text-sm font-medium text-[var(--color-text)]"
+              className={styles.fieldLabel}
             >
               {t("replaceKeyLabel")}
             </label>
             <Input
               id="deepseek-api-key-settings"
-              className="mt-2"
+              className={styles.input}
               type="password"
               autoComplete="off"
               maxLength={1000}
               required
               spellCheck={false}
+              aria-describedby="deepseek-key-security-note"
               value={apiKey}
               placeholder={t("replaceKeyPlaceholder")}
               onChange={(event) => {
@@ -103,7 +111,7 @@ export function DeepSeekSettingsSection() {
                 updateSettings.reset();
               }}
             />
-            <p className="mt-2 text-xs leading-5 text-[var(--color-text-muted)]">
+            <p id="deepseek-key-security-note" className={styles.securityNote}>
               {t("keyNotReturned")}
             </p>
             {updateSettings.isError ? (
@@ -111,18 +119,16 @@ export function DeepSeekSettingsSection() {
                 {t("saveError")}
               </InlineAlert>
             ) : null}
-            <div className="mt-4 flex items-center gap-4">
+            <div className={styles.modelActions}>
               <Button
+                className={styles.primaryButton}
                 type="submit"
                 disabled={!apiKey.trim() || updateSettings.isPending}
               >
                 {updateSettings.isPending ? t("updating") : t("updateKey")}
               </Button>
               {updateSettings.isSuccess ? (
-                <p
-                  role="status"
-                  className="text-sm text-[var(--color-success)]"
-                >
+                <p role="status" className={styles.success}>
                   {t("updated")}
                 </p>
               ) : null}
@@ -136,11 +142,9 @@ export function DeepSeekSettingsSection() {
 
 function MetadataItem({ label, value }: { label: string; value: string }) {
   return (
-    <div>
-      <dt className="text-xs text-[var(--color-text-subtle)]">{label}</dt>
-      <dd className="mt-1 text-sm font-medium text-[var(--color-text)]">
-        {value}
-      </dd>
+    <div className={styles.metadataItem}>
+      <dt className={styles.metadataLabel}>{label}</dt>
+      <dd className={styles.metadataValue}>{value}</dd>
     </div>
   );
 }

@@ -22,6 +22,7 @@ import {
 import type { ResearchTaskResultResponse } from "@/lib/api/client";
 import { useUiStore } from "@/stores/ui-store";
 import { buildReportHeadingIndex } from "@/lib/markdown/report-headings";
+import styles from "./report-view.module.css";
 
 const statisticLabels = {
   papers_count: "report.statistics.papersCount",
@@ -83,33 +84,30 @@ export function ReportView({
   }
 
   return (
-    <article className="mx-auto w-full max-w-5xl px-8 py-8">
-      <header className="flex items-start justify-between gap-4">
+    <article className={styles.report}>
+      <header className={styles.header}>
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.08em] text-[var(--color-primary)]">
-            {t("report.title")}
-          </p>
-          <h1 className="mt-2 text-2xl font-semibold text-[var(--color-text)]">
-            {t("report.synthesis")}
-          </h1>
-          <div className="mt-2">
-            <ReportSummary result={result} />
-          </div>
+          <h1 className={styles.title}>{t("report.synthesis")}</h1>
+          <ReportSummary result={result} />
         </div>
         <ExportMenu taskId={taskId} />
       </header>
-      <Tabs defaultValue="report" className="mt-6">
-        <TabsList aria-label={t("report.views")}>
-          <TabsTrigger value="report">{t("report.reportTab")}</TabsTrigger>
-          <TabsTrigger value="papers">
+      <Tabs defaultValue="report">
+        <TabsList aria-label={t("report.views")} className={styles.tabs}>
+          <TabsTrigger value="report" className={styles.tab}>
+            {t("report.reportTab")}
+          </TabsTrigger>
+          <TabsTrigger value="papers" className={styles.tab}>
             {t("report.papersTab", { count: papers.length })}
           </TabsTrigger>
-          <TabsTrigger value="run">{t("report.runTab")}</TabsTrigger>
+          <TabsTrigger value="run" className={styles.tab}>
+            {t("report.runTab")}
+          </TabsTrigger>
         </TabsList>
-        <TabsContent value="report" className="pt-5">
-          <div className="grid gap-6 lg:grid-cols-[200px_minmax(0,760px)]">
+        <TabsContent value="report" className={styles.content}>
+          <div className={styles.readingLayout}>
             <ReportToc headings={headingIndex.headings} />
-            <div className="min-w-0 space-y-6">
+            <div className={styles.readingBody}>
               <QualityReview result={result} />
               <ReportDocument
                 markdown={result.report_markdown}
@@ -120,41 +118,38 @@ export function ReportView({
             </div>
           </div>
         </TabsContent>
-        <TabsContent value="papers" className="pt-5">
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <TabsContent value="papers" className={styles.content}>
+          <div className={styles.paperLayout}>
             <PaperList
               papers={papers}
               selectedPaperId={selectedPaper?.id}
               onSelect={handleSelectPaper}
             />
-            <PaperDetail
-              paper={selectedPaper}
-              citations={(result.citations ?? [])
-                .filter((citation) => citation.paper_id === selectedPaper?.id)
-                .map((citation) => ({
-                  citationId: citation.citation_id,
-                  displayNumber: citation.display_number,
-                }))}
-            />
+            <div className={styles.paperDetail}>
+              <PaperDetail
+                paper={selectedPaper}
+                citations={(result.citations ?? [])
+                  .filter((citation) => citation.paper_id === selectedPaper?.id)
+                  .map((citation) => ({
+                    citationId: citation.citation_id,
+                    displayNumber: citation.display_number,
+                  }))}
+              />
+            </div>
           </div>
         </TabsContent>
-        <TabsContent value="run" className="pt-5">
-          <section className="space-y-4 rounded-[var(--radius-panel)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
-            <h2 className="text-base font-semibold text-[var(--color-text)]">
-              {t("report.runTab")}
-            </h2>
-            <dl className="grid gap-3 text-sm sm:grid-cols-2">
+        <TabsContent value="run" className={styles.content}>
+          <section className={styles.run}>
+            <h2>{t("report.runTab")}</h2>
+            <dl className={styles.statistics}>
               {Object.entries(result.statistics ?? {}).map(([key, value]) => (
-                <div
-                  key={key}
-                  className="rounded-[var(--radius-control)] bg-[var(--color-surface-subtle)] px-3 py-2"
-                >
-                  <dt className="text-xs text-[var(--color-text-subtle)]">
+                <div key={key} className={styles.statistic}>
+                  <dt>
                     {key in statisticLabels
                       ? t(statisticLabels[key as keyof typeof statisticLabels])
                       : key}
                   </dt>
-                  <dd className="mt-1 text-[var(--color-text)]">
+                  <dd>
                     {typeof value === "string" || typeof value === "number"
                       ? String(value)
                       : t("common.notAvailable")}
@@ -162,10 +157,8 @@ export function ReportView({
                 </div>
               ))}
             </dl>
-            <details className="rounded-[var(--radius-control)] border border-[var(--color-border)]">
-              <summary className="cursor-pointer px-3 py-2 text-sm font-medium text-[var(--color-text)]">
-                {t("report.runReplay")}
-              </summary>
+            <details className={styles.replayDisclosure}>
+              <summary>{t("report.runReplay")}</summary>
               <AgentReplay taskId={taskId} />
             </details>
           </section>

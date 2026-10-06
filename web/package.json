@@ -16,11 +16,9 @@
     "api:generate": "openapi-typescript openapi.json -o lib/api/schema.d.ts",
     "api:check": "node ../scripts/check_openapi.mjs",
     "i18n:check": "node ../scripts/check_i18n.mjs",
-    "pet:build": "node scripts/build-fintech-pet-assets.mjs",
-    "pet:validate": "node scripts/validate-fintech-pet-assets.mjs",
-    "pet:test-assets": "node --test scripts/fintech-pet-assets.test.mjs",
-    "pet:build:legacy": "node scripts/build-pet-assets.mjs",
-    "pet:validate:legacy": "node scripts/validate-pet-assets.mjs"
+    "pet:build": "node scripts/build-research-robot-assets.mjs",
+    "pet:validate": "node --test scripts/research-robot-assets.test.mjs",
+    "pet:test-assets": "node --test scripts/research-robot-assets.test.mjs"
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "^0.19.2",

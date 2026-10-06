@@ -11,12 +11,14 @@ test("queues, replaces and cancels a follow-up, then answers from the completed 
   await expect(page).toHaveURL(/\/research\/(?!new$)[^/]+$/);
   const composer = page.getByTestId("followup-composer");
   const input = page.getByRole("textbox", { name: "Ask about this report" });
+  await page.getByRole("button", { name: "Expand follow-up" }).click();
   await input.fill("First queued question");
   await composer.getByRole("button", { name: "Send follow-up" }).click();
   await expect(
     composer.getByText("First queued question", { exact: true }),
   ).toBeVisible();
   await page.reload();
+  await page.getByRole("button", { name: "Expand follow-up" }).click();
   await expect(
     composer.getByText("First queued question", { exact: true }),
   ).toBeVisible();
@@ -50,6 +52,7 @@ test("queues, replaces and cancels a follow-up, then answers from the completed 
     page.viewportSize()!.height + 1,
   );
   await page.reload();
+  await page.getByRole("button", { name: "Expand follow-up" }).click();
   await expect(history.locator("article")).toHaveCount(2);
   await page.getByTestId("task-scroll-region").evaluate((element) => {
     element.scrollTop = element.scrollHeight;
@@ -71,6 +74,7 @@ test("cancelling research clears its queued question and disables the composer",
   await page.getByRole("button", { name: /send to agent/i }).click();
   await expect(page).toHaveURL(/\/research\/(?!new$)[^/]+$/);
   const input = page.getByRole("textbox", { name: "Ask about this report" });
+  await page.getByRole("button", { name: "Expand follow-up" }).click();
   await input.fill("Discard this queued question");
   await page.getByRole("button", { name: "Send follow-up" }).click();
   await expect(page.getByTestId("followup-composer")).toContainText(
@@ -93,6 +97,7 @@ test("cancelling research clears its queued question and disables the composer",
     page.getByText("Discard this queued question", { exact: true }),
   ).toHaveCount(0);
   await page.reload();
+  await page.getByRole("button", { name: "Expand follow-up" }).click();
   await expect(input).toBeDisabled();
   await expect(
     page.getByText("Discard this queued question", { exact: true }),

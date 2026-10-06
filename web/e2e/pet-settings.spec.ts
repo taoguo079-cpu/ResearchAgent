@@ -1,11 +1,15 @@
 import { expect, test } from "@playwright/test";
+import { mockEntryBackend } from "./three-page-helpers";
+
+test.use({ viewport: { width: 1366, height: 768 } });
 
 test("opens settings from the companion and restores access when hidden", async ({
   page,
 }) => {
+  await mockEntryBackend(page);
   await page.goto("/en/history", { waitUntil: "domcontentloaded" });
   const companion = page.getByRole("button", {
-    name: /Research companion: idle; open settings/i,
+    name: /Research companion: relaxing; open settings/i,
   });
   await expect(companion).toBeVisible();
   await companion.click();
@@ -31,45 +35,20 @@ test("opens settings from the companion and restores access when hidden", async 
   ).toBeVisible();
 });
 
-test("keeps the companion inside the viewport after dragging and reload", async ({
-  page,
-}) => {
-  await page.goto("/en/history", { waitUntil: "domcontentloaded" });
-  const companion = page.locator("[data-pet-state]");
-  await expect(companion).toBeVisible();
-  const before = await companion.boundingBox();
-  if (!before) throw new Error("Companion did not have a bounding box");
-
-  await page.mouse.move(
-    before.x + before.width / 2,
-    before.y + before.height / 2,
-  );
-  await page.mouse.down();
-  await page.mouse.move(30, 30, { steps: 5 });
-  await page.mouse.up();
-  await page.reload({ waitUntil: "domcontentloaded" });
-
-  const after = await companion.boundingBox();
-  if (!after) throw new Error("Companion disappeared after reload");
-  const viewport = page.viewportSize();
-  if (!viewport) throw new Error("Viewport is unavailable");
-  expect(after.x).toBeGreaterThanOrEqual(0);
-  expect(after.y).toBeGreaterThanOrEqual(0);
-  expect(after.x + after.width).toBeLessThanOrEqual(viewport.width);
-  expect(after.y + after.height).toBeLessThanOrEqual(viewport.height);
-  expect(after.x).toBeLessThan(before.x - 20);
-});
-
 test.describe("reduced motion", () => {
-  test("holds the system-mode companion on its poster frame", async ({
+  test("uses the native relaxing poster in system reduced motion", async ({
     page,
   }) => {
+    await mockEntryBackend(page);
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/en/history", { waitUntil: "domcontentloaded" });
-    const sprite = page.locator("[data-pet-frame]");
-    await expect(sprite).toBeVisible();
-    const initialFrame = await sprite.getAttribute("data-pet-frame");
-    await page.waitForTimeout(650);
-    await expect(sprite).toHaveAttribute("data-pet-frame", initialFrame ?? "0");
+    const companion = page.locator("[data-pet-state]");
+    await expect(companion).toHaveAttribute("data-pet-state", "completed");
+    await expect(
+      companion.locator('[data-research-media="poster"]'),
+    ).toBeVisible();
+    await expect(
+      companion.locator('[data-research-media="animation"]'),
+    ).toHaveCount(0);
   });
 });

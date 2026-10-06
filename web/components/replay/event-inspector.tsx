@@ -1,28 +1,17 @@
 import type { ResearchEvent } from "@/lib/events/types";
 import { useTranslations } from "next-intl";
+import styles from "./replay.module.css";
 
 export function EventInspector({ event }: { event?: ResearchEvent }) {
   const t = useTranslations("replay");
-  if (!event)
-    return (
-      <p className="text-sm text-[var(--color-text-muted)]">
-        {t("inspectorEmpty")}
-      </p>
-    );
+  if (!event) return <p className={styles.empty}>{t("inspectorEmpty")}</p>;
   return (
-    <section
-      aria-label={t("eventInspector")}
-      className="space-y-3 rounded-[var(--radius-panel)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
-    >
-      <div className="flex items-center justify-between gap-3">
-        <h3 className="text-sm font-semibold text-[var(--color-text)]">
-          {event.event_type}
-        </h3>
-        <span className="text-xs text-[var(--color-text-subtle)]">
-          {t("sequence", { sequence: event.sequence })}
-        </span>
+    <section aria-label={t("eventInspector")} className={styles.inspector}>
+      <div className={styles.inspectorHeader}>
+        <h3>{event.event_type}</h3>
+        <span>{t("sequence", { sequence: event.sequence })}</span>
       </div>
-      <pre className="max-h-56 overflow-auto whitespace-pre-wrap break-words rounded-[var(--radius-control)] bg-[var(--color-surface-subtle)] p-3 text-xs text-[var(--color-text-muted)]">
+      <pre className={styles.payload}>
         {JSON.stringify(event.payload, null, 2)}
       </pre>
     </section>

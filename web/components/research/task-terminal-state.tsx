@@ -2,6 +2,7 @@ import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
+import styles from "./workspace-task.module.css";
 
 export function TaskTerminalState({
   status,
@@ -20,13 +21,9 @@ export function TaskTerminalState({
   const [title, description] = copy[status];
 
   return (
-    <section role="status" className="rounded-[var(--radius-panel)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
-      <h2 className="text-base font-semibold text-[var(--color-text)]">
-        {title}
-      </h2>
-      <p className="mt-1 text-sm text-[var(--color-text-muted)]">
-        {description}
-      </p>
+    <section role="status" className={styles.recovery}>
+      <h2>{title}</h2>
+      <p>{description}</p>
       <div className="mt-4 flex gap-2">
         {onRetry && status !== "completed" ? (
           <Button onClick={onRetry}>{t("retryResearch")}</Button>

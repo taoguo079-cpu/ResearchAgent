@@ -1,0 +1,237 @@
+{
+  "schemaVersion": 1,
+  "sourceDesignId": "DAHWvvAA1Ik",
+  "sourceDesignIds": ["DAHWvvAA1Ik", "DAHXKMM-7bU"],
+  "renderer": "lottie-svg",
+  "stages": {
+    "orchestrate": "thinking",
+    "search": "internet",
+    "filter": "checklist",
+    "read": "guidebook",
+    "analyze": "map",
+    "synthesize": "puzzle",
+    "critic": "critic"
+  },
+  "assets": {
+    "thinking": {
+      "src": "/research-robot/thinking.lottie.json",
+      "posterSrc": "/research-robot/thinking-poster.webp",
+      "fps": 60,
+      "frames": 300,
+      "duration": 5,
+      "width": 1080,
+      "height": 1080,
+      "crop": {
+        "left": 287,
+        "top": 42,
+        "width": 558,
+        "height": 985
+      },
+      "posterWidth": 510,
+      "posterHeight": 900,
+      "assetId": "VAFNUpaBXfo",
+      "catalogName": "Fintech Robot Thinking",
+      "sourceUrl": "https://video-public.canva.com/VAFNUpaBXfo/v/8aaa588ba7.json",
+      "sha256": "4b4cc9f30d510f2c73eaa6f45e91233522fd6fd3fcf2fa29cca07ee0cc12ff1f",
+      "posterSha256": "430a4203a694ef588a399b452ee98887aec76910e6e4f5d006e146fd2d7d2b0b"
+    },
+    "internet": {
+      "src": "/research-robot/internet.lottie.json",
+      "posterSrc": "/research-robot/internet-poster.webp",
+      "fps": 60,
+      "frames": 360,
+      "duration": 6,
+      "width": 1080,
+      "height": 1080,
+      "crop": {
+        "left": 81,
+        "top": 29,
+        "width": 997,
+        "height": 1006
+      },
+      "posterWidth": 892,
+      "posterHeight": 900,
+      "assetId": "VAFNUjNZleA",
+      "catalogName": "Fintech Robot Searching the Internet",
+      "sourceUrl": "https://video-public.canva.com/VAFNUjNZleA/v/ba0ab58d9c.json",
+      "sha256": "af09c5356624dfb874cf1acdccf0e2bc5f81ddaabb7f89a95e3178e2fb2849ab",
+      "posterSha256": "61e80269ff6583294fe572a44de7da29716a4027b7fa90f807121d6fa086317e"
+    },
+    "checklist": {
+      "src": "/brand-robot/filter.lottie.json",
+      "posterSrc": "/research-robot/checklist-poster.webp",
+      "fps": 60,
+      "frames": 360,
+      "duration": 6,
+      "width": 1080,
+      "height": 1080,
+      "crop": {
+        "left": 80,
+        "top": 73,
+        "width": 879,
+        "height": 941
+      },
+      "posterWidth": 841,
+      "posterHeight": 900,
+      "assetId": "VAFNUlsKKYo",
+      "catalogName": "Fintech Robot Marking Its Checklist",
+      "sourceUrl": "https://video-public.canva.com/VAFNUlsKKYo/v/9d94422403.json",
+      "sha256": "373f819e317aadc10e6abc850dc276f6eeda9351544c3050fa25d1eeb0b86f9a",
+      "posterSha256": "a77cc872a0335ced8dc0f88c6f488b0f698b1abd355e8568d6af6364590e6b80"
+    },
+    "guidebook": {
+      "src": "/research-robot/guidebook.lottie.json",
+      "posterSrc": "/research-robot/guidebook-poster.webp",
+      "fps": 60,
+      "frames": 360,
+      "duration": 6,
+      "width": 1080,
+      "height": 1080,
+      "crop": {
+        "left": 188,
+        "top": 62,
+        "width": 689,
+        "height": 972
+      },
+      "posterWidth": 638,
+      "posterHeight": 900,
+      "assetId": "VAFNUvnLNr4",
+      "catalogName": "Fintech Robot Reading a Guidebook",
+      "sourceUrl": "https://video-public.canva.com/VAFNUvnLNr4/v/f4d4ccae02.json",
+      "sha256": "a5751571d2067ab95c12380696c8da66b533f27e152da64b0f033c697df136b7",
+      "posterSha256": "81027e47da9fadad0e4f9f79539f6289ac8b51ffef64e3cd24773377aab2648f"
+    },
+    "map": {
+      "src": "/research-robot/map.lottie.json",
+      "posterSrc": "/research-robot/map-poster.webp",
+      "fps": 60,
+      "frames": 360,
+      "duration": 6,
+      "width": 1080,
+      "height": 1080,
+      "crop": {
+        "left": 80,
+        "top": 18,
+        "width": 896,
+        "height": 1007
+      },
+      "posterWidth": 801,
+      "posterHeight": 900,
+      "assetId": "VAFNUhurvKk",
+      "catalogName": "Confused Fintech Robot Looking at a Map",
+      "sourceUrl": "https://video-public.canva.com/VAFNUhurvKk/v/5d72fe1c6f.json",
+      "sha256": "9be2ced28cc956864adc3479871a886fb5d4fdc6004249e3743d8891d2a237e5",
+      "posterSha256": "0c6fc201849004cbb3c71849ee33320db4ae224323893077d1cddf24a42f63b6"
+    },
+    "puzzle": {
+      "src": "/research-robot/puzzle.lottie.json",
+      "posterSrc": "/research-robot/puzzle-poster.webp",
+      "fps": 60,
+      "frames": 360,
+      "duration": 6,
+      "width": 1080,
+      "height": 1080,
+      "crop": {
+        "left": 52,
+        "top": 38,
+        "width": 988,
+        "height": 963
+      },
+      "posterWidth": 923,
+      "posterHeight": 900,
+      "assetId": "VAFNUlqiXpg",
+      "catalogName": "Fintech Robot Completing a Puzzle",
+      "sourceUrl": "https://video-public.canva.com/VAFNUlqiXpg/v/7bdc9895ca.json",
+      "sha256": "2ee0b47284a6646c844bec8612cf7e1601261616fdeaeb64ee1f6d37339dd888",
+      "posterSha256": "3025490c183bdbde6c0305041304199e931435f109fc40de5c1cbb47a91aedd0"
+    },
+    "critic": {
+      "src": "/research-robot/critic.lottie.json",
+      "posterSrc": "/research-robot/critic-poster.webp",
+      "fps": 60,
+      "frames": 360,
+      "duration": 6,
+      "width": 1080,
+      "height": 1080,
+      "crop": {
+        "left": 38,
+        "top": -7,
+        "width": 988,
+        "height": 1044
+      },
+      "posterWidth": 852,
+      "posterHeight": 900,
+      "assetId": "VAFNUkD_bjo",
+      "catalogName": "Fintech Robot Giving a Rating",
+      "sourceUrl": "https://video-public.canva.com/VAFNUkD_bjo/v/8dd068f92a.json",
+      "sha256": "1e5977270834b8c4dc9c283619cd07730c83deb8eb931dfdd8b3db2ae9fe7adb",
+      "posterSha256": "ceabda618de24aa5ce76228e913616c8b2fa306df323776839c0615151a85e27"
+    },
+    "completed": {
+      "src": "/research-robot/completed.lottie.json",
+      "posterSrc": "/research-robot/completed-poster.webp",
+      "fps": 60,
+      "frames": 360,
+      "duration": 6,
+      "width": 1080,
+      "height": 1080,
+      "crop": {
+        "left": 154,
+        "top": 54,
+        "width": 785,
+        "height": 971
+      },
+      "posterWidth": 728,
+      "posterHeight": 900,
+      "assetId": "VAFNUqlPqbg",
+      "catalogName": "Fintech Robot Relaxing",
+      "sourceUrl": "https://video-public.canva.com/VAFNUqlPqbg/v/49745dce15.json",
+      "sha256": "add3522485e11b7f81f000c9ec10532393b04bd5651bd308cbec7aef18e47c2b",
+      "posterSha256": "1b0c967cb301f7c0dfccfd68a3d22460d07faafba0af58cbed77120946b9d28b"
+    },
+    "flying": {
+      "src": "/research-robot/flying.lottie.json",
+      "posterSrc": "/research-robot/flying-poster.webp",
+      "fps": 60,
+      "frames": 365,
+      "duration": 6.083333333333333,
+      "width": 1080,
+      "height": 1080,
+      "crop": {
+        "left": 65,
+        "top": 16,
+        "width": 960,
+        "height": 1024
+      },
+      "posterWidth": 844,
+      "posterHeight": 900,
+      "assetId": "VAFNUgXwLyQ",
+      "catalogName": "Fintech Robot Flying",
+      "sourceUrl": "https://video-public.canva.com/VAFNUgXwLyQ/v/21ffaf3189.json",
+      "sha256": "75f6e34e6c7d6ee8f70a8735daa1bf293a24d94b6b3f94ddca561136cc1ab868",
+      "posterSha256": "0ccd0f81c8f353f590a40998609b6e8be1e6e1652d39a078d3a49997fe5929b2"
+    },
+    "failed": {
+      "src": "/research-robot/failed.lottie.json",
+      "posterSrc": "/research-robot/failed-poster.webp",
+      "fps": 60,
+      "frames": 300,
+      "duration": 5,
+      "width": 1080,
+      "height": 1080,
+      "crop": {
+        "left": 99,
+        "top": 62,
+        "width": 939,
+        "height": 940
+      },
+      "posterWidth": 899,
+      "posterHeight": 900,
+      "assetId": "VAFNUiv4TVw",
+      "catalogName": "Fintech Robot with Error",
+      "sourceUrl": "https://video-public.canva.com/VAFNUiv4TVw/v/9662a94ba5.json",
+      "sha256": "c5f05e804b16b2cc20e5abb785b36441dbb13d1124c620ebceab6a9b300d12e0",
+      "posterSha256": "cd2a491e808f4fd699a3f4d8a73c12c1b1f25b5905262a1e0408785bb4906331"
+    }
+  }
+}

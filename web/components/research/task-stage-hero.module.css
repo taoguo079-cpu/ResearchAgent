@@ -1,0 +1,100 @@
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 244px;
+  align-items: start;
+  gap: 12px;
+  min-height: calc(100cqh - 12px);
+}
+
+.robotArea {
+  display: grid;
+  min-width: 0;
+  min-height: calc(100cqh - 12px);
+  place-items: center;
+}
+
+.robot {
+  width: 100%;
+  height: clamp(300px, calc(100cqh - 24px), 680px);
+}
+
+.detailsRail {
+  position: sticky;
+  top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  margin-top: 32px;
+}
+
+.detailsRail details {
+  overflow: hidden;
+  color: var(--color-text);
+}
+
+.stageDetails {
+  border-radius: 16px;
+  background: var(--workspace-mint);
+}
+
+.planDetails {
+  border-block: 1px solid var(--color-border);
+}
+
+.detailsRail summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 68px;
+  padding: 20px;
+  font-size: 19px;
+  font-weight: 600;
+  list-style: none;
+  cursor: pointer;
+}
+
+.stageDetails summary {
+  font-size: 25px;
+}
+
+.detailsRail summary::-webkit-details-marker {
+  display: none;
+}
+
+.detailsRail summary svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  transition: transform 180ms ease-out;
+}
+
+.detailsRail details[open] summary svg {
+  transform: rotate(180deg);
+}
+
+.detailsRail summary:hover {
+  color: var(--workspace-action-hover);
+}
+
+.detailsRail summary:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -3px;
+}
+
+.detailsRail details > section {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0 20px 24px;
+}
+
+.detailsRail details > section h2 {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detailsRail summary svg {
+    transition: none;
+  }
+}

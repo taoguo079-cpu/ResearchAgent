@@ -1,102 +1,85 @@
 "use client";
 
-import { Settings } from "lucide-react";
+import { ArrowRight, BookOpen, Search, Settings } from "lucide-react";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 import { BrandRobot } from "@/components/entry/brand-robot";
 import { EntryLanguageSwitcher } from "@/components/entry/entry-language-switcher";
 import { DesignText } from "@/components/entry/design-text";
+import { EntryTransitionLink } from "@/components/entry/entry-transition-link";
 import { Link } from "@/i18n/navigation";
-import styles from "./entry.module.css";
-
-function SearchDrawing() {
-  return (
-    <Image
-      src="/brand-robot/search-drawing.svg"
-      width={132}
-      height={200}
-      alt=""
-      aria-hidden="true"
-      unoptimized
-    />
-  );
-}
-
-function BookDrawing() {
-  return (
-    <svg
-      viewBox="0 0 150 115"
-      aria-hidden="true"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="3"
-      strokeLinejoin="round"
-    >
-      <path d="M74 24C54 10 31 6 20 7v84c20 0 37 6 54 16V24Zm5 0c20-14 43-18 54-17v84c-20 0-37 6-54 16V24Z" />
-      <path d="M13 27H4v77c18-3 38-2 54 3M139 27h9v77c-18-3-38-2-54 3M14 24v73c17-1 31 2 46 7m78-80v73c-17-1-31 2-46 7" />
-    </svg>
-  );
-}
+import styles from "./research-menu-page.module.css";
 
 export default function ResearchMenuPage() {
   const t = useTranslations("entry");
   return (
-    <main className={styles.menuPage} data-testid="research-menu">
-      <div className={styles.menuCanvas}>
-        <h1 className="sr-only">{t("menuTitle")}</h1>
-        <div className={styles.languagePosition}>
-          <EntryLanguageSwitcher />
-        </div>
-        <nav className={styles.menuLinks} aria-label={t("menuTitle")}>
-          <Link href="/research/new" className={styles.newResearchLink}>
-            <span className={styles.searchDrawing}>
-              <SearchDrawing />
+    <main className={styles.page} data-testid="research-menu">
+      <div className={styles.canvas}>
+        <header className={styles.header}>
+          <p className={styles.partner}>
+            <span className={styles.partnerIcon} aria-hidden="true">
+              <Search strokeWidth={1.8} />
             </span>
-            <span className={`${styles.newResearchPill} entry-pixel`}>
-              <DesignText asset="menu-new" className={styles.newResearchLabel}>
-                {t("newResearch")}
-              </DesignText>
-            </span>
-          </Link>
-          <Link href="/history" className={styles.historyLink}>
-            <span className={styles.bookDrawing}>
-              <BookDrawing />
-            </span>
-            <span className={`${styles.historyPill} entry-serif`}>
-              <svg
-                className={styles.historyOutline}
-                viewBox="0 0 500 95"
-                preserveAspectRatio="none"
-                aria-hidden="true"
+            {t("partner")}
+          </p>
+          <div className={styles.utilities}>
+            <Link
+              href="/settings"
+              className={styles.settings}
+              title={t("settings")}
+            >
+              <Settings aria-hidden="true" size={18} />
+              {t("settings")}
+            </Link>
+            <EntryLanguageSwitcher />
+          </div>
+        </header>
+
+        <section className={styles.hero} aria-labelledby="workspace-title">
+          <div className={styles.copy}>
+            <h1
+              id="workspace-title"
+              className={styles.title}
+              aria-label="Research Agent"
+            >
+              <span className="entry-serif">Research</span>
+              <span className="entry-pixel">Agent</span>
+            </h1>
+            <p className={styles.tagline}>{t("tagline")}</p>
+            <p className={styles.motto}>
+              <DesignText
+                asset="home-data"
+                forceVector
+                className={styles.mottoData}
+                style={{ width: 125, height: 41 }}
               >
-                <rect
-                  x="2.5"
-                  y="2.5"
-                  width="495"
-                  height="90"
-                  rx="45"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="5"
-                  strokeDasharray="29 6"
-                />
-              </svg>
-              <DesignText asset="menu-history" className={styles.historyLabel}>
-                {t("history")}
+                Data
+              </DesignText>{" "}
+              <DesignText
+                asset="home-power"
+                forceVector
+                style={{ width: 160.5, height: 46 }}
+              >
+                is power
               </DesignText>
-            </span>
-          </Link>
-        </nav>
-        <BrandRobot action="idle" className={styles.menuRobot} />
-        <Link
-          href="/settings"
-          className={styles.settings}
-          aria-label={t("settings")}
-          title={t("settings")}
-        >
-          <Settings aria-hidden="true" fill="currentColor" strokeWidth="2.5" />
-          <span className={styles.gearCenter} aria-hidden="true" />
-        </Link>
+            </p>
+            <nav className={styles.actions} aria-label={t("menuTitle")}>
+              <EntryTransitionLink
+                href="/research/new"
+                className={styles.newResearch}
+              >
+                <span className="entry-pixel">{t("newResearch")}</span>
+                <ArrowRight aria-hidden="true" size={22} />
+              </EntryTransitionLink>
+              <Link href="/history" className={styles.history}>
+                <BookOpen aria-hidden="true" size={22} />
+                {t("history")}
+              </Link>
+            </nav>
+          </div>
+          <div className={styles.illustration}>
+            <BrandRobot action="idle" className={styles.robot} />
+          </div>
+        </section>
       </div>
     </main>
   );

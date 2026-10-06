@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { StrictMode } from "react";
@@ -7,6 +13,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const { replace } = vi.hoisted(() => ({ replace: vi.fn() }));
 vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ replace }),
+  usePathname: () => "/",
 }));
 vi.mock("@/components/entry/brand-robot", () => ({
   BrandRobot: ({ action }: { action: string }) => (
@@ -18,10 +25,12 @@ vi.mock("@/components/entry/entry-language-switcher", () => ({
 }));
 
 import { WELCOME_SESSION_KEY } from "@/features/welcome/welcome-state";
+import { EntryTransitionProvider } from "@/components/entry/entry-transition-provider";
 import { getMessages } from "@/i18n/messages";
+import { mockViewTransitions } from "@/test-shims/view-transition";
 import { WelcomePage } from "./welcome-page";
 
-function renderWelcome(locale: "zh-CN" | "en" = "en") {
+function renderWelcome(locale: "zh-CN" | "en" = "en", animated = false) {
   return render(
     <StrictMode>
       <NextIntlClientProvider
@@ -29,7 +38,13 @@ function renderWelcome(locale: "zh-CN" | "en" = "en") {
         messages={getMessages(locale)}
         timeZone="UTC"
       >
-        <WelcomePage />
+        {animated ? (
+          <EntryTransitionProvider>
+            <WelcomePage />
+          </EntryTransitionProvider>
+        ) : (
+          <WelcomePage />
+        )}
       </NextIntlClientProvider>
     </StrictMode>,
   );
@@ -45,6 +60,8 @@ describe("brand welcome page", () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
 
@@ -71,6 +88,56 @@ describe("brand welcome page", () => {
     fireEvent.click(next);
     expect(sessionStorage.getItem(WELCOME_SESSION_KEY)).toBe("complete");
     expect(replace).toHaveBeenCalledExactlyOnceWith("/workspace");
+  });
+
+  it("remembers NEXT before the snapshot, navigates once and allows retry after a timeout", async () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn(() => ({
+        matches: false,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      })),
+    );
+    const native = mockViewTransitions();
+    renderWelcome("en", true);
+    const next = screen.getByRole("button", { name: "NEXT" });
+    fireEvent.click(next);
+    fireEvent.click(next);
+    expect(sessionStorage.getItem(WELCOME_SESSION_KEY)).toBe("complete");
+    expect(replace).not.toHaveBeenCalled();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(16);
+    });
+    expect(replace).toHaveBeenCalledExactlyOnceWith("/workspace");
+    await act(async () => {
+      vi.advanceTimersByTime(5000);
+    });
+    expect(screen.queryByTestId("entry-transition")).not.toBeInTheDocument();
+    fireEvent.click(next);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(16);
+    });
+    expect(replace).toHaveBeenCalledTimes(2);
+    native.restore();
+  });
+
+  it("skips a completed welcome without a mask even when animations are enabled", async () => {
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn(() => ({
+        matches: false,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      })),
+    );
+    sessionStorage.setItem(WELCOME_SESSION_KEY, "complete");
+    renderWelcome("en", true);
+    await waitFor(() =>
+      expect(replace).toHaveBeenCalledExactlyOnceWith("/workspace"),
+    );
+    expect(screen.queryByTestId("entry-transition")).not.toBeInTheDocument();
   });
 
   it("skips a completed welcome on return under Strict Mode", async () => {

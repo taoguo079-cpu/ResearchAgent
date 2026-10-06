@@ -9,6 +9,8 @@ import {
 } from "@/components/papers/paper-filters";
 import { PaperRow } from "@/components/papers/paper-row";
 import type { ResearchPaper } from "@/features/papers/paper-model";
+import { Library } from "lucide-react";
+import styles from "./papers.module.css";
 
 export function PaperList({
   papers,
@@ -79,7 +81,7 @@ export function PaperList({
   ]);
 
   return (
-    <section aria-label={t("title")} className="space-y-4">
+    <section aria-label={t("title")} className={styles.list}>
       <PaperFilters
         query={query}
         source={source}
@@ -98,7 +100,7 @@ export function PaperList({
         onToYearChange={setToYear}
         yearRangeInvalid={yearRangeInvalid}
       />
-      <div className="divide-y divide-[var(--color-border)] border-b border-[var(--color-border)]">
+      <div className={styles.rows}>
         {visiblePapers.map((paper) => (
           <PaperRow
             key={paper.id}
@@ -109,7 +111,8 @@ export function PaperList({
         ))}
       </div>
       {!visiblePapers.length ? (
-        <p className="py-8 text-center text-sm text-[var(--color-text-muted)]">
+        <p className={styles.empty}>
+          <Library aria-hidden="true" />
           {t("empty")}
         </p>
       ) : null}

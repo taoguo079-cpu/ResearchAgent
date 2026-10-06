@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
+  usePathname: () => null,
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -29,8 +30,14 @@ describe("home page", () => {
     );
 
     expect(
-      screen.getByRole("heading", { name: /choose your next step/i }),
+      screen.getByRole("heading", { name: "Research Agent", level: 1 }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText("Every discovery begins with a question."),
+    ).toBeVisible();
+    expect(screen.queryByRole("list")).not.toBeInTheDocument();
+    expect(screen.getByText("Data")).toBeInTheDocument();
+    expect(screen.getByText("is power")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /new research/i })).toHaveAttribute(
       "href",
       "/research/new",

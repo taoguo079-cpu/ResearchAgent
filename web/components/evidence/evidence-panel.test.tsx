@@ -42,6 +42,22 @@ const result = {
 describe("EvidencePanel", () => {
   beforeEach(() => resetUiStore());
 
+  it("waits for a report without declaring missing historical evidence", () => {
+    render(
+      <Providers locale="en">
+        <EvidencePanel />
+      </Providers>,
+    );
+    expect(
+      screen.getByText(
+        "Source evidence will appear when the research report is ready.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/historical result has no evidence/i),
+    ).not.toBeInTheDocument();
+  });
+
   it("opens linked evidence from a citation marker", async () => {
     const user = userEvent.setup();
     render(

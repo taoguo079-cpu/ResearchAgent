@@ -1,6 +1,7 @@
 {
   "title": "Evidence",
   "empty": "Select a citation in the report to inspect its source evidence.",
+  "pending": "Source evidence will appear when the research report is ready.",
   "unsupported": "This historical result has no evidence tracing data.",
   "openPaper": "Open paper",
   "verified": "Verified",

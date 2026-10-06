@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 
 import { BrandRobot } from "@/components/entry/brand-robot";
 import { EntryLanguageSwitcher } from "@/components/entry/entry-language-switcher";
+import { EntryTransitionLink } from "@/components/entry/entry-transition-link";
 
 import {
   ResearchComposer,
@@ -28,10 +29,14 @@ export default function ResearchHomePage() {
     <main className={styles.page} data-testid="research-question-page">
       <div className={styles.scene}>
         <nav className={styles.navigation}>
-          <Link href="/workspace" className={styles.back}>
+          <EntryTransitionLink
+            href="/workspace"
+            direction="backward"
+            className={styles.back}
+          >
             <span aria-hidden="true">←</span>
             {t("entry.backToMenu")}
-          </Link>
+          </EntryTransitionLink>
           <EntryLanguageSwitcher />
         </nav>
         <div className={styles.content}>

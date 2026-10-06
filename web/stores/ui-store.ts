@@ -12,6 +12,8 @@ type UiState = {
   isContextPanelOpen: boolean;
   contextTab: ContextTab;
   selectedObjectId: string | null;
+  zenTaskId: string | null;
+  setZenTaskId: (taskId: string | null) => void;
   setTaskSidebarOpen: (open: boolean) => void;
   toggleTaskSidebar: () => void;
   setContextPanelOpen: (open: boolean) => void;
@@ -25,9 +27,14 @@ const defaultUiState = {
   isContextPanelOpen: true,
   contextTab: "evidence",
   selectedObjectId: null,
+  zenTaskId: null,
 } satisfies Pick<
   UiState,
-  "isTaskSidebarOpen" | "isContextPanelOpen" | "contextTab" | "selectedObjectId"
+  | "isTaskSidebarOpen"
+  | "isContextPanelOpen"
+  | "contextTab"
+  | "selectedObjectId"
+  | "zenTaskId"
 >;
 
 type PersistedUiState = Pick<UiState, "isTaskSidebarOpen">;
@@ -49,6 +56,7 @@ export const useUiStore = create<UiState>()(
   persist(
     (set) => ({
       ...defaultUiState,
+      setZenTaskId: (zenTaskId) => set({ zenTaskId }),
       setTaskSidebarOpen: (open) => set({ isTaskSidebarOpen: open }),
       toggleTaskSidebar: () =>
         set((state) => ({

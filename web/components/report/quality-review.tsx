@@ -1,6 +1,7 @@
 import { InlineAlert } from "@/components/ui/inline-alert";
 import type { ResearchTaskResultResponse } from "@/lib/api/client";
 import { useTranslations } from "next-intl";
+import styles from "./report-view.module.css";
 
 export function QualityReview({
   result,
@@ -32,7 +33,7 @@ export function QualityReview({
         </InlineAlert>
       ) : null}
       {critiqueSummary ? (
-        <div className="rounded-[var(--radius-panel)] border border-[var(--color-border)] bg-[var(--color-surface-subtle)] p-4 text-sm text-[var(--color-text-muted)]">
+        <div className={styles.review}>
           {t("criticReview")}: {critiqueSummary}
         </div>
       ) : null}

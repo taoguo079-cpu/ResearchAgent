@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { InlineAlert } from "@/components/ui/inline-alert";
 import { useTranslations } from "next-intl";
+import styles from "./workspace-task.module.css";
 
 export function TaskErrorState({
   code,
@@ -18,7 +19,7 @@ export function TaskErrorState({
   return (
     <section className="space-y-4">
       <InlineAlert tone="error">{t("errorTitle")}</InlineAlert>
-      <div className="rounded-[var(--radius-panel)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
+      <div className={styles.recovery}>
         <details className="text-xs text-[var(--color-text-muted)]">
           <summary className="cursor-pointer">
             {common("technicalDetails")}

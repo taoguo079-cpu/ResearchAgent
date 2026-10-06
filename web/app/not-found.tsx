@@ -1,41 +1,49 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { BrandRobot } from "@/components/entry/brand-robot";
 
 import { buttonVariants } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { cn } from "@/lib/utils/cn";
 import { Link } from "@/i18n/navigation";
+import styles from "@/components/shell/not-found.module.css";
 
 export default function NotFound() {
   const t = useTranslations();
   return (
-    <main className="relative flex min-h-screen items-center justify-center bg-[var(--color-page)] px-6">
+    <main className={styles.page}>
       <div className="absolute right-4 top-4">
         <ThemeToggle />
       </div>
-      <section className="max-w-md rounded-[var(--radius-panel)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center">
-        <p className="text-xs font-medium uppercase tracking-[0.08em] text-[var(--color-text-subtle)]">
+      <section className={styles.content}>
+        <p className={styles.code} aria-hidden="true">
           404
         </p>
-        <h1 className="mt-2 text-xl font-semibold text-[var(--color-text)]">
-          {t("task.notFound")}
-        </h1>
-        <p className="mt-2 text-sm leading-relaxed text-[var(--color-text-muted)]">
-          {t("task.loadError")}
-        </p>
-        <div className="mt-6 flex justify-center gap-2">
-          <Link href="/workspace" className={cn(buttonVariants({ variant: "primary" }))}>
+        <h1 className={styles.title}>{t("task.notFound")}</h1>
+        <p className={styles.description}>{t("task.loadError")}</p>
+        <div className={styles.actions}>
+          <Link
+            href="/workspace"
+            className={cn(
+              buttonVariants({ variant: "primary" }),
+              styles.action,
+            )}
+          >
             {t("common.home")}
           </Link>
           <Link
             href="/history"
-            className={cn(buttonVariants({ variant: "secondary" }))}
+            className={cn(
+              buttonVariants({ variant: "secondary" }),
+              styles.action,
+            )}
           >
             {t("common.history")}
           </Link>
         </div>
       </section>
+      <BrandRobot action="search" className={styles.robot} />
     </main>
   );
 }

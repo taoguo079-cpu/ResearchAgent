@@ -2,65 +2,43 @@
 
 import { Settings } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 
-import { PetSprite } from "@/components/pet/pet-sprite";
+import { NativeRobotAnimation } from "@/components/robot/native-robot-animation";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { resolvePetState } from "@/features/pet/pet-manifest";
+import { PET_ANIMATIONS, resolvePetState } from "@/features/pet/pet-manifest";
 import {
-  usePetAnimation,
-  usePetAsset,
-  usePetManifest,
-} from "@/features/pet/use-pet-animation";
-import { useDraggablePet } from "@/features/pet/use-draggable-pet";
-import { usePetRuntimeStore } from "@/features/pet/pet-runtime-store";
+  PET_DISPLAY_SIZES,
+  useDraggablePet,
+} from "@/features/pet/use-draggable-pet";
 import { usePreferencesStore } from "@/features/preferences/preferences-store";
 import { useRouter } from "@/i18n/navigation";
+import { useUiStore } from "@/stores/ui-store";
 
 export function PetOverlay() {
   const t = useTranslations("pet");
   const router = useRouter();
   const pet = usePreferencesStore((state) => state.pet);
   const hasHydrated = usePreferencesStore((state) => state.hasHydrated);
-  const taskId = usePetRuntimeStore((state) => state.taskId);
-  const taskStatus = usePetRuntimeStore((state) => state.taskStatus);
-  const currentStage = usePetRuntimeStore((state) => state.currentStage);
-  const updatedAt = usePetRuntimeStore((state) => state.updatedAt);
-  const runtime = { taskId, taskStatus, currentStage, updatedAt };
-  const [completedRuntimeVersion, setCompletedRuntimeVersion] = useState(0);
+  const isZen = useUiStore((state) => state.zenTaskId !== null);
   const openSettings = useCallback(() => router.push("/settings"), [router]);
   const draggable = useDraggablePet({
     size: pet.size,
     locked: pet.dragLocked,
     onClick: openSettings,
+    enabled: hasHydrated && pet.visible && !isZen,
   });
-
-  const completionFinished =
-    runtime.taskStatus === "completed" &&
-    completedRuntimeVersion === runtime.updatedAt;
 
   const animationState = resolvePetState({
-    runtime,
     dragging: draggable.dragging,
-    completionFinished,
-  });
-  const manifest = usePetManifest();
-  const spec = manifest?.states[animationState];
-  const assetStatus = usePetAsset(spec);
-  const frame = usePetAnimation({
-    state: animationState,
-    motion: pet.motion,
-    forceStatic: assetStatus === "error",
-    spec,
-    enabled: hasHydrated && pet.visible && assetStatus !== "loading",
-    onComplete: () => setCompletedRuntimeVersion(runtime.updatedAt),
+    moving: draggable.moving,
   });
 
-  if (!hasHydrated) return null;
+  if (!hasHydrated || isZen) return null;
 
   if (!pet.visible) {
     return (
@@ -80,7 +58,7 @@ export function PetOverlay() {
     );
   }
 
-  if (!manifest || !spec || !draggable.position) return null;
+  if (!draggable.position) return null;
 
   return (
     <Tooltip>
@@ -88,6 +66,13 @@ export function PetOverlay() {
         <button
           type="button"
           data-pet-state={animationState}
+          data-physics={
+            draggable.dragging
+              ? "dragging"
+              : draggable.moving
+                ? "flying"
+                : "resting"
+          }
           aria-label={t("accessibleLabel", {
             state: t(`states.${animationState}`),
           })}
@@ -95,21 +80,23 @@ export function PetOverlay() {
           style={{
             left: draggable.position.x,
             top: draggable.position.y,
+            width: PET_DISPLAY_SIZES[pet.size].width,
+            height: PET_DISPLAY_SIZES[pet.size].height,
+            transform: `rotate(${draggable.angle}rad)`,
+            willChange:
+              draggable.dragging || draggable.moving
+                ? "transform, left, top"
+                : undefined,
             touchAction: "none",
           }}
           {...draggable.pointerHandlers}
         >
-          <PetSprite
-            state={animationState}
-            frame={frame}
-            size={pet.size}
-            spec={spec}
-            assetStatus={assetStatus}
-            fallbackPosterSrc={manifest.states.idle.posterSrc}
-          />
+          <NativeRobotAnimation action={PET_ANIMATIONS[animationState]} />
         </button>
       </TooltipTrigger>
-      <TooltipContent>{t("hint")}</TooltipContent>
+      {!draggable.dragging && !draggable.moving ? (
+        <TooltipContent>{t("hint")}</TooltipContent>
+      ) : null}
     </Tooltip>
   );
 }

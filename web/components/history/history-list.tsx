@@ -2,6 +2,14 @@
 
 import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import {
+  ArrowUpRight,
+  CalendarDays,
+  Files,
+  SearchX,
+  SquarePen,
+  Trash2,
+} from "lucide-react";
 
 import { DeleteTaskDialog } from "@/components/history/delete-task-dialog";
 import {
@@ -15,6 +23,8 @@ import type { TaskSnapshotResponse } from "@/lib/api/client";
 import { Link } from "@/i18n/navigation";
 import { taskStatusMessageKeys } from "@/i18n/task-labels";
 import type { TaskStatus } from "@/lib/events/types";
+
+import styles from "./history.module.css";
 
 const activeStatuses = new Set(["queued", "running", "cancelling"]);
 
@@ -58,7 +68,7 @@ export function HistoryList({
   }, [query, sort, status, tasks]);
 
   return (
-    <section aria-label={t("history.list")} className="space-y-4">
+    <section aria-label={t("history.list")} className={styles.list}>
       <HistoryFilters
         query={query}
         status={status}
@@ -67,26 +77,22 @@ export function HistoryList({
         onStatusChange={setStatus}
         onSortChange={setSort}
       />
-      <div className="divide-y divide-[var(--color-border)] border-b border-[var(--color-border)]">
+      <div className={styles.rows}>
         {visibleTasks.map((task) => {
           const isActive =
             task.id === activeTaskId || activeStatuses.has(task.status);
           return (
-            <article
-              key={task.id}
-              className="flex items-start justify-between gap-4 py-4"
-            >
-              <div className="min-w-0">
+            <article key={task.id} className={styles.row}>
+              <div className={styles.rowContent}>
                 <Link
                   href={`/research/${encodeURIComponent(task.id)}`}
-                  className="font-medium text-[var(--color-text)] hover:text-[var(--color-primary)]"
+                  className={styles.taskLink}
                 >
                   {task.title}
+                  <ArrowUpRight aria-hidden="true" size={17} />
                 </Link>
-                <p className="mt-1 line-clamp-2 text-sm text-[var(--color-text-muted)]">
-                  {task.query}
-                </p>
-                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-[var(--color-text-subtle)]">
+                <p className={styles.query}>{task.query}</p>
+                <div className={styles.metadata}>
                   <Badge
                     variant={
                       task.status === "completed"
@@ -100,8 +106,12 @@ export function HistoryList({
                   >
                     {taskT(taskStatusMessageKeys[task.status as TaskStatus])}
                   </Badge>
-                  <span>{formatDate(task.created_at, locale)}</span>
-                  <span>
+                  <span className={styles.metadataItem}>
+                    <CalendarDays aria-hidden="true" size={13} />
+                    {formatDate(task.created_at, locale)}
+                  </span>
+                  <span className={styles.metadataItem}>
+                    <Files aria-hidden="true" size={13} />
                     {numberFrom(task.statistics?.papers_count) == null
                       ? t("history.statisticsUnavailable")
                       : t("history.papersCount", {
@@ -111,16 +121,17 @@ export function HistoryList({
                         })}
                   </span>
                   {scoreOf(task) ? (
-                    <span>
+                    <span className={styles.score}>
                       {t("history.score", { value: scoreOf(task).toFixed(2) })}
                     </span>
                   ) : null}
                 </div>
               </div>
-              <div className="flex shrink-0 items-center gap-1">
+              <div className={styles.actions}>
                 <Button
                   variant="ghost"
                   size="sm"
+                  className={styles.action}
                   aria-label={t("history.renameTask", { title: task.title })}
                   onClick={() => setRenameTask(task)}
                   disabled={
@@ -128,11 +139,13 @@ export function HistoryList({
                     !task.available_actions?.includes("update")
                   }
                 >
+                  <SquarePen aria-hidden="true" size={15} />
                   {t("common.rename")}
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
+                  className={`${styles.action} ${styles.deleteAction}`}
                   aria-label={t("history.deleteTask", { title: task.title })}
                   onClick={() => setDeleteTask(task)}
                   disabled={
@@ -141,6 +154,7 @@ export function HistoryList({
                     !task.available_actions?.includes("delete")
                   }
                 >
+                  <Trash2 aria-hidden="true" size={15} />
                   {t("common.delete")}
                 </Button>
               </div>
@@ -149,9 +163,10 @@ export function HistoryList({
         })}
       </div>
       {!visibleTasks.length ? (
-        <p className="py-8 text-center text-sm text-[var(--color-text-muted)]">
-          {t("history.noMatches")}
-        </p>
+        <div className={styles.noMatches} role="status">
+          <SearchX aria-hidden="true" size={30} />
+          <p>{t("history.noMatches")}</p>
+        </div>
       ) : null}
       <RenameTaskDialog
         task={renameTask}

@@ -8,14 +8,13 @@ import { TaskTerminalState } from "@/components/research/task-terminal-state";
 import { useTaskEvents } from "@/features/tasks/hooks/use-task-events";
 import { useRetryTask } from "@/features/tasks/hooks/use-retry-task";
 import { useEffect, useState } from "react";
-import { CurrentStagePanel } from "@/components/research/current-stage-panel";
-import { ResearchPlan } from "@/components/research/research-plan";
-import { StageStepper } from "@/components/research/stage-stepper";
+import { TaskStageHero } from "@/components/research/task-stage-hero";
 import { ReportView } from "@/components/report/report-view";
 import { AgentReplay } from "@/components/replay/agent-replay";
 import { ApiHttpError } from "@/lib/api/client";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
+import styles from "./workspace-task.module.css";
 
 export function LiveTaskView({ taskId }: { taskId: string }) {
   const { task, replayState, connectionStatus, isLoading, error } =
@@ -85,12 +84,11 @@ export function LiveTaskView({ taskId }: { taskId: string }) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-4 px-8 py-8">
+    <div className={styles.live}>
       {connectionStatus === "reconnecting" ? (
         <InlineAlert tone="warning">{t("task.reconnecting")}</InlineAlert>
       ) : null}
       {isOffline ? <TaskOfflineState /> : null}
-      <StageStepper state={replayState} />
       {replayState.taskStatus === "failed" ? (
         <TaskErrorState
           code={undefined}
@@ -115,8 +113,7 @@ export function LiveTaskView({ taskId }: { taskId: string }) {
           }}
         />
       ) : null}
-      <CurrentStagePanel state={replayState} />
-      <ResearchPlan />
+      <TaskStageHero state={replayState} />
       {replayState.isTerminal ? <AgentReplay taskId={taskId} /> : null}
     </div>
   );

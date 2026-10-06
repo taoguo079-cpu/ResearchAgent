@@ -1,0 +1,418 @@
+.live {
+  width: 100%;
+  max-width: 1000px;
+  margin-inline: auto;
+  padding: 12px 24px 0;
+}
+
+.live > * + * {
+  margin-top: 24px;
+}
+
+.stages {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
+
+.stage {
+  position: relative;
+  display: flex;
+  min-width: 66px;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  border-radius: 10px;
+  padding: 8px 2px;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: center;
+  cursor: default;
+}
+
+.stage:not(:last-child)::after {
+  position: absolute;
+  top: 24px;
+  left: calc(50% + 21px);
+  width: calc(100% - 38px);
+  height: 1px;
+  background: var(--color-border-strong);
+  content: "";
+}
+
+.stage[data-status="completed"]::after {
+  background: var(--color-success);
+}
+
+.stage[data-interactive]:hover {
+  background: var(--color-control-hover);
+}
+
+.stage[data-interactive] {
+  cursor: pointer;
+}
+
+.stage:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.stageNode {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-text-subtle);
+}
+
+.stage[data-status="running"] {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.stage[data-status="running"] .stageNode {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+
+.stage[data-status="completed"] .stageNode {
+  border-color: var(--color-success-border);
+  background: var(--color-success-subtle);
+}
+
+.stageName {
+  font-weight: 500;
+}
+
+.stageAttempt {
+  margin-top: -4px;
+  font-size: 10px;
+}
+
+.currentStage {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--workspace-mint, #d5eee5);
+  padding: 28px 30px;
+  color: var(--workspace-ink, #2a245e);
+}
+
+.currentStage h2 {
+  margin: 0 0 10px;
+  font-family: "Quicksand", "Microsoft YaHei", sans-serif;
+  font-size: 27px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-wrap: balance;
+}
+
+.currentStage p {
+  max-width: 65ch;
+  margin: 0;
+  color: var(--workspace-ink-muted, #514b76);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.currentStage .readProgress {
+  margin-top: 20px;
+  border-top: 1px solid var(--workspace-mint-border, #a9cec0);
+  padding-top: 14px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.plan {
+  border-top: 1px solid var(--color-border);
+  padding: 24px 0 8px;
+}
+
+.plan h2 {
+  margin-bottom: 10px;
+  color: var(--color-text);
+  font-family: "Quicksand", "Microsoft YaHei", sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.plan p {
+  max-width: 65ch;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.scrollRegion {
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  container: task-content / size;
+  scrollbar-color: var(--color-border-strong) transparent;
+  scrollbar-width: thin;
+}
+
+.scrollRegion[hidden],
+.composerBody[hidden] {
+  display: none;
+}
+
+.conversation {
+  width: 100%;
+  max-width: 1000px;
+  margin-inline: auto;
+  padding: 0 30px 32px;
+}
+
+.message {
+  border-top: 1px solid var(--color-border);
+  padding-block: 24px;
+}
+
+.message[data-role="user"] {
+  margin-bottom: 16px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--color-primary-subtle);
+  padding: 18px 22px;
+}
+
+.messageRole {
+  margin: 0 0 12px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.messageText {
+  color: var(--color-text);
+  font-size: 14px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.composer {
+  flex-shrink: 0;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+  padding: 8px 20px 10px;
+}
+
+.composerInner {
+  width: 100%;
+  max-width: 1100px;
+  margin-inline: auto;
+}
+
+.progressRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.progressRow .stages {
+  min-width: 0;
+  flex: 1;
+}
+
+.composerToggle {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  margin-bottom: 5px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 12px;
+  color: var(--color-text);
+}
+
+.pendingDot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--workspace-action);
+}
+
+.composerBody {
+  margin-top: 12px;
+  padding-bottom: 4px;
+}
+
+.zenView {
+  position: relative;
+  display: grid;
+  min-height: 0;
+  flex: 1;
+  place-items: center;
+  overflow: hidden;
+  background: var(--color-surface);
+  padding: 28px 80px 0;
+}
+
+.zenRobot {
+  width: min(880px, 100%);
+  height: 100%;
+  min-height: 0;
+}
+
+.exitZen {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  min-height: 44px;
+  gap: 8px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 12px;
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+
+.composer[data-zen] {
+  border: 0;
+  padding: 4px 36px 16px;
+}
+
+.stages[data-variant="zen"] .stage {
+  gap: 9px;
+  font-size: 13px;
+}
+
+.stages[data-variant="zen"] .stageNode {
+  width: 42px;
+  height: 42px;
+}
+
+.stages[data-variant="zen"] .stage:not(:last-child)::after {
+  top: 29px;
+  left: calc(50% + 27px);
+  width: calc(100% - 50px);
+}
+
+.question {
+  display: block;
+  width: 100%;
+  min-height: 64px;
+  max-height: 140px;
+  resize: vertical;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 14px;
+  background: var(--color-surface);
+  padding: 14px 16px;
+  color: var(--color-text);
+  font-size: 13px;
+  line-height: 1.6;
+  caret-color: var(--color-primary);
+}
+
+.question::placeholder {
+  color: var(--color-text-muted);
+}
+
+.question:focus-visible {
+  border-color: var(--color-primary);
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.question:disabled {
+  background: var(--color-surface-subtle);
+  color: var(--color-text-muted);
+  resize: none;
+}
+
+.composerActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.composerActions > p {
+  max-width: 55ch;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.send {
+  border-radius: 999px;
+  padding-inline: 18px;
+}
+
+.pending {
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: var(--color-primary-subtle);
+  padding: 14px 16px;
+}
+
+.pendingStatus {
+  color: var(--color-primary-hover);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.pendingText {
+  max-height: 80px;
+  margin-block: 8px;
+  overflow-y: auto;
+  color: var(--color-text);
+  font-size: 13px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.recovery {
+  border-radius: 14px;
+  background: var(--color-surface-subtle);
+  padding: 24px;
+}
+
+.recovery h2 {
+  font-family: "Quicksand", "Microsoft YaHei", sans-serif;
+  font-size: 21px;
+  font-weight: 600;
+}
+
+.recovery p {
+  margin-top: 10px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.offline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 10px;
+  background: var(--color-warning-subtle);
+  padding: 12px 16px;
+  color: var(--color-warning);
+  font-size: 13px;
+}
+
+@container task-content (max-width: 620px) {
+  .live,
+  .conversation {
+    padding-inline: 22px;
+  }
+
+  .currentStage {
+    padding: 24px;
+  }
+}

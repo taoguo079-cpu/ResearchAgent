@@ -20,48 +20,56 @@ import {
   taskStageMessageKeys,
   taskStageStatusMessageKeys,
 } from "@/i18n/task-labels";
+import styles from "./workspace-task.module.css";
 
 export function StageStepper({
   state,
   onSelectStage,
+  variant = "default",
 }: {
   state: ReplayState;
   onSelectStage?: (stage: ResearchStage) => void;
+  variant?: "default" | "zen";
 }) {
   const t = useTranslations("task");
   const stages = RESEARCH_STAGES;
+  const Item = onSelectStage ? "button" : "div";
   return (
     <nav
       aria-label={t("stageDetail")}
-      className="flex items-start gap-1 overflow-x-auto pb-2"
+      className={styles.stages}
+      data-variant={variant}
     >
       {stages.map((stage) => {
         const snapshot = state.stages[stage];
         return (
-          <button
+          <Item
             key={stage}
-            type="button"
+            type={onSelectStage ? "button" : undefined}
+            role={onSelectStage ? undefined : "group"}
             aria-label={
               t(taskStageMessageKeys[stage]) +
               " " +
               t(taskStageStatusMessageKeys[snapshot.status])
             }
             data-status={snapshot.status}
+            aria-current={state.currentStage === stage ? "step" : undefined}
+            data-interactive={Boolean(onSelectStage) || undefined}
             onClick={() => onSelectStage?.(stage)}
-            className="group flex min-w-20 flex-1 flex-col items-center gap-1 rounded-[var(--radius-control)] px-1 py-1 text-center outline-none transition-colors hover:bg-[var(--color-control-hover)] focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
+            className={styles.stage}
           >
-            <span className="flex h-7 w-7 items-center justify-center rounded-full border border-[var(--color-border-strong)] bg-[var(--color-surface)] text-[var(--color-text-subtle)] group-data-[status=running]:border-[var(--color-primary)] group-data-[status=running]:text-[var(--color-primary)]">
+            <span className={styles.stageNode}>
               <StageIcon status={snapshot.status} />
             </span>
-            <span className="text-xs font-medium text-[var(--color-text-muted)]">
+            <span className={styles.stageName}>
               {t(taskStageMessageKeys[stage])}
             </span>
             {stage === "critic" && snapshot.attempt > 1 ? (
-              <span className="text-[10px] text-[var(--color-text-subtle)]">
+              <span className={styles.stageAttempt}>
                 {t("attempt", { attempt: snapshot.attempt })}
               </span>
             ) : null}
-          </button>
+          </Item>
         );
       })}
     </nav>

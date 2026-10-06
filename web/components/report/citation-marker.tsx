@@ -2,6 +2,7 @@
 
 import { useUiStore } from "@/stores/ui-store";
 import { useTranslations } from "next-intl";
+import styles from "./report-view.module.css";
 
 export function CitationMarker({
   citationId,
@@ -22,9 +23,8 @@ export function CitationMarker({
   return (
     <button
       type="button"
-      className={
-        valid ? "citation-marker" : "citation-marker citation-marker-invalid"
-      }
+      data-valid={valid}
+      className={`${styles.citation} ${valid ? "citation-marker" : "citation-marker citation-marker-invalid"}`}
       aria-label={t("openCitation", { number: displayNumber ?? citationId })}
       title={valid ? t("openEvidence") : t("unverifiedCitation")}
       onClick={open}

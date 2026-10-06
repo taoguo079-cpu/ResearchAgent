@@ -11,12 +11,28 @@ import { useUiStore } from "@/stores/ui-store";
 import { TaskConversation } from "@/components/research/task-conversation";
 import { TaskEventsProvider } from "@/features/tasks/hooks/use-task-events";
 import { TaskCancellationProvider } from "@/components/research/task-cancellation";
+import { exitTaskZen } from "@/features/tasks/task-zen-mode";
+import styles from "./workspace-shell.module.css";
 
 export function ResearchShell({
-  children, taskId,
-}: { children: ReactNode; taskId?: string }) {
-  const content = <ResearchShellLayout taskId={taskId}>{children}</ResearchShellLayout>;
-  return taskId ? <TaskEventsProvider taskId={taskId}><TaskCancellationProvider key={taskId} taskId={taskId}>{content}</TaskCancellationProvider></TaskEventsProvider> : content;
+  children,
+  taskId,
+}: {
+  children: ReactNode;
+  taskId?: string;
+}) {
+  const content = (
+    <ResearchShellLayout taskId={taskId}>{children}</ResearchShellLayout>
+  );
+  return taskId ? (
+    <TaskEventsProvider taskId={taskId}>
+      <TaskCancellationProvider key={taskId} taskId={taskId}>
+        {content}
+      </TaskCancellationProvider>
+    </TaskEventsProvider>
+  ) : (
+    content
+  );
 }
 
 function ResearchShellLayout({
@@ -30,47 +46,81 @@ function ResearchShellLayout({
   const isTaskSidebarOpen = useUiStore((state) => state.isTaskSidebarOpen);
   const isContextPanelOpen = useUiStore((state) => state.isContextPanelOpen);
   const toggleContextPanel = useUiStore((state) => state.toggleContextPanel);
-  const gridColumns = isTaskSidebarOpen
-    ? isContextPanelOpen
-      ? "grid-cols-[clamp(240px,18.3vw,264px)_minmax(0,1fr)_clamp(320px,25.5vw,368px)]"
-      : "grid-cols-[clamp(240px,18.3vw,264px)_minmax(0,1fr)_48px]"
-    : isContextPanelOpen
-      ? "grid-cols-[minmax(0,1fr)_clamp(320px,25.5vw,368px)]"
-      : "grid-cols-[minmax(0,1fr)_48px]";
+  const zenTaskId = useUiStore((state) => state.zenTaskId);
+  const isZen = Boolean(taskId && zenTaskId === taskId);
+  const gridColumns = [
+    isTaskSidebarOpen ? "222px" : "",
+    "minmax(0,1fr)",
+    isContextPanelOpen ? "310px" : "48px",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   useEffect(() => {
     void useUiStore.persist.rehydrate();
   }, []);
 
+  useEffect(() => {
+    useUiStore.getState().setZenTaskId(null);
+    return () => {
+      if (useUiStore.getState().zenTaskId === taskId) {
+        useUiStore.getState().setZenTaskId(null);
+      }
+    };
+  }, [taskId]);
+
+  useEffect(() => {
+    if (!isZen || !taskId) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        exitTaskZen(taskId);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isZen, taskId]);
+
   return (
     <div
-      className={[
-        "grid h-[100dvh] min-w-[1180px] overflow-x-auto bg-[var(--color-page)]",
-        gridColumns,
-      ].join(" ")}
+      className={styles.shell}
+      data-zen={isZen || undefined}
+      style={{ gridTemplateColumns: isZen ? "minmax(0,1fr)" : gridColumns }}
     >
-      {isTaskSidebarOpen ? <TaskSidebar taskId={taskId} /> : null}
-      <main className="flex min-h-0 min-w-0 flex-col overflow-hidden">
-        <WorkspaceHeader taskId={taskId} />
-        {taskId ? <TaskConversation key={taskId} taskId={taskId}>{children}</TaskConversation> : <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>}
+      <div style={{ display: isZen ? "none" : "contents" }}>
+        {isTaskSidebarOpen ? <TaskSidebar taskId={taskId} /> : null}
+      </div>
+      <main className={styles.main}>
+        <div hidden={isZen}>
+          <WorkspaceHeader taskId={taskId} />
+        </div>
+        {taskId ? (
+          <TaskConversation key={taskId} taskId={taskId}>
+            {children}
+          </TaskConversation>
+        ) : (
+          <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
+        )}
       </main>
-      {isContextPanelOpen ? (
-        <ContextPanel taskId={taskId} />
-      ) : (
-        <aside
-          aria-label={t("expandContext")}
-          className="flex min-h-0 items-start justify-center border-l border-[var(--color-border)] bg-[var(--color-chrome)] pt-3"
-        >
-          <Button
+      <div style={{ display: isZen ? "none" : "contents" }}>
+        {isContextPanelOpen ? (
+          <ContextPanel taskId={taskId} />
+        ) : (
+          <aside
             aria-label={t("expandContext")}
-            onClick={toggleContextPanel}
-            size="icon"
-            variant="ghost"
+            className={styles.collapsedContext}
           >
-            <span aria-hidden="true">‹</span>
-          </Button>
-        </aside>
-      )}
+            <Button
+              aria-label={t("expandContext")}
+              onClick={toggleContextPanel}
+              size="icon"
+              variant="ghost"
+            >
+              <span aria-hidden="true">‹</span>
+            </Button>
+          </aside>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,6 +1,9 @@
 "use client";
 
+import { useRef, useState } from "react";
+
 import { Button } from "@/components/ui/button";
+import { InlineAlert } from "@/components/ui/inline-alert";
 import {
   Dialog,
   DialogContent,
@@ -9,6 +12,8 @@ import {
 } from "@/components/ui/dialog";
 import type { TaskSnapshotResponse } from "@/lib/api/client";
 import { useTranslations } from "next-intl";
+
+import styles from "./history.module.css";
 
 export function DeleteTaskDialog({
   task,
@@ -21,31 +26,92 @@ export function DeleteTaskDialog({
   onOpenChange: (open: boolean) => void;
   onConfirm: () => Promise<void> | void;
 }) {
-  const t = useTranslations();
   if (!task) return null;
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent closeLabel={t("common.close")}>
-        <DialogTitle>{t("history.deleteTitle")}</DialogTitle>
-        <DialogDescription>
+    <DeleteTaskForm
+      key={task.id}
+      task={task}
+      open={open}
+      onOpenChange={onOpenChange}
+      onConfirm={onConfirm}
+    />
+  );
+}
+
+function DeleteTaskForm({
+  task,
+  open,
+  onOpenChange,
+  onConfirm,
+}: {
+  task: TaskSnapshotResponse;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: () => Promise<void> | void;
+}) {
+  const t = useTranslations();
+  const [pending, setPending] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const pendingRef = useRef(false);
+
+  async function confirm() {
+    if (pendingRef.current) return;
+    pendingRef.current = true;
+    setPending(true);
+    setFailed(false);
+    try {
+      await onConfirm();
+      onOpenChange(false);
+    } catch {
+      setFailed(true);
+    } finally {
+      pendingRef.current = false;
+      setPending(false);
+    }
+  }
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!pendingRef.current) onOpenChange(next);
+      }}
+    >
+      <DialogContent
+        closeLabel={t("common.close")}
+        showCloseButton={!pending}
+        className={styles.dialog}
+        aria-busy={pending}
+      >
+        <DialogTitle className={styles.dialogTitle}>
+          {t("history.deleteTitle")}
+        </DialogTitle>
+        <DialogDescription className={styles.dialogDescription}>
           {t("history.deleteDescription", { title: task.title })}
         </DialogDescription>
-        <div className="mt-5 flex justify-end gap-2">
+        {failed ? (
+          <InlineAlert tone="error" className={styles.dialogError}>
+            {t("history.deleteError")}
+          </InlineAlert>
+        ) : null}
+        <div className={styles.dialogActions}>
           <Button
             type="button"
             variant="secondary"
+            className={styles.dialogButton}
             onClick={() => onOpenChange(false)}
+            disabled={pending}
           >
             {t("common.cancel")}
           </Button>
           <Button
             type="button"
             variant="destructive"
-            onClick={() =>
-              void Promise.resolve(onConfirm()).then(() => onOpenChange(false))
-            }
+            className={styles.dialogButton}
+            onClick={() => void confirm()}
+            disabled={pending}
           >
-            {t("common.delete")}
+            {pending ? t("common.loading") : t("common.delete")}
           </Button>
         </div>
       </DialogContent>

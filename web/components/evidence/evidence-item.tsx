@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import type { EvidenceRecord } from "@/features/evidence/evidence-index";
 import { useUiStore } from "@/stores/ui-store";
+import styles from "./evidence.module.css";
 
 export function EvidenceItem({
   evidence,
@@ -25,19 +26,17 @@ export function EvidenceItem({
   const paperId =
     typeof evidence.paper_id === "string" ? evidence.paper_id : "";
   return (
-    <article className="space-y-3 rounded-[var(--radius-control)] border border-[var(--color-border)] bg-[var(--color-surface-subtle)] p-3">
-      <div className="flex items-center justify-between gap-2">
+    <article className={styles.item}>
+      <div className={styles.itemHeader}>
         <Badge variant={verified ? "success" : "warning"}>
           {verified ? t("verified") : t("unverified")}
         </Badge>
-        <span className="text-xs text-[var(--color-text-subtle)]">
-          {String(evidence.content_type ?? "pdf")}
-        </span>
+        <span>{String(evidence.content_type ?? "pdf")}</span>
       </div>
-      <blockquote className="border-l-2 border-[var(--color-primary)] pl-3 text-sm leading-6 text-[var(--color-text)]">
+      <blockquote className={styles.excerpt}>
         {String(evidence.excerpt ?? t("noExcerpt"))}
       </blockquote>
-      <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--color-text-muted)]">
+      <div className={styles.source}>
         {paper ? (
           <span>{String(paper.title ?? paperId)}</span>
         ) : (
@@ -52,7 +51,7 @@ export function EvidenceItem({
         ) : null}
       </div>
       {!verified ? (
-        <p className="flex items-start gap-1.5 text-xs text-[var(--color-warning)]">
+        <p className={styles.warning}>
           <AlertTriangle aria-hidden="true" className="mt-0.5 h-3.5 w-3.5" />
           {t("unverifiedExcerpt")}
         </p>
@@ -60,7 +59,7 @@ export function EvidenceItem({
       {paperId ? (
         <button
           type="button"
-          className="inline-flex items-center gap-1 text-xs font-medium text-[var(--color-primary)]"
+          className={styles.openPaper}
           onClick={() => {
             selectObject(paperId);
             setContextTab("papers");

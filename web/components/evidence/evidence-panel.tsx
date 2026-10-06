@@ -8,6 +8,8 @@ import { InlineAlert } from "@/components/ui/inline-alert";
 import { buildEvidenceIndex } from "@/features/evidence/evidence-index";
 import type { ResearchTaskResultResponse } from "@/lib/api/client";
 import { useUiStore } from "@/stores/ui-store";
+import { FileSearch } from "lucide-react";
+import styles from "./evidence.module.css";
 
 export function EvidencePanel({
   result,
@@ -24,19 +26,34 @@ export function EvidencePanel({
     ? (index.evidenceByCitation.get(selectedObjectId) ?? [])
     : [];
 
-  if (!result?.capabilities?.supports_evidence && !result?.evidence?.length) {
-    return <p className="text-sm leading-6">{t("unsupported")}</p>;
+  if (!result) {
+    return (
+      <div className={styles.empty}>
+        <FileSearch aria-hidden="true" />
+        <p>{t("pending")}</p>
+      </div>
+    );
+  }
+  if (!result.capabilities?.supports_evidence && !result.evidence?.length) {
+    return (
+      <div className={styles.empty}>
+        <FileSearch aria-hidden="true" />
+        <p>{t("unsupported")}</p>
+      </div>
+    );
   }
   if (!citation) {
-    return <p className="text-sm leading-6">{t("empty")}</p>;
+    return (
+      <div className={styles.empty}>
+        <FileSearch aria-hidden="true" />
+        <p>{t("empty")}</p>
+      </div>
+    );
   }
   return (
-    <section aria-label={t("details")} className="space-y-4">
+    <section aria-label={t("details")} className={styles.panel}>
       <div>
-        <p className="text-xs font-medium uppercase tracking-[0.08em] text-[var(--color-primary)]">
-          {t("title")}
-        </p>
-        <h3 className="mt-1 text-sm font-semibold text-[var(--color-text)]">
+        <h3 className={styles.title}>
           {t("citation", {
             number: String(citation.display_number ?? citation.citation_id),
           })}

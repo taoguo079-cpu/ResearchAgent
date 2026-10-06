@@ -65,7 +65,7 @@ export function ReportDocument({
       className={
         variant === "report"
           ? `report-document ${styles.document}`
-          : "max-w-[760px] text-[15px] leading-[1.75] text-[var(--color-text)]"
+          : `${styles.document} ${styles.message}`
       }
     >
       <Markdown

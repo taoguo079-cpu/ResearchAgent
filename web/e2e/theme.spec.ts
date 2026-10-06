@@ -148,7 +148,7 @@ test("clean storage and a system dark preference still open in light", async ({
     page.getByRole("button", { name: "Switch to dark theme" }),
   ).toBeVisible();
   expect(await readThemeTokens(page)).toMatchObject({
-    accent: "#2563eb",
+    accent: "#1f80ff",
     colorScheme: "light",
   });
   expect(errors).toEqual([]);
@@ -408,10 +408,16 @@ test("settings regions do not overlap and remain reachable at supported widths",
   await mockConfiguredApp(page);
   await page.goto("/en/settings");
 
+  await expect(page.getByRole("main")).toHaveCount(1);
+  await expect(
+    page.getByRole("complementary", { name: "Task navigation" }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("complementary", { name: "Context panel" }),
+  ).toHaveCount(0);
   const regions = page.locator(
-    'aside[aria-label="Task navigation"], main, aside[aria-label="Context panel"]',
+    'main form[aria-label="Research defaults"] > section',
   );
-  await expect(regions).toHaveCount(3);
 
   const boxes = await regions.evaluateAll((elements) =>
     elements.map((element) => {
@@ -441,33 +447,16 @@ test("settings regions do not overlap and remain reachable at supported widths",
     documentScrollWidth: document.documentElement.scrollWidth,
     viewportWidth: window.innerWidth,
   }));
-  if (dimensions.viewportWidth <= 1024) {
-    expect(dimensions.documentScrollWidth).toBeGreaterThan(
-      dimensions.viewportWidth,
-    );
-    await page.evaluate(() => {
-      window.scrollTo({ left: document.documentElement.scrollWidth, top: 0 });
-    });
-    const contextHeading = page.getByRole("heading", { name: "Context" });
-    const evidenceTab = page.getByRole("tab", { name: "Evidence" });
-    await expect(contextHeading).toBeInViewport();
-    await expect(evidenceTab).toBeInViewport();
-    const contextBox = await page
-      .getByRole("complementary", { name: "Context panel" })
-      .boundingBox();
-    expect(contextBox).not.toBeNull();
-    expect(contextBox!.x).toBeGreaterThanOrEqual(0);
-    expect(contextBox!.x + contextBox!.width).toBeLessThanOrEqual(
-      dimensions.viewportWidth,
-    );
-  } else {
-    expect(dimensions.documentScrollWidth).toBeLessThanOrEqual(
-      dimensions.viewportWidth,
-    );
-  }
+  expect(dimensions.documentScrollWidth).toBeLessThanOrEqual(
+    dimensions.viewportWidth,
+  );
+  await expect(page.getByLabel("Maximum papers")).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Save settings" }),
+  ).toBeVisible();
 });
 
-test("dark links, active tab, and history badge use semantic colors", async ({
+test("dark links, history action, and history badge use semantic colors", async ({
   page,
 }) => {
   await mockConfiguredApp(page, { history: "task" });
@@ -483,11 +472,6 @@ test("dark links, active tab, and history badge use semantic colors", async ({
     await historyLink.evaluate((element) => getComputedStyle(element).color),
   ).toBe("rgb(160, 160, 160)");
 
-  const activeTab = page.getByRole("tab", { name: "Evidence" });
-  expect(
-    await activeTab.evaluate((element) => getComputedStyle(element).color),
-  ).toBe("rgb(255, 214, 102)");
-
   await page.goto("/en/history");
   await expect(
     page.getByRole("heading", { name: "Research history", exact: true }),
@@ -495,7 +479,7 @@ test("dark links, active tab, and history badge use semantic colors", async ({
   const newResearchLink = page.getByRole("link", { name: "New research" });
   expect(
     await newResearchLink.evaluate(
-      (element) => getComputedStyle(element).color,
+      (element) => getComputedStyle(element).backgroundColor,
     ),
   ).toBe("rgb(255, 206, 71)");
 
@@ -511,7 +495,7 @@ test("dark links, active tab, and history badge use semantic colors", async ({
   ).toContain("255, 206, 71");
 });
 
-test("dark skeleton and alert keep their semantic two-tone and status colors", async ({
+test("entry skeleton keeps the light identity and the dark workspace alert keeps semantic colors", async ({
   page,
 }) => {
   await mockConfiguredApp(page, {
@@ -529,8 +513,8 @@ test("dark skeleton and alert keep their semantic two-tone and status colors", a
   const skeletonImage = await skeleton.evaluate(
     (element) => getComputedStyle(element).backgroundImage,
   );
-  expect(skeletonImage).toContain("rgb(45, 45, 45)");
-  expect(skeletonImage).toContain("rgb(56, 56, 56)");
+  expect(skeletonImage).toContain("rgb(237, 237, 235)");
+  expect(skeletonImage).toContain("rgb(247, 247, 246)");
 
   await page.goto("/en/history");
   const errorText = page.getByText("Unable to load research history.");

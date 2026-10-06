@@ -1,4 +1,14 @@
 import type * as Rapier from "@dimforge/rapier3d-compat";
+import {
+  clampToy as clamp,
+  createToyBody,
+  hasStableToyMotion,
+  releaseToyBody,
+  toyRotation as rotation,
+  TOY_MAX_SPEED as MAX_SPEED,
+  TOY_REST_DELAY,
+  type RapierModule,
+} from "./rigid-toy-physics";
 import { makeTitleLayout, type TitleLayout } from "./title-geometry";
 import {
   FIXED_STEP,
@@ -14,16 +24,6 @@ type RuntimeToy = Toy & {
   colliders: Rapier.Collider[];
   target: Point | null;
 };
-type RapierModule = Omit<typeof Rapier, "default" | "RAPIER">;
-const MAX_SPEED = 4200;
-const clamp = (value: number, min: number, max: number) =>
-  Math.max(min, Math.min(max, value));
-const rotation = (angle: number) => ({
-  x: 0,
-  y: 0,
-  z: Math.sin(angle / 2),
-  w: Math.cos(angle / 2),
-});
 
 /** One Rapier world drives both the 3D meshes and their accessible DOM controls. */
 export class NeonPhysics {
@@ -95,22 +95,7 @@ export class NeonPhysics {
     y: number,
     gravity = 1,
   ) {
-    return this.world.createRigidBody(
-      this.rapier.RigidBodyDesc.dynamic()
-        .setTranslation(x, y, 0)
-        .enabledTranslations(true, true, false)
-        .enabledRotations(false, false, true)
-        .setGravityScale(gravity)
-        .setCcdEnabled(true)
-        .setLinearDamping(0.35)
-        .setAngularDamping(2)
-        .setAdditionalMassProperties(
-          mass,
-          { x: 0, y: 0, z: 0 },
-          { x: inertia, y: inertia, z: inertia },
-          { x: 0, y: 0, z: 0, w: 1 },
-        ),
-    );
+    return createToyBody(this.rapier, this.world, mass, inertia, x, y, gravity);
   }
 
   resize(width: number, height: number) {
@@ -452,15 +437,7 @@ export class NeonPhysics {
         return;
       }
     }
-    const factor = Math.min(1, MAX_SPEED / Math.max(1, speed));
-    toy.body.setLinvel(
-      { x: velocity.x * factor, y: -velocity.y * factor, z: 0 },
-      true,
-    );
-    toy.body.setAngvel(
-      { x: 0, y: 0, z: clamp(-velocity.x / 2200, -2, 2) },
-      true,
-    );
+    releaseToyBody(toy.body, velocity);
     if (this.reduced) this.settle(toy);
     this.onUpdate();
   }
@@ -587,14 +564,14 @@ export class NeonPhysics {
       const stable =
         !toy.dragging &&
         supported &&
-        Math.hypot(toy.vx, toy.vy) < 14 &&
-        Math.abs(toy.spin) < 0.15;
+        hasStableToyMotion(toy.vx, toy.vy, toy.spin);
       toy.stableTime = stable ? toy.stableTime + dt : 0;
-      if (toy.stableTime > 0.4) toy.body.sleep();
+      if (toy.stableTime > TOY_REST_DELAY) toy.body.sleep();
       // A supporting spring may wake Rapier for a tiny contact correction. Keep
       // the interaction stable while motion stays below the resting threshold.
       toy.sleeping =
-        !toy.dragging && (toy.body.isSleeping() || toy.stableTime >= 0.4);
+        !toy.dragging &&
+        (toy.body.isSleeping() || toy.stableTime >= TOY_REST_DELAY);
     }
     for (const pair of pairs)
       if (!this.contactPairs.has(pair)) {

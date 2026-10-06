@@ -1,6 +1,13 @@
 "use client";
 
-import { Clock3, FlaskConical, Home, PanelLeftClose, Plus } from "lucide-react";
+import {
+  Bot,
+  Clock3,
+  Home,
+  PanelLeftClose,
+  Plus,
+  Settings2,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -9,6 +16,7 @@ import { useTask } from "@/features/tasks/hooks/use-task";
 import { cn } from "@/lib/utils/cn";
 import { Link } from "@/i18n/navigation";
 import { useUiStore } from "@/stores/ui-store";
+import styles from "./workspace-shell.module.css";
 
 export function TaskSidebar({ taskId }: { taskId?: string }) {
   const t = useTranslations();
@@ -20,15 +28,13 @@ export function TaskSidebar({ taskId }: { taskId?: string }) {
   return (
     <aside
       aria-label={t("navigation.taskNavigation")}
-      className="flex min-h-0 flex-col border-r border-[var(--color-border)] bg-[var(--color-chrome)]"
+      className={styles.sidebar}
     >
-      <div className="flex h-14 items-center gap-2 border-b border-[var(--color-border)] px-4">
-        <span className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-control)] bg-[var(--color-primary)] text-[var(--color-primary-foreground)]">
-          <FlaskConical aria-hidden="true" className="h-4 w-4" />
+      <div className={styles.brand}>
+        <span className={styles.brandMark}>
+          <Bot aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
         </span>
-        <span className="min-w-0 flex-1 truncate text-sm font-semibold text-[var(--color-text)]">
-          {t("common.brand")}
-        </span>
+        <span className={styles.brandName}>{t("common.brand")}</span>
         <Button
           aria-label={t("navigation.collapseTaskSidebar")}
           onClick={toggleTaskSidebar}
@@ -39,12 +45,12 @@ export function TaskSidebar({ taskId }: { taskId?: string }) {
         </Button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-3">
+      <div className={styles.sidebarBody}>
         <Link
           href="/research/new"
           className={cn(
-            buttonVariants({ variant: "secondary" }),
-            "mb-4 w-full justify-start",
+            buttonVariants({ variant: "primary" }),
+            styles.newResearch,
           )}
         >
           <Plus aria-hidden="true" className="h-4 w-4" />
@@ -52,30 +58,23 @@ export function TaskSidebar({ taskId }: { taskId?: string }) {
         </Link>
 
         <nav aria-label={t("navigation.workspaceLinks")} className="space-y-1">
-          <Link
-            href="/workspace"
-            className="flex h-9 items-center gap-2 rounded-[var(--radius-control)] px-2.5 text-[13px] font-medium text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]"
-          >
+          <Link href="/workspace" className={styles.navLink}>
             <Home aria-hidden="true" className="h-4 w-4" />
             {t("navigation.home")}
           </Link>
-          <Link
-            href="/history"
-            className="flex h-9 items-center gap-2 rounded-[var(--radius-control)] px-2.5 text-[13px] font-medium text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]"
-          >
+          <Link href="/history" className={styles.navLink}>
             <Clock3 aria-hidden="true" className="h-4 w-4" />
             {t("navigation.history")}
           </Link>
         </nav>
 
         {taskId ? (
-          <div className="mt-6 border-t border-[var(--color-border)] pt-4">
-            <p className="px-2.5 text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--color-text-subtle)]">
-              {t("navigation.currentTask")}
-            </p>
+          <div className={styles.taskGroup}>
+            <p className={styles.groupLabel}>{t("navigation.currentTask")}</p>
             <Link
               href={`/research/${encodeURIComponent(taskId)}`}
-              className="mt-2 block truncate rounded-[var(--radius-control)] bg-[var(--color-primary-subtle)] px-2.5 py-2 text-xs text-[var(--color-primary-hover)]"
+              className={cn(styles.taskLink, "mt-2")}
+              aria-current="page"
               title={currentTaskTitle}
             >
               {currentTaskTitle}
@@ -84,30 +83,38 @@ export function TaskSidebar({ taskId }: { taskId?: string }) {
         ) : null}
 
         {history.data?.length ? (
-          <div className="mt-6 border-t border-[var(--color-border)] pt-4">
-            <p className="px-2.5 text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--color-text-subtle)]">
+          <div className={styles.taskGroup}>
+            <p className={styles.groupLabel}>
               {t("navigation.recentResearch")}
             </p>
             <nav
               aria-label={t("navigation.recentResearch")}
               className="mt-2 space-y-1"
             >
-              {history.data.slice(0, 20).map((task) => (
-                <Link
-                  key={task.id}
-                  href={`/research/${encodeURIComponent(task.id)}`}
-                  className="block truncate rounded-[var(--radius-control)] px-2.5 py-2 text-xs text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] hover:text-[var(--color-text)]"
-                >
-                  {task.title}
-                </Link>
-              ))}
+              {history.data
+                .filter((task) => task.id !== taskId)
+                .slice(0, 20)
+                .map((task) => (
+                  <Link
+                    key={task.id}
+                    href={`/research/${encodeURIComponent(task.id)}`}
+                    className={styles.taskLink}
+                    title={task.title}
+                  >
+                    {task.title}
+                  </Link>
+                ))}
             </nav>
           </div>
         ) : null}
       </div>
 
-      <div className="border-t border-[var(--color-border)] px-4 py-3 text-xs text-[var(--color-text-subtle)]">
-        {t("navigation.multiSourceWorkspace")}
+      <div className={styles.footer}>
+        <Link href="/settings" className={styles.navLink}>
+          <Settings2 aria-hidden="true" className="h-4 w-4" />
+          {t("settings.title")}
+        </Link>
+        <p>{t("navigation.multiSourceWorkspace")}</p>
       </div>
     </aside>
   );

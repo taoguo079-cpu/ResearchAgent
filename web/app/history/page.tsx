@@ -1,18 +1,22 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { ArrowRight, BookOpen, Plus } from "lucide-react";
 
+import { BrandRobot } from "@/components/entry/brand-robot";
 import { HistoryList } from "@/components/history/history-list";
-import { EmptyState } from "@/components/ui/empty-state";
+import { WorkspacePage } from "@/components/shell/workspace-page";
+import { Button } from "@/components/ui/button";
 import { InlineAlert } from "@/components/ui/inline-alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import {
   useDeleteTask,
   useHistory,
   useRenameTask,
 } from "@/features/history/hooks/use-history";
 import { Link } from "@/i18n/navigation";
+
+import styles from "@/components/history/history.module.css";
 
 export default function HistoryPage() {
   const t = useTranslations();
@@ -25,54 +29,66 @@ export default function HistoryPage() {
   )?.id;
 
   return (
-    <main className="min-h-screen bg-[var(--color-page)] px-8 py-10">
-      <div className="mx-auto max-w-5xl">
-        <p className="text-xs font-medium uppercase tracking-[0.08em] text-[var(--color-text-subtle)]">
-          {t("common.brand")}
-        </p>
-        <div className="mt-2 flex items-end justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold text-[var(--color-text)]">
+    <WorkspacePage>
+      <div className={styles.page}>
+        <header className={styles.intro}>
+          <div className={styles.introContent}>
+            <h1 className={`${styles.title} entry-serif`}>
               {t("history.title")}
             </h1>
-            <p className="mt-1 text-sm text-[var(--color-text-muted)]">
-              {t("history.description")}
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <Link
-              href="/research/new"
-              className="text-sm font-medium text-[var(--color-primary)] hover:text-[var(--color-primary-hover)]"
-            >
+            <p className={styles.description}>{t("history.description")}</p>
+            <Link href="/research/new" className={styles.createLink}>
+              <Plus aria-hidden="true" size={17} />
               {t("navigation.newResearch")}
             </Link>
           </div>
-        </div>
-        <div className="mt-8">
+          <BrandRobot action="idle" className={styles.robot} />
+        </header>
+        <div className={styles.content}>
           {history.isPending ? (
-            <div className="space-y-3">
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-20 w-full" />
-              <Skeleton className="h-20 w-full" />
+            <div
+              className={styles.loading}
+              role="status"
+              aria-label={t("common.loading")}
+            >
+              <div className={styles.loadingFilters}>
+                <Skeleton className="h-11" />
+                <Skeleton className="h-11" />
+                <Skeleton className="h-11" />
+              </div>
+              {[0, 1, 2].map((row) => (
+                <div key={row} className={styles.loadingRow}>
+                  <Skeleton className="h-5 w-2/5" />
+                  <Skeleton className="mt-3 h-4 w-3/5" />
+                  <Skeleton className="mt-4 h-5 w-1/4" />
+                </div>
+              ))}
             </div>
           ) : null}
           {history.isError ? (
-            <InlineAlert tone="error">{t("history.loadError")}</InlineAlert>
+            <div className={styles.errorState}>
+              <InlineAlert tone="error" className={styles.errorAlert}>
+                {t("history.loadError")}
+              </InlineAlert>
+              <Button
+                variant="secondary"
+                onClick={() => void history.refetch()}
+                disabled={history.isFetching}
+              >
+                {history.isFetching ? t("common.loading") : t("common.retry")}
+              </Button>
+            </div>
           ) : null}
           {!history.isPending && !history.isError && !tasks.length ? (
-            <EmptyState
-              title={t("history.emptyTitle")}
-              description={t("history.emptyDescription")}
-              action={
-                <Link
-                  href="/research/new"
-                  className="text-sm font-medium text-[var(--color-primary)]"
-                >
-                  {t("history.createFirst")}
-                </Link>
-              }
-            />
+            <section className={styles.emptyState}>
+              <BookOpen aria-hidden="true" className={styles.emptyIcon} />
+              <h2>{t("history.emptyTitle")}</h2>
+              <p>{t("history.emptyDescription")}</p>
+              <Link href="/research/new" className={styles.emptyLink}>
+                {t("history.createFirst")}
+                <ArrowRight aria-hidden="true" size={17} />
+              </Link>
+            </section>
           ) : null}
           {!history.isPending && !history.isError && tasks.length ? (
             <HistoryList
@@ -88,6 +104,6 @@ export default function HistoryPage() {
           ) : null}
         </div>
       </div>
-    </main>
+    </WorkspacePage>
   );
 }

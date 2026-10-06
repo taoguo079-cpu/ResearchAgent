@@ -20,6 +20,7 @@ import {
   taskStageStatusMessageKeys,
   taskStatusMessageKeys,
 } from "@/i18n/task-labels";
+import styles from "./workspace-shell.module.css";
 
 export function ContextPanel({ taskId }: { taskId?: string }) {
   return taskId ? (
@@ -74,21 +75,20 @@ function ContextPanelContent({
   const setContextTab = useUiStore((state) => state.setContextTab);
 
   return (
-    <aside
-      aria-label={t("common.contextPanel")}
-      className="flex min-h-0 flex-col border-l border-[var(--color-border)] bg-[var(--color-chrome)]"
-    >
-      <div className="flex h-14 items-center border-b border-[var(--color-border)] px-4">
-        <h2 className="text-sm font-semibold text-[var(--color-text)]">
-          {t("common.context")}
-        </h2>
+    <aside aria-label={t("common.contextPanel")} className={styles.context}>
+      <div className={styles.contextHeader}>
+        <Library aria-hidden="true" size={18} strokeWidth={1.8} />
+        <h2>{t("common.context")}</h2>
       </div>
       <Tabs
         value={contextTab}
         onValueChange={(value) => setContextTab(value as ContextTab)}
         className="flex min-h-0 flex-1 flex-col"
       >
-        <TabsList aria-label={t("common.context")} className="mx-4 mt-2">
+        <TabsList
+          aria-label={t("common.context")}
+          className={styles.contextTabs}
+        >
           <TabsTrigger value="evidence">
             <FileText aria-hidden="true" className="mr-1.5 h-3.5 w-3.5" />
             {t("common.evidence")}
@@ -102,7 +102,7 @@ function ContextPanelContent({
             {t("common.runDetails")}
           </TabsTrigger>
         </TabsList>
-        <div className="min-h-0 flex-1 overflow-y-auto p-4 text-sm text-[var(--color-text-muted)]">
+        <div className={styles.contextBody}>
           <TabsContent value="evidence" className="mt-0">
             <EvidencePanel result={result} />
           </TabsContent>
@@ -174,14 +174,27 @@ function RunDetails({
           );
         })}
       </div>
-      {replayState.agentTrace.length ? <section className="space-y-2 border-t border-[var(--color-border)] pt-3">
-        <h3 className="text-xs font-medium">{taskT("delegations")}</h3>
-        {replayState.agentTrace.map((item, index) => <div key={`${item.step}-${index}`} className="rounded border border-[var(--color-border)] bg-[var(--color-surface)] p-2 text-xs">
-          <p className="font-medium">{String(item.step)} · {String(item.next_agent)}</p>
-          <p className="mt-1 whitespace-pre-wrap">{String(item.objective ?? "")}</p>
-          <p className="mt-1 text-[var(--color-text-subtle)]">{String(item.reason ?? "")}</p>
-        </div>)}
-      </section> : null}
+      {replayState.agentTrace.length ? (
+        <section className="space-y-2 border-t border-[var(--color-border)] pt-3">
+          <h3 className="text-xs font-medium">{taskT("delegations")}</h3>
+          {replayState.agentTrace.map((item, index) => (
+            <div
+              key={`${item.step}-${index}`}
+              className="rounded border border-[var(--color-border)] bg-[var(--color-surface)] p-2 text-xs"
+            >
+              <p className="font-medium">
+                {String(item.step)} · {String(item.next_agent)}
+              </p>
+              <p className="mt-1 whitespace-pre-wrap">
+                {String(item.objective ?? "")}
+              </p>
+              <p className="mt-1 text-[var(--color-text-subtle)]">
+                {String(item.reason ?? "")}
+              </p>
+            </div>
+          ))}
+        </section>
+      ) : null}
       {replayState.warnings.length || replayState.errors.length ? (
         <div className="border-t border-[var(--color-border)] pt-3 text-xs text-[var(--color-text-muted)]">
           {[...replayState.warnings, ...replayState.errors]

@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTask } from "@/features/tasks/hooks/use-task";
 import { useUiStore } from "@/stores/ui-store";
+import styles from "./workspace-shell.module.css";
 
 export function WorkspaceHeader({ taskId }: { taskId?: string }) {
   const t = useTranslations();
@@ -17,13 +18,14 @@ export function WorkspaceHeader({ taskId }: { taskId?: string }) {
   const isContextPanelOpen = useUiStore((state) => state.isContextPanelOpen);
   const toggleTaskSidebar = useUiStore((state) => state.toggleTaskSidebar);
   const toggleContextPanel = useUiStore((state) => state.toggleContextPanel);
+  const setZenTaskId = useUiStore((state) => state.setZenTaskId);
   const taskQuery = useTask(taskId ?? "");
   const title = taskId
     ? (taskQuery.data?.title ?? t("task.researchTask"))
     : t("common.newResearch");
 
   return (
-    <header className="flex min-h-14 shrink-0 items-center justify-between gap-4 border-b border-[var(--color-border)] bg-[var(--color-chrome)] px-5">
+    <header className={styles.header}>
       <div className="flex min-w-0 flex-1 items-center gap-2">
         {!isTaskSidebarOpen ? (
           <Button
@@ -38,11 +40,16 @@ export function WorkspaceHeader({ taskId }: { taskId?: string }) {
         ) : null}
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-center gap-2">
-            <h1 title={title} className="min-w-0 truncate text-sm font-semibold text-[var(--color-text)]">
+            <p
+              title={title}
+              className="min-w-0 truncate text-[15px] font-semibold text-[var(--color-text)]"
+            >
               {title}
-            </h1>
+            </p>
             {taskId ? (
-              <Badge variant="info" className="shrink-0 whitespace-nowrap">{t("task.workspace")}</Badge>
+              <Badge variant="info" className="shrink-0 whitespace-nowrap">
+                {t("task.workspace")}
+              </Badge>
             ) : null}
           </div>
           {taskId ? (
@@ -57,6 +64,18 @@ export function WorkspaceHeader({ taskId }: { taskId?: string }) {
       </div>
 
       <div className="flex shrink-0 items-center gap-1 [&>button]:shrink-0">
+        {taskId ? (
+          <Button
+            id={`enter-zen-${taskId}`}
+            aria-label={t("task.enterZen")}
+            disabled={!taskQuery.data}
+            onClick={() => setZenTaskId(taskId)}
+            size="sm"
+            variant="ghost"
+          >
+            {t("task.zen")}
+          </Button>
+        ) : null}
         <StopResearchButton />
         <Button
           aria-label={

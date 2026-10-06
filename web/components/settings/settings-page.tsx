@@ -1,13 +1,14 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useForm, useWatch, type UseFormRegisterReturn } from "react-hook-form";
 import { z } from "zod";
+import Image from "next/image";
 
-import { ResearchShell } from "@/components/shell/research-shell";
+import { WorkspacePage } from "@/components/shell/workspace-page";
 import { DeepSeekSettingsSection } from "@/components/settings/deepseek-settings-section";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +17,9 @@ import {
   DEFAULT_APP_PREFERENCES,
   usePreferencesStore,
 } from "@/features/preferences/preferences-store";
-import { Link } from "@/i18n/navigation";
+import companionManifest from "@/public/research-robot/manifest.json";
+
+import styles from "./settings-page.module.css";
 
 const settingsSchema = z.object({
   maxPapers: z.number().int().min(3).max(15),
@@ -100,151 +103,181 @@ export function SettingsPage() {
   }
 
   return (
-    <ResearchShell>
-      <div className="mx-auto w-full max-w-3xl px-8 py-10">
-        <Link
-          href="/workspace"
-          className="inline-flex items-center gap-2 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-primary)]"
-        >
-          <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-          {t("back")}
-        </Link>
-        <div className="mt-5">
-          <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-text)]">
-            {t("title")}
-          </h1>
-          <p className="mt-2 text-sm leading-6 text-[var(--color-text-muted)]">
-            {t("description")}
-          </p>
-        </div>
+    <WorkspacePage>
+      <div className={styles.page}>
+        <header className={styles.pageHeader}>
+          <h1 className={`entry-serif ${styles.pageTitle}`}>{t("title")}</h1>
+          <p className={styles.pageDescription}>{t("description")}</p>
+        </header>
 
-        <div className="mt-8">
+        <div className={styles.settingsGrid}>
           <DeepSeekSettingsSection />
-        </div>
-
-        <form
-          className="mt-6 space-y-6"
-          onSubmit={(event) => void form.handleSubmit(save)(event)}
-        >
-          <SettingsSection
-            title={t("research.title")}
-            description={t("research.description")}
+          <form
+            aria-label={t("research.title")}
+            className={styles.preferencesForm}
+            onChange={() => setSaved(false)}
+            onSubmit={(event) => void form.handleSubmit(save)(event)}
           >
-            <label className="block text-sm font-medium text-[var(--color-text)]">
-              {t("research.maxPapers")}
-              <Input
-                className="mt-2 max-w-48"
-                type="number"
-                min={3}
-                max={15}
-                aria-invalid={Boolean(form.formState.errors.maxPapers)}
-                {...form.register("maxPapers", { valueAsNumber: true })}
-              />
-            </label>
-            {form.formState.errors.maxPapers ? (
-              <p className="mt-2 text-xs text-[var(--color-error)]">
-                {t("research.maxPapersError")}
-              </p>
-            ) : null}
-            <fieldset className="mt-5">
-              <legend className="text-sm font-medium text-[var(--color-text)]">
-                {t("research.sources")}
-              </legend>
-              <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                {ACADEMIC_SOURCES.map((source) => (
-                  <label
-                    key={source}
-                    className="flex items-center gap-2 text-sm text-[var(--color-text-muted)]"
-                  >
-                    <input
-                      type="checkbox"
-                      value={source}
-                      {...form.register("sources")}
+            <SettingsSection
+              title={t("research.title")}
+              description={t("research.description")}
+            >
+              <div className={styles.researchFields}>
+                <div>
+                  <label className={styles.fieldLabel}>
+                    {t("research.maxPapers")}
+                    <Input
+                      className={`${styles.input} ${styles.paperInput}`}
+                      type="number"
+                      min={3}
+                      max={15}
+                      aria-invalid={Boolean(form.formState.errors.maxPapers)}
+                      aria-describedby={
+                        form.formState.errors.maxPapers
+                          ? "settings-max-papers-error"
+                          : undefined
+                      }
+                      {...form.register("maxPapers", { valueAsNumber: true })}
                     />
-                    {t(`research.source.${source}`)}
                   </label>
-                ))}
+                  {form.formState.errors.maxPapers ? (
+                    <p
+                      id="settings-max-papers-error"
+                      className={styles.fieldError}
+                    >
+                      {t("research.maxPapersError")}
+                    </p>
+                  ) : null}
+                </div>
+                <fieldset
+                  aria-describedby={
+                    form.formState.errors.sources
+                      ? "settings-sources-error"
+                      : undefined
+                  }
+                >
+                  <legend className={styles.fieldLabel}>
+                    {t("research.sources")}
+                  </legend>
+                  <div className={styles.sourceOptions}>
+                    {ACADEMIC_SOURCES.map((source) => (
+                      <label key={source} className={styles.checkField}>
+                        <input
+                          type="checkbox"
+                          value={source}
+                          aria-invalid={Boolean(form.formState.errors.sources)}
+                          {...form.register("sources")}
+                        />
+                        {t(`research.source.${source}`)}
+                      </label>
+                    ))}
+                  </div>
+                  {form.formState.errors.sources ? (
+                    <p
+                      id="settings-sources-error"
+                      className={styles.fieldError}
+                    >
+                      {t("research.sourcesError")}
+                    </p>
+                  ) : null}
+                </fieldset>
               </div>
-              {form.formState.errors.sources ? (
-                <p className="mt-2 text-xs text-[var(--color-error)]">
-                  {t("research.sourcesError")}
+            </SettingsSection>
+
+            <SettingsSection
+              title={t("pet.title")}
+              description={t("pet.description")}
+            >
+              <div className={styles.companionFields}>
+                <Image
+                  src={companionManifest.assets.completed.posterSrc}
+                  width={companionManifest.assets.completed.posterWidth}
+                  height={companionManifest.assets.completed.posterHeight}
+                  alt=""
+                  aria-hidden="true"
+                  className={styles.companionRobot}
+                  unoptimized
+                />
+                <div className={styles.companionControls}>
+                  <div className={styles.toggleRow}>
+                    <ToggleField
+                      label={t("pet.visible")}
+                      registration={form.register("visible")}
+                    />
+                    <ToggleField
+                      label={t("pet.dragLocked")}
+                      registration={form.register("dragLocked")}
+                    />
+                  </div>
+                  <div className={styles.selectRow}>
+                    <SelectField
+                      label={t("pet.size")}
+                      registration={form.register("size")}
+                    >
+                      <option value="small">{t("pet.sizes.small")}</option>
+                      <option value="medium">{t("pet.sizes.medium")}</option>
+                      <option value="large">{t("pet.sizes.large")}</option>
+                    </SelectField>
+                    <SelectField
+                      label={t("pet.motion")}
+                      registration={form.register("motion")}
+                    >
+                      <option value="system">{t("pet.motions.system")}</option>
+                      <option value="full">{t("pet.motions.full")}</option>
+                      <option value="reduced">
+                        {t("pet.motions.reduced")}
+                      </option>
+                      <option value="static">{t("pet.motions.static")}</option>
+                    </SelectField>
+                  </div>
+                  <Button
+                    className={styles.resetPosition}
+                    type="button"
+                    variant="ghost"
+                    onClick={resetPetPosition}
+                  >
+                    <RotateCcw aria-hidden="true" className="h-4 w-4" />
+                    {t("pet.resetPosition")}
+                  </Button>
+                </div>
+              </div>
+              <p className={styles.previewNote}>
+                {t("pet.preview", {
+                  visibility: t(
+                    (values.visible ?? pet.visible)
+                      ? "pet.shown"
+                      : "pet.hidden",
+                  ),
+                  size: t(`pet.sizes.${values.size ?? pet.size}`),
+                  motion: t(`pet.motions.${values.motion ?? pet.motion}`),
+                })}
+              </p>
+            </SettingsSection>
+
+            <div className={styles.preferenceActions}>
+              <div className={styles.actionButtons}>
+                <Button className={styles.primaryButton} type="submit">
+                  {t("save")}
+                </Button>
+                <Button
+                  className={styles.secondaryButton}
+                  type="button"
+                  variant="secondary"
+                  onClick={restoreDefaults}
+                >
+                  {t("restoreDefaults")}
+                </Button>
+              </div>
+              {saved ? (
+                <p role="status" className={styles.success}>
+                  {t("saved")}
                 </p>
               ) : null}
-            </fieldset>
-          </SettingsSection>
-
-          <SettingsSection
-            title={t("pet.title")}
-            description={t("pet.description")}
-          >
-            <ToggleField
-              label={t("pet.visible")}
-              registration={form.register("visible")}
-            />
-            <div className="mt-5 grid gap-5 sm:grid-cols-2">
-              <SelectField
-                label={t("pet.size")}
-                registration={form.register("size")}
-              >
-                <option value="small">{t("pet.sizes.small")}</option>
-                <option value="medium">{t("pet.sizes.medium")}</option>
-                <option value="large">{t("pet.sizes.large")}</option>
-              </SelectField>
-              <SelectField
-                label={t("pet.motion")}
-                registration={form.register("motion")}
-              >
-                <option value="system">{t("pet.motions.system")}</option>
-                <option value="full">{t("pet.motions.full")}</option>
-                <option value="reduced">{t("pet.motions.reduced")}</option>
-                <option value="static">{t("pet.motions.static")}</option>
-              </SelectField>
             </div>
-            <div className="mt-5 flex flex-wrap items-center gap-4">
-              <ToggleField
-                label={t("pet.dragLocked")}
-                registration={form.register("dragLocked")}
-              />
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={resetPetPosition}
-              >
-                <RotateCcw aria-hidden="true" className="h-4 w-4" />
-                {t("pet.resetPosition")}
-              </Button>
-            </div>
-            <p className="mt-5 rounded-[var(--radius-panel)] bg-[var(--color-surface-subtle)] p-3 text-xs leading-5 text-[var(--color-text-muted)]">
-              {t("pet.preview", {
-                visibility: t(
-                  (values.visible ?? pet.visible) ? "pet.shown" : "pet.hidden",
-                ),
-                size: t(`pet.sizes.${values.size ?? pet.size}`),
-                motion: t(`pet.motions.${values.motion ?? pet.motion}`),
-              })}
-            </p>
-          </SettingsSection>
-
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex gap-3">
-              <Button type="submit">{t("save")}</Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={restoreDefaults}
-              >
-                {t("restoreDefaults")}
-              </Button>
-            </div>
-            {saved ? (
-              <p role="status" className="text-sm text-[var(--color-success)]">
-                {t("saved")}
-              </p>
-            ) : null}
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
-    </ResearchShell>
+    </WorkspacePage>
   );
 }
 
@@ -257,15 +290,14 @@ function SettingsSection({
   description: string;
   children: React.ReactNode;
 }) {
+  const titleId = useId();
   return (
-    <section className="rounded-[var(--radius-panel)] border border-[var(--color-border)] bg-[var(--color-surface)] p-6">
-      <h2 className="text-lg font-semibold text-[var(--color-text)]">
+    <section className={styles.section} aria-labelledby={titleId}>
+      <h2 id={titleId} className={styles.sectionTitle}>
         {title}
       </h2>
-      <p className="mt-1 text-sm text-[var(--color-text-muted)]">
-        {description}
-      </p>
-      <div className="mt-5">{children}</div>
+      <p className={styles.sectionDescription}>{description}</p>
+      <div className={styles.sectionBody}>{children}</div>
     </section>
   );
 }
@@ -278,7 +310,7 @@ function ToggleField({
   registration: UseFormRegisterReturn;
 }) {
   return (
-    <label className="inline-flex items-center gap-2 text-sm text-[var(--color-text)]">
+    <label className={styles.checkField}>
       <input type="checkbox" {...registration} />
       {label}
     </label>
@@ -295,12 +327,9 @@ function SelectField({
   children: React.ReactNode;
 }) {
   return (
-    <label className="block text-sm font-medium text-[var(--color-text)]">
+    <label className={styles.fieldLabel}>
       {label}
-      <select
-        className="mt-2 h-9 w-full rounded-[var(--radius-panel)] border border-[var(--color-border-strong)] bg-[var(--color-control)] px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
-        {...registration}
-      >
+      <select className={styles.select} {...registration}>
         {children}
       </select>
     </label>

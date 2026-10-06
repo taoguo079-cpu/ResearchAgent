@@ -7,6 +7,7 @@ import {
   taskStageMessageKeys,
   taskStageStatusMessageKeys,
 } from "@/i18n/task-labels";
+import styles from "./replay.module.css";
 
 export function ReplayStepper({
   state,
@@ -18,26 +19,19 @@ export function ReplayStepper({
   const t = useTranslations();
   const taskT = useTranslations("task");
   return (
-    <nav aria-label={t("replay.stageJump")} className="grid grid-cols-7 gap-1">
+    <nav aria-label={t("replay.stageJump")} className={styles.stages}>
       {RESEARCH_STAGES.map((stage) => (
         <button
           key={stage}
           type="button"
+          data-current={state.currentStage === stage}
           onClick={() => onStage(stage)}
-          className="rounded-[var(--radius-control)] border border-[var(--color-border)] px-2 py-2 text-left text-xs hover:bg-[var(--color-surface-subtle)]"
+          className={styles.stage}
         >
-          <span
-            className={
-              state.currentStage === stage
-                ? "font-semibold text-[var(--color-primary)]"
-                : "text-[var(--color-text-muted)]"
-            }
-          >
-            {taskT(taskStageMessageKeys[stage])}
-          </span>
-          <span className="mt-1 block text-[10px] text-[var(--color-text-subtle)]">
+          <span>{taskT(taskStageMessageKeys[stage])}</span>
+          <small>
             {taskT(taskStageStatusMessageKeys[state.stages[stage].status])}
-          </span>
+          </small>
         </button>
       ))}
     </nav>

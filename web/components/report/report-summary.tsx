@@ -2,6 +2,7 @@ import { FileWarning } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type { ResearchTaskResultResponse } from "@/lib/api/client";
+import styles from "./report-view.module.css";
 
 export function ReportSummary({
   result,
@@ -19,7 +20,7 @@ export function ReportSummary({
       : null;
 
   return (
-    <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--color-text-muted)]">
+    <div className={styles.summary}>
       <span>{t("papersRead", { count: papersRead })}</span>
       {result.partial ? (
         <span className="inline-flex items-center gap-1 text-[var(--color-warning)]">
@@ -28,7 +29,9 @@ export function ReportSummary({
         </span>
       ) : null}
       {result.warnings?.includes("CRITIQUE_NOT_APPROVED") ? (
-        <span className="text-[var(--color-warning)]">{t("critiqueNotApproved")}</span>
+        <span className="text-[var(--color-warning)]">
+          {t("critiqueNotApproved")}
+        </span>
       ) : null}
       {criticAttempt ? (
         <span>{t("criticAttempt", { attempt: criticAttempt })}</span>

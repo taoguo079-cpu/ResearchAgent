@@ -1,6 +1,11 @@
 import { expect, test } from "@playwright/test";
+import { resolve } from "node:path";
 
-import { expectBrandRobot, mockEntryBackend } from "./three-page-helpers";
+import {
+  expectBrandRobot,
+  expectNoHorizontalOverflow,
+  mockEntryBackend,
+} from "./three-page-helpers";
 
 test("NEXT immediately opens the menu and preserves tab-scoped welcome memory", async ({
   page,
@@ -36,6 +41,46 @@ test("menu opens question input, history, and the labelled settings gear", async
   page,
 }) => {
   await mockEntryBackend(page);
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/en");
+  await expect(
+    page.getByRole("heading", { name: "Research Agent" }),
+  ).toBeVisible();
+  await page.evaluate(() => document.fonts.ready);
+  await page.screenshot({
+    path: resolve(
+      process.cwd(),
+      "..",
+      ".impeccable",
+      "review",
+      "reference-welcome.png",
+    ),
+  });
+  for (const locale of ["en", "zh-CN"] as const) {
+    await page.goto(`/${locale}/workspace`);
+    await expect(
+      page.getByRole("heading", { name: "Research Agent", level: 1 }),
+    ).toBeVisible();
+    await expect(page.getByRole("list")).toHaveCount(0);
+    const actions = page.getByRole("navigation", {
+      name: locale === "en" ? "Choose your next step" : "选择下一步",
+    });
+    const actionsBox = await actions.boundingBox();
+    expect(actionsBox!.y + actionsBox!.height).toBeLessThanOrEqual(768);
+    await expectBrandRobot(page, "idle");
+    await expectNoHorizontalOverflow(page);
+    await page.evaluate(() => document.fonts.ready);
+    await page.screenshot({
+      path: resolve(
+        process.cwd(),
+        "..",
+        ".impeccable",
+        "review",
+        `menu-${locale}.png`,
+      ),
+    });
+  }
   await page.goto("/en/workspace");
   await page.getByRole("link", { name: /NEW RESEARCH/ }).click();
   await expect(page).toHaveURL(/\/en\/research\/new$/);

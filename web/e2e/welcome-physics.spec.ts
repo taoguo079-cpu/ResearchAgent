@@ -44,21 +44,15 @@ for (const viewport of [{ width: 1366, height: 768 }]) {
       const box = await control.boundingBox();
       expect(box?.height).toBeGreaterThanOrEqual(44);
       if (name === "menu" && viewport.width === 1366) {
-        const newPill = await control
-          .locator(":scope > span")
-          .last()
-          .boundingBox();
-        const historyPill = await page
+        const historyBox = await page
           .getByRole("link", { name: "history", exact: true })
-          .locator(":scope > span")
-          .last()
           .boundingBox();
-        expect(newPill).not.toBeNull();
-        expect(historyPill).not.toBeNull();
-        expect(newPill!.width).toBeCloseTo(500, 0);
-        expect(newPill!.height).toBeCloseTo(95, 0);
-        expect(historyPill!.width).toBeCloseTo(newPill!.width, 0);
-        expect(historyPill!.height).toBeCloseTo(newPill!.height, 0);
+        expect(historyBox).not.toBeNull();
+        expect(historyBox!.height).toBeGreaterThanOrEqual(44);
+        expect(historyBox!.x).toBeGreaterThanOrEqual(box!.x + box!.width);
+        expect(historyBox!.y + historyBox!.height).toBeLessThanOrEqual(
+          viewport.height,
+        );
       }
       if (name === "question") {
         const input = await page.getByLabel("Research question").boundingBox();
@@ -66,6 +60,8 @@ for (const viewport of [{ width: 1366, height: 768 }]) {
         expect(input!.y + input!.height).toBeLessThanOrEqual(box!.y + 1);
       }
       for (const [asset, spec] of Object.entries(lettering.assets)) {
+        // The menu now uses live controls and a larger hero, rather than the old fixed-pixel menu lettering.
+        if (name === "menu") continue;
         if (
           !asset.startsWith(`${name === "brand" ? "home" : name}-`) &&
           !(name === "brand" && asset === "language-zh")

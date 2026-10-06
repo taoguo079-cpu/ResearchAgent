@@ -29,5 +29,7 @@
   "renameTitle": "重命名研究任务",
   "renameDescription": "修改显示标题，不改变原始问题。",
   "newTitle": "新标题",
-  "saveTitle": "保存标题"
+  "saveTitle": "保存标题",
+  "renameError": "标题保存失败，请重试。",
+  "deleteError": "任务删除失败，请重试。"
 }

@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import type { ResearchPaper } from "@/features/papers/paper-model";
 import { useTranslations } from "next-intl";
+import styles from "./papers.module.css";
 
 export function PaperRow({
   paper,
@@ -13,29 +14,24 @@ export function PaperRow({
 }) {
   const t = useTranslations("papers");
   return (
-    <article
-      className={
-        selected
-          ? "border-l-2 border-[var(--color-primary)] bg-[var(--color-primary-subtle)]"
-          : "border-l-2 border-transparent"
-      }
-    >
+    <article className={styles.row} data-selected={selected}>
       <button
         type="button"
         aria-label={`Paper: ${paper.title}`}
         onClick={() => onSelect?.(paper)}
-        className="w-full px-4 py-3 text-left hover:bg-[var(--color-surface-subtle)]"
+        className={styles.rowButton}
       >
-        <div className="flex items-start justify-between gap-3">
-          <h3 className="line-clamp-3 text-sm font-medium text-[var(--color-text)]">
-            {paper.title}
-          </h3>
+        <div className={styles.rowTitle}>
+          <h3>{paper.title}</h3>
           <Badge variant="neutral">{paper.source}</Badge>
         </div>
-        <p className="mt-1 line-clamp-1 text-xs text-[var(--color-text-muted)]">
+        <p className={styles.authors}>
           {paper.authors.join(", ") || t("unknownAuthors")}
         </p>
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-[var(--color-text-subtle)]">
+        {paper.abstract ? (
+          <p className={styles.rowAbstract}>{paper.abstract}</p>
+        ) : null}
+        <div className={styles.metadata}>
           {paper.year ? <span>{paper.year}</span> : null}
           <span>
             {paper.citationCount === null

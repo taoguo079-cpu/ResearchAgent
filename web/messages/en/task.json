@@ -61,5 +61,8 @@
   "attempt": "Attempt {attempt}",
   "runDetails": "Run details",
   "noTaskContext": "Create a research task to inspect evidence, papers, and execution details here.",
-  "readProgress": "Read {completed}/{total}: {succeeded} succeeded, {degraded} degraded, {failed} failed."
+  "readProgress": "Read {completed}/{total}: {succeeded} succeeded, {degraded} degraded, {failed} failed.",
+  "zen": "Zen",
+  "enterZen": "Enter Zen mode",
+  "exitZen": "Exit Zen mode"
 }

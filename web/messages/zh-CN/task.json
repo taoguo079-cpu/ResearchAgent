@@ -61,5 +61,8 @@
   "attempt": "第 {attempt} 次尝试",
   "runDetails": "运行详情",
   "noTaskContext": "创建研究任务后，可在此查看证据、论文和执行详情。",
-  "readProgress": "已处理 {completed}/{total} 篇：成功 {succeeded}，降级 {degraded}，失败 {failed}。"
+  "readProgress": "已处理 {completed}/{total} 篇：成功 {succeeded}，降级 {degraded}，失败 {failed}。",
+  "zen": "禅",
+  "enterZen": "进入禅模式",
+  "exitZen": "退出禅模式"
 }

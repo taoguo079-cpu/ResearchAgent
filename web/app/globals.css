@@ -39,6 +39,16 @@ select {
   font: inherit;
 }
 
+input,
+textarea {
+  caret-color: var(--color-primary);
+}
+
+select,
+input[type="checkbox"] {
+  accent-color: var(--color-primary);
+}
+
 ::selection {
   background: var(--color-primary-subtle);
   color: var(--color-text);

@@ -1,43 +1,44 @@
 .document {
   min-width: 0;
-  max-width: 760px;
+  max-width: 75ch;
   color: var(--color-text);
   font-family: var(--font-report);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 400;
-  line-height: 1.75;
+  line-height: 1.9;
   overflow-wrap: anywhere;
 }
 
 .document :is(h1, h2, h3, h4, h5, h6) {
+  font-family: "Quicksand", "Microsoft YaHei", sans-serif;
   font-weight: 600;
   line-height: 1.4;
   scroll-margin-block-start: 16px;
 }
 
 .document h1 {
-  margin: 0 0 24px;
-  font-size: 28px;
+  margin: 0 0 20px;
+  font-size: 26px;
 }
 .document h2 {
-  margin: 32px 0 12px;
-  font-size: 24px;
+  margin: 36px 0 14px;
+  font-size: 22px;
 }
 .document h3 {
   margin: 24px 0 10px;
-  font-size: 20px;
+  font-size: 18px;
 }
 .document h4 {
   margin: 20px 0 8px;
-  font-size: 18px;
+  font-size: 16px;
 }
 .document h5 {
   margin: 20px 0 8px;
-  font-size: 17px;
+  font-size: 15px;
 }
 .document h6 {
   margin: 20px 0 8px;
-  font-size: 16px;
+  font-size: 14px;
 }
 .document > :first-child {
   margin-top: 0;
@@ -80,7 +81,7 @@
 .document blockquote {
   margin: 16px 0;
   padding-inline-start: 16px;
-  border-inline-start: 3px solid var(--color-border-strong);
+  border-inline-start: 1px solid var(--color-border-strong);
   color: var(--color-text-muted);
 }
 .document pre {
@@ -88,7 +89,7 @@
   padding: 12px;
   overflow-x: auto;
   background: var(--color-surface-subtle);
-  border-radius: var(--radius-control);
+  border-radius: 12px;
 }
 .document :not(pre) > code {
   padding: 2px 4px;
@@ -103,10 +104,10 @@
 }
 .document table {
   width: 100%;
-  min-width: 560px;
+  min-width: 420px;
   border-collapse: collapse;
-  border-top: 2px solid var(--color-border-strong);
-  border-bottom: 2px solid var(--color-border-strong);
+  border-top: 1px solid var(--color-border-strong);
+  border-bottom: 1px solid var(--color-border-strong);
 }
 .document :is(th, td) {
   padding: 10px 12px;
@@ -116,7 +117,16 @@
 }
 .document th {
   font-weight: 600;
+  background: var(--color-surface-subtle);
 }
 .document thead tr:last-child th {
   border-bottom: 1px solid var(--color-border-strong);
+}
+
+.document tbody tr + tr td {
+  border-top: 1px solid var(--color-border);
+}
+
+.message {
+  max-width: 70ch;
 }

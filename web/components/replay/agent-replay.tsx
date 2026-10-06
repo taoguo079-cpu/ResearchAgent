@@ -9,6 +9,7 @@ import { ReplayStepper } from "@/components/replay/replay-stepper";
 import { useTaskReplay } from "@/features/replay/hooks/use-task-replay";
 import type { ResearchEvent } from "@/lib/events/types";
 import { useTranslations } from "next-intl";
+import styles from "./replay.module.css";
 
 export function AgentReplay({
   taskId,
@@ -39,16 +40,11 @@ export function AgentReplay({
       </div>
     );
   return (
-    <section aria-label={t("title")} className="space-y-5 p-5">
-      <header className="flex flex-wrap items-start justify-between gap-4">
+    <section aria-label={t("title")} className={styles.replay}>
+      <header className={styles.header}>
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.08em] text-[var(--color-primary)]">
-            {t("persistedRun")}
-          </p>
-          <h2 className="mt-1 text-lg font-semibold text-[var(--color-text)]">
-            {t("title")}
-          </h2>
-          <p className="mt-1 text-xs text-[var(--color-text-muted)]">
+          <h2>{t("title")}</h2>
+          <p>
             {replay.isFinished
               ? t("finished")
               : t("cursor", {
