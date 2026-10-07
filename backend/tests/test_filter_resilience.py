@@ -83,3 +83,51 @@ async def test_invalid_model_scores_use_deterministic_readable_fallback(monkeypa
         "paper-2",
     ]
     assert "FILTER_FALLBACK_USED" in result["warnings"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("finish_reason", ["length", "stop"])
+async def test_failed_readable_batch_is_not_hidden_by_metadata_only_scores(monkeypatch, finish_reason):
+    async def create(**kwargs):
+        readable = "Actual neutrino abstract" in kwargs["messages"][-1]["content"]
+        first = 4 if "[4]" in kwargs["messages"][-1]["content"] else 1
+        import json
+        return SimpleNamespace(choices=[SimpleNamespace(
+            finish_reason=finish_reason if readable else "stop",
+            message=SimpleNamespace(content="" if readable else json.dumps({"scores": [
+                {"paper_num": n, "score": 5} for n in range(first, first + 3)]})),
+        )])
+    monkeypatch.setattr(filter_module, "AsyncOpenAI", lambda **kwargs: SimpleNamespace(
+        chat=SimpleNamespace(completions=SimpleNamespace(create=create))))
+    papers = [
+        {"paper_id": f"readable-{i}", "title": "Neutrino mass theory", "source": "arxiv",
+         "abstract": "Actual neutrino abstract"} for i in range(3)
+    ] + [
+        {"paper_id": f"metadata-{i}", "title": "Neutrino theory", "source": "crossref",
+         "abstract": None, "pdf_url": None} for i in range(3)
+    ]
+    result = await filter_module.filter_papers({"user_query": "中微子的前沿理论", "max_papers": 3,
+        "raw_papers": papers, "research_plan": [{"retrieval_query": "neutrino mass theory"}]})
+    assert any(p["paper_id"].startswith("readable-") for p in result["selected_papers"])
+    assert "FILTER_FALLBACK_USED" in result["warnings"]
+    if finish_reason == "length":
+        assert "FILTER_MODEL_TRUNCATED" in result["warnings"]
+
+
+@pytest.mark.asyncio
+async def test_each_batch_uses_local_numbers_and_recovers_omitted_scores(monkeypatch):
+    prompts = []
+    async def create(**kwargs):
+        prompts.append(kwargs["messages"][-1]["content"])
+        return SimpleNamespace(choices=[SimpleNamespace(finish_reason="stop",
+            message=SimpleNamespace(content='{"scores":[{"paper_num":1,"score":5}]}'))])
+    monkeypatch.setattr(filter_module, "AsyncOpenAI", lambda **kwargs: SimpleNamespace(
+        chat=SimpleNamespace(completions=SimpleNamespace(create=create))))
+    papers = [{"paper_id": f"p-{i}", "title": "Neutrino mass theory", "source": "arxiv",
+               "abstract": "Neutrino mass theory evidence"} for i in range(6)]
+    result = await filter_module.filter_papers({"user_query": "neutrino mass theory",
+        "raw_papers": papers, "max_papers": 3})
+    assert len(result["selected_papers"]) == 3
+    assert any(p["paper_id"] == "p-3" for p in result["selected_papers"])
+    assert "FILTER_FALLBACK_USED" in result["warnings"]
+    assert all("[1]" in prompt and "[4]" not in prompt for prompt in prompts)

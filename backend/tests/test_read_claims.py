@@ -81,6 +81,25 @@ from pathlib import Path
 import pytest
 
 
+@pytest.mark.parametrize("model_id", ["c1", "claim-1", "other-paper:claim:1"])
+def test_claim_ids_are_unique_across_papers_and_duplicate_model_ids(model_id):
+    from backend.services.structured_output import parse_paper_insight_output
+    from backend.domain.reports import citation_id_for_claim
+    claims = []
+    for paper_id in ("paper-a", "paper-b"):
+        data = {"summary": "Real source summary", "claims": [
+            {"claim_id": model_id, "paper_id": "model-id", "statement": "Real evidence",
+             "chunk_ids": [f"{paper_id}-chunk"], "evidence_text": "Real evidence"}
+            for _ in range(2)
+        ]}
+        insight, degraded = parse_paper_insight_output(json.dumps(data), canonical_paper_id=paper_id)
+        assert not degraded
+        claims.extend(insight.claims)
+    assert len({c.claim_id for c in claims}) == 4
+    assert len({citation_id_for_claim(c.claim_id) for c in claims}) == 4
+    assert all(c.claim_id.startswith(c.paper_id + ":claim:") for c in claims)
+
+
 @pytest.mark.parametrize("statement_key,evidence_key", [("claim", "evidence"), ("text", "excerpt"), ("statement", "evidence_text")])
 def test_real_provider_shape_preserves_claims_and_canonical_identity(statement_key, evidence_key):
     from backend.services.structured_output import parse_paper_insight_output

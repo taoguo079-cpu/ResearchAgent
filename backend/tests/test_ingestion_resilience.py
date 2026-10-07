@@ -18,6 +18,19 @@ class FakeRepository:
 
 
 @pytest.mark.asyncio
+async def test_null_abstract_without_pdf_is_unreadable_without_crashing(monkeypatch):
+    async def no_pdf(_paper):
+        return None
+    monkeypatch.setattr(ingestion, "download_pdf", no_pdf)
+    repository = FakeRepository()
+    result = await ingestion.ingest_paper({"paper_id": "metadata", "title": "Neutrino theory",
+        "abstract": None, "pdf_url": None}, chunk_repository=repository, index_vectors=False)
+    assert result.readable is False
+    assert "PAPER_NO_READABLE_CONTENT" in result.warnings
+    assert repository.saved == []
+
+
+@pytest.mark.asyncio
 async def test_missing_embedding_key_keeps_sqlite_chunks(monkeypatch) -> None:
     repository = FakeRepository()
 

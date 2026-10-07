@@ -1,11 +1,20 @@
 """One retry owner. Authentication/validation errors are never retried."""
 import asyncio
+from urllib.parse import urlparse
 import httpx
 from openai import APIConnectionError, APITimeoutError, APIStatusError
 
 
 async def chat_completion(client, **kwargs):
     from backend.config import settings
+    # Hybrid DeepSeek models default to thinking. Small stage budgets must
+    # remain available for the JSON/text that the pipeline actually consumes.
+    if (urlparse(settings.base_url).hostname == "api.deepseek.com"
+            and kwargs.get("model") in {"deepseek-flash", "deepseek-v4-flash", "deepseek-v4-pro"}
+            and "reasoning_effort" not in kwargs):
+        extra_body = dict(kwargs.get("extra_body") or {})
+        extra_body.setdefault("thinking", {"type": "disabled"})
+        kwargs["extra_body"] = extra_body
     async with asyncio.timeout(settings.model_request_timeout):
         return await request_with_retry(lambda: client.chat.completions.create(**kwargs))
 

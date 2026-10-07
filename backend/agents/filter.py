@@ -19,6 +19,11 @@ async def filter_papers(state: ResearchState) -> dict:
     max_papers = min(15, max(3, state.get("max_papers", 15)))
     output_language = state.get("output_language", "en")
     context = context_from_state(state)
+    retrieval_queries = [
+        str(item.get("retrieval_query") or "")
+        for item in (state.get("research_plan") or [])
+        if isinstance(item, dict)
+    ]
 
     if not query:
         return {"errors": ["no papers to filter"], "selected_papers": []}
@@ -32,11 +37,11 @@ async def filter_papers(state: ResearchState) -> dict:
 
     sem = asyncio.Semaphore(3)
 
-    async def score_batch(batch: list[dict], batch_idx: int) -> list[dict]:
+    async def score_batch(batch: list[dict]) -> tuple[list[dict], list[str]]:
         if context:
             context.raise_if_cancelled()
         papers_text = "\n\n".join([
-            f"[{batch_idx * batch_size + i + 1}]"
+            f"[{i + 1}] "
             f"Title: {p.get('title', 'N/A')}\n"
             f"Abstract: {(p.get('abstract') or 'N/A')[:500]}"
             for i, p in enumerate(batch)
@@ -47,7 +52,8 @@ async def filter_papers(state: ResearchState) -> dict:
             f"Below are {len(batch)} papers. For each, score relevance 1-5 "
             f"(5=highly relevant). Consider: topic match, methodology, recency.\n\n"
             f"{papers_text}\n\n"
-            f"Return reasons in {output_language}. "
+            f"Use the shown local paper numbers (1-{len(batch)}), once per paper. "
+            f"Return reasons in {output_language}, at most 60 characters each. "
             'Return ONLY valid JSON: '
             '{"scores": [{"paper_num": 1, "score": 4, "reason": "..."}]}'
         )
@@ -55,7 +61,7 @@ async def filter_papers(state: ResearchState) -> dict:
         async with sem:
             resp = await chat_completion(client,
                 model=settings.light_model,
-                max_tokens=2000,
+                max_tokens=4000,
                 messages=[
                     {
                         "role": "system",
@@ -69,36 +75,58 @@ async def filter_papers(state: ResearchState) -> dict:
                 ],
             )
 
-        text = resp.choices[0].message.content.strip()
+        choice = resp.choices[0]
+        text = (choice.message.content or "").strip()
         if context:
             context.raise_if_cancelled()
-        scores = _parse_scores(text)
+        truncated = getattr(choice, "finish_reason", None) == "length"
+        scores = [] if truncated else _parse_scores(text)
 
         results = []
+        covered = set()
         for item in scores:
-            idx = item.get("paper_num", 0) - batch_idx * batch_size - 1
-            if 0 <= idx < len(batch):
+            idx = item.get("paper_num", 0) - 1
+            if 0 <= idx < len(batch) and idx not in covered:
+                covered.add(idx)
                 p = dict(batch[idx])
                 p["relevance_score"] = item.get("score", 0)
                 p["relevance_reason"] = item.get("reason", "")
                 results.append(p)
-        return results
+        batch_warnings = ["FILTER_MODEL_TRUNCATED"] if truncated else []
+        if len(covered) != len(batch):
+            batch_warnings.append("FILTER_FALLBACK_USED")
+            results.extend(_deterministic_rank(
+                [paper for idx, paper in enumerate(batch) if idx not in covered],
+                query=query,
+                retrieval_queries=retrieval_queries,
+            ))
+        return results, batch_warnings
 
     batch_size = max(1, min(BATCH_SIZE, max_papers))
     batches = [papers[i:i + batch_size] for i in range(0, len(papers), batch_size)]
-    tasks = [score_batch(b, i) for i, b in enumerate(batches)]
+    tasks = [score_batch(b) for b in batches]
 
-    all_results = await asyncio.gather(*tasks, return_exceptions=True)
+    try:
+        all_results = await asyncio.gather(*tasks, return_exceptions=True)
+    finally:
+        if hasattr(client, "close"):
+            await client.close()
 
     scored = []
     warnings: list[str] = []
-    for r in all_results:
-        if isinstance(r, list):
-            scored.extend(r)
+    for batch, r in zip(batches, all_results):
+        if isinstance(r, tuple):
+            scored.extend(r[0])
+            warnings.extend(r[1])
+        elif isinstance(r, asyncio.CancelledError):
+            raise r
         elif isinstance(r, Exception):
-            warnings.append("FILTER_MODEL_FAILED")
+            warnings.extend(["FILTER_MODEL_FAILED", "FILTER_FALLBACK_USED"])
+            scored.extend(_deterministic_rank(batch, query=query, retrieval_queries=retrieval_queries))
     
-    scored.sort(key=lambda p: p.get("relevance_score", 0), reverse=True)
+    # Metadata-only hits can be resolved by DOI, but must never crowd out
+    # relevant papers whose abstracts or full text are already available.
+    scored.sort(key=lambda p: (_has_readable_content(p), p.get("relevance_score", 0)), reverse=True)
     selected = [
         paper
         for paper in scored
@@ -106,11 +134,6 @@ async def filter_papers(state: ResearchState) -> dict:
         and float(paper.get("relevance_score")) >= RELEVANCE_THRESHOLD
     ][:max_papers]
 
-    retrieval_queries = [
-        str(item.get("retrieval_query") or "")
-        for item in (state.get("research_plan") or [])
-        if isinstance(item, dict)
-    ]
     if not selected:
         warnings.append("FILTER_FALLBACK_USED")
         selected = _deterministic_rank(
@@ -164,7 +187,11 @@ async def filter_papers(state: ResearchState) -> dict:
     for i, p in enumerate(selected[:5], 1):
         print(f"    {i}. [{p.get('relevance_score', '?')}/5] {p.get('title', '?')[:80]}")
     
-    return {"selected_papers": selected, "warnings": warnings}
+    return {"selected_papers": selected, "warnings": list(dict.fromkeys(warnings))}
+
+
+def _has_readable_content(paper: dict) -> bool:
+    return bool((paper.get("abstract") or "").strip() or (paper.get("pdf_url") or "").strip())
 
 
 def _as_float(value: object) -> float | None:
@@ -256,7 +283,7 @@ def _deterministic_rank(
 ) -> list[dict]:
     ranked = []
     for paper in papers:
-        if not paper.get("abstract") and not paper.get("pdf_url"):
+        if not _has_readable_content(paper):
             continue
         score, reason = _deterministic_score(
             paper,

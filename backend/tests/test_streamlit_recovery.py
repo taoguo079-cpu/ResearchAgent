@@ -6,6 +6,18 @@ from streamlit.testing.v1 import AppTest
 
 from frontend.utils import api_client
 
+
+def test_client_import_honors_isolated_env_file(monkeypatch, tmp_path):
+    import importlib
+    from unittest.mock import Mock
+    import dotenv
+    env_path = str(tmp_path / "isolated.env")
+    monkeypatch.setenv("RESEARCH_ENV_FILE", env_path)
+    loader = Mock()
+    monkeypatch.setattr(dotenv, "load_dotenv", loader)
+    importlib.reload(api_client)
+    loader.assert_called_once_with(env_path)
+
 APP = Path(__file__).resolve().parents[2] / "frontend" / "streamlit_app.py"
 
 
