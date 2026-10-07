@@ -1,0 +1,11 @@
+.next/
+node_modules/
+artifacts/
+test-results/
+playwright-report/
+# Generated contracts, lockfiles and asset manifests retain their producer's format.
+openapi.json
+lib/api/schema.d.ts
+package-lock.json
+public/**/*.json
+public/pets/

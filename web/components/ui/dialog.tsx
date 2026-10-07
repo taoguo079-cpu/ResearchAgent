@@ -33,17 +33,14 @@ export const DialogContent = forwardRef<
       <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-[var(--color-dialog-overlay)] data-[state=open]:animate-in data-[state=closed]:animate-out" />
       <DialogPrimitive.Content
         ref={ref}
-        className={cn(
-          "fixed left-1/2 top-1/2 z-50 w-[min(480px,calc(100vw-32px))] -translate-x-1/2 -translate-y-1/2 rounded-[var(--radius-float)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-5 text-[var(--color-text)] shadow-[var(--shadow-float)] outline-none duration-[var(--motion-panel)] data-[state=open]:animate-in data-[state=closed]:animate-out",
-          className,
-        )}
+        className={cn("swiss-dialog text-[var(--color-text)]", className)}
         {...props}
       >
         {children}
         {showCloseButton ? (
           <DialogPrimitive.Close
             aria-label={closeLabel}
-            className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-[var(--radius-control)] text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-control-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
+            className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-control-hover)] hover:text-[var(--color-primary-foreground)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-focus)]"
           >
             <X aria-hidden="true" className="h-4 w-4" />
           </DialogPrimitive.Close>
@@ -60,7 +57,7 @@ export const DialogTitle = forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn("text-base font-semibold", className)}
+    className={cn("text-[32px] leading-tight font-bold", className)}
     {...props}
   />
 ));

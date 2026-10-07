@@ -3,7 +3,10 @@ import { StrictMode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Providers } from "@/app/providers";
-import { TaskEventsProvider, useTaskEvents } from "@/features/tasks/hooks/use-task-events";
+import {
+  TaskEventsProvider,
+  useTaskEvents,
+} from "@/features/tasks/hooks/use-task-events";
 
 const snapshot = {
   id: "task-live",
@@ -60,7 +63,11 @@ class MockEventSource {
 }
 
 function wrapper({ children }: { children: React.ReactNode }) {
-  return <Providers><TaskEventsProvider taskId="task-live">{children}</TaskEventsProvider></Providers>;
+  return (
+    <Providers>
+      <TaskEventsProvider taskId="task-live">{children}</TaskEventsProvider>
+    </Providers>
+  );
 }
 
 describe("useTaskEvents", () => {
@@ -190,48 +197,92 @@ describe("useTaskEvents", () => {
 
   it("shares a single connection across consumers and panel remounts in StrictMode", async () => {
     vi.stubGlobal("EventSource", MockEventSource);
-    vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify(snapshot), {
-      status: 200, headers: { "content-type": "application/json" },
-    }));
-    function Consumer() { useTaskEvents("task-live"); return null; }
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify(snapshot), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      }),
+    );
+    function Consumer() {
+      useTaskEvents("task-live");
+      return null;
+    }
     function View({ panel }: { panel: boolean }) {
-      return <StrictMode><Providers><TaskEventsProvider taskId="task-live">
-        <Consumer />{panel && <Consumer />}
-      </TaskEventsProvider></Providers></StrictMode>;
+      return (
+        <StrictMode>
+          <Providers>
+            <TaskEventsProvider taskId="task-live">
+              <Consumer />
+              {panel && <Consumer />}
+            </TaskEventsProvider>
+          </Providers>
+        </StrictMode>
+      );
     }
     const view = render(<View panel />);
-    await waitFor(() => expect(MockEventSource.instances.filter(s => !s.closed)).toHaveLength(1));
+    await waitFor(() =>
+      expect(MockEventSource.instances.filter((s) => !s.closed)).toHaveLength(
+        1,
+      ),
+    );
     const count = MockEventSource.instances.length;
     view.rerender(<View panel={false} />);
     view.rerender(<View panel />);
     expect(MockEventSource.instances).toHaveLength(count);
     view.unmount();
-    expect(MockEventSource.instances.filter(s => !s.closed)).toHaveLength(0);
+    expect(MockEventSource.instances.filter((s) => !s.closed)).toHaveLength(0);
   });
 
   it("closes the old task stream before switching scope and rejects stale events", async () => {
     vi.stubGlobal("EventSource", MockEventSource);
-    vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => new Response(JSON.stringify({
-      ...snapshot, id: String(input).includes("task-next") ? "task-next" : "task-live",
-    }), { status: 200, headers: { "content-type": "application/json" } }));
+    vi.spyOn(globalThis, "fetch").mockImplementation(
+      async (input) =>
+        new Response(
+          JSON.stringify({
+            ...snapshot,
+            id: String(input).includes("task-next") ? "task-next" : "task-live",
+          }),
+          { status: 200, headers: { "content-type": "application/json" } },
+        ),
+    );
     function Consumer({ id }: { id: string }) {
       const state = useTaskEvents(id);
-      return <output>{state.replayState?.taskId}:{state.replayState?.lastSequence}</output>;
+      return (
+        <output>
+          {state.replayState?.taskId}:{state.replayState?.lastSequence}
+        </output>
+      );
     }
     function View({ id }: { id: string }) {
-      return <Providers><TaskEventsProvider taskId={id}><Consumer id={id} /></TaskEventsProvider></Providers>;
+      return (
+        <Providers>
+          <TaskEventsProvider taskId={id}>
+            <Consumer id={id} />
+          </TaskEventsProvider>
+        </Providers>
+      );
     }
     const view = render(<View id="task-live" />);
     await waitFor(() => expect(MockEventSource.instances).toHaveLength(1));
     const old = MockEventSource.instances[0];
     view.rerender(<View id="task-next" />);
     expect(old.closed).toBe(true);
-    await waitFor(() => expect(view.getByRole("status")).toHaveTextContent("task-next:7"));
-    expect(MockEventSource.instances.filter(s => !s.closed)).toHaveLength(1);
-    act(() => old.emit("task.completed", {
-      schema_version: 1, task_id: "task-live", sequence: 99, event_type: "task.completed",
-      stage: null, level: "info", payload: {}, occurred_at: "2026-08-19T10:00:08Z",
-    }));
+    await waitFor(() =>
+      expect(view.getByRole("status")).toHaveTextContent("task-next:7"),
+    );
+    expect(MockEventSource.instances.filter((s) => !s.closed)).toHaveLength(1);
+    act(() =>
+      old.emit("task.completed", {
+        schema_version: 1,
+        task_id: "task-live",
+        sequence: 99,
+        event_type: "task.completed",
+        stage: null,
+        level: "info",
+        payload: {},
+        occurred_at: "2026-08-19T10:00:08Z",
+      }),
+    );
     expect(view.getByRole("status")).toHaveTextContent("task-next:7");
   });
 });

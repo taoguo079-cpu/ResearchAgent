@@ -11,7 +11,7 @@ test("remaining workspace pages keep the entry identity and usable desktop layou
   await page.emulateMedia({ reducedMotion: "reduce" });
   const screenshotDirectory = path.resolve(
     process.cwd(),
-    "../.impeccable/review",
+    "../artifacts/swiss-style",
   );
   await mkdir(screenshotDirectory, { recursive: true });
   const capture = async (name: string) => {
@@ -40,7 +40,40 @@ test("remaining workspace pages keep the entry identity and usable desktop layou
   await expect(
     page.getByRole("heading", { name: "Research synthesis", exact: true }),
   ).toBeVisible({ timeout: 20_000 });
+  const reportTabs = page.getByRole("tablist", { name: "Research views" });
+  const tabBounds = await Promise.all(
+    (await reportTabs.getByRole("tab").all()).map((tab) => tab.boundingBox()),
+  );
+  expect(tabBounds).toHaveLength(3);
+  const tabTop = tabBounds.map((bounds) => bounds!.y);
+  expect(Math.max(...tabTop) - Math.min(...tabTop)).toBeLessThan(1);
+  const prose = page.locator(".report-document > p").first();
+  await expect(prose).toBeInViewport();
+  const proseBox = await prose.boundingBox();
+  const stageRail = await page
+    .getByTestId("followup-composer")
+    .getByRole("navigation", { name: "Stage detail" })
+    .boundingBox();
+  expect(proseBox!.y + proseBox!.height).toBeLessThanOrEqual(stageRail!.y);
   await capture("report");
+  const shell = page.locator("[data-sidebar][data-context]");
+  const main = shell.locator("main");
+  const columnWidth = (1270 - 24 * 11) / 12;
+  const spanWidth = (span: number) => columnWidth * span + 24 * (span - 1);
+  expect((await main.boundingBox())!.width).toBeCloseTo(spanWidth(7), 0);
+  await page.getByRole("button", { name: "Collapse task sidebar" }).click();
+  await expect(shell).toHaveAttribute("data-sidebar", "closed");
+  expect((await main.boundingBox())!.width).toBeCloseTo(spanWidth(9), 0);
+  await capture("report-navigation-collapsed");
+  await page.getByRole("button", { name: "Collapse context panel" }).click();
+  await expect(shell).toHaveAttribute("data-context", "closed");
+  expect((await main.boundingBox())!.width).toBeCloseTo(spanWidth(12), 0);
+  await capture("report-panels-collapsed");
+  await page.getByRole("button", { name: "Expand task sidebar" }).click();
+  expect((await main.boundingBox())!.width).toBeCloseTo(spanWidth(10), 0);
+  await capture("report-evidence-collapsed");
+  await page.getByRole("button", { name: "Expand context panel" }).click();
+  expect((await main.boundingBox())!.width).toBeCloseTo(spanWidth(7), 0);
   const composerBox = await page.getByTestId("followup-composer").boundingBox();
   const contentBox = await page.getByTestId("task-scroll-region").boundingBox();
   expect(composerBox!.y + composerBox!.height).toBeLessThanOrEqual(769);
@@ -56,13 +89,60 @@ test("remaining workspace pages keep the entry identity and usable desktop layou
   await page.getByRole("button", { name: /open paper/i }).click();
 
   await page.getByRole("tab", { name: "Papers (5)", exact: true }).click();
-  await page.getByRole("button", { name: /Paper: Hybrid retrieval/i }).click();
+  const paperRow = page.getByRole("button", {
+    name: /Paper: Hybrid retrieval/i,
+  });
+  await paperRow.click();
   await expect(
     page
       .getByRole("tabpanel", { name: "Papers (5)" })
       .getByRole("complementary", { name: "Paper details" }),
   ).toContainText("Hybrid retrieval");
   await capture("papers");
+  await paperRow.hover();
+  const hoverText = await paperRow.evaluate((button) => {
+    const author = button.querySelector("p");
+    const metadata = button.lastElementChild?.querySelector("span");
+    return [author, metadata].map((element) => {
+      if (!element) throw new Error("Paper author or metadata is missing");
+      let ancestor: Element | null = element;
+      let background = "transparent";
+      while (ancestor) {
+        background = getComputedStyle(ancestor).backgroundColor;
+        if (background !== "transparent" && background !== "rgba(0, 0, 0, 0)")
+          break;
+        ancestor = ancestor.parentElement;
+      }
+      const style = getComputedStyle(element);
+      return { foreground: style.color, background, opacity: style.opacity };
+    });
+  });
+  for (const text of hoverText) {
+    const palette = ["rgb(0, 0, 0)", "rgb(250, 249, 244)", "rgb(218, 41, 28)"];
+    expect(palette).toContain(text.foreground);
+    expect(palette).toContain(text.background);
+    expect(text.opacity).toBe("1");
+    const luminance = (color: string) => {
+      const channels = color
+        .match(/[\d.]+/g)!
+        .slice(0, 3)
+        .map(Number)
+        .map((channel) => {
+          const value = channel / 255;
+          return value <= 0.04045
+            ? value / 12.92
+            : ((value + 0.055) / 1.055) ** 2.4;
+        });
+      return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+    };
+    const foreground = luminance(text.foreground);
+    const background = luminance(text.background);
+    expect(
+      (Math.max(foreground, background) + 0.05) /
+        (Math.min(foreground, background) + 0.05),
+    ).toBeGreaterThanOrEqual(4.5);
+  }
+  await capture("papers-hover");
   await page
     .getByTestId("task-scroll-region")
     .getByRole("tab", { name: "Run details", exact: true })
@@ -76,6 +156,10 @@ test("remaining workspace pages keep the entry identity and usable desktop layou
   await expect(
     page.getByRole("region", { name: "Event timeline" }),
   ).toBeVisible();
+  const replayRange = page.getByRole("slider");
+  await expect(replayRange).toHaveCSS("appearance", "none");
+  await expect(replayRange).toHaveCSS("accent-color", "rgb(218, 41, 28)");
+  await expect(replayRange).toHaveCSS("border-radius", "0px");
   await page
     .getByRole("heading", { name: "Agent replay" })
     .scrollIntoViewIfNeeded();
@@ -100,18 +184,14 @@ test("remaining workspace pages keep the entry identity and usable desktop layou
       return { background: style.backgroundColor, foreground: style.color };
     });
   expect(actionStyle).toEqual({
-    background: "rgb(20, 107, 224)",
-    foreground: "rgb(255, 255, 255)",
+    background: "rgb(218, 41, 28)",
+    foreground: "rgb(250, 249, 244)",
   });
-  const previewBox = await page.getByText(/^Preview:/).boundingBox();
-  const saveBox = await page
-    .getByRole("button", { name: "Save settings" })
-    .boundingBox();
-  expect(previewBox!.y + previewBox!.height).toBeLessThanOrEqual(saveBox!.y);
+  await expect(page.getByLabel("Show companion")).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: /Switch to (dark|light) theme/ }),
+  ).toHaveCount(0);
   await capture("settings");
-  await page.getByRole("button", { name: "Switch to dark theme" }).click();
-  await capture("settings-dark");
-  await page.getByRole("button", { name: "Switch to light theme" }).click();
   await page.goto("/zh-CN/settings");
   await expect(
     page.getByRole("heading", { name: "设置", exact: true }),
@@ -171,12 +251,53 @@ test("replay event inspector stays readable above the follow-up composer", async
   );
   const screenshotDirectory = path.resolve(
     process.cwd(),
-    "../.impeccable/review",
+    "../artifacts/swiss-style",
   );
   await mkdir(screenshotDirectory, { recursive: true });
   await page.evaluate(() => document.fonts.ready);
   await page.screenshot({
     path: path.join(screenshotDirectory, "replay-inspector.png"),
+    fullPage: true,
+    animations: "disabled",
+  });
+});
+
+test("Chinese report geometry keeps localized prose above the stage rail", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/research/new");
+  await page
+    .getByLabel("研究问题")
+    .fill("比较多来源检索在科研问答中的证据、优势和局限。");
+  await page.getByRole("button", { name: /发送给 Agent/ }).click();
+  await expect(page).toHaveURL(/\/research\/(?!new$)[^/]+$/);
+  await expect(
+    page.getByRole("heading", { name: "研究综合报告", exact: true }),
+  ).toBeVisible({ timeout: 20_000 });
+  const reportTabs = page.getByRole("tablist", { name: "研究视图" });
+  const tabBounds = await Promise.all(
+    (await reportTabs.getByRole("tab").all()).map((tab) => tab.boundingBox()),
+  );
+  expect(tabBounds).toHaveLength(3);
+  const tabTop = tabBounds.map((bounds) => bounds!.y);
+  expect(Math.max(...tabTop) - Math.min(...tabTop)).toBeLessThan(1);
+  const prose = page.locator(".report-document > p").first();
+  await expect(prose).toBeInViewport();
+  const proseBox = await prose.boundingBox();
+  const stageRail = await page
+    .getByTestId("followup-composer")
+    .getByRole("navigation", { name: "阶段详情" })
+    .boundingBox();
+  expect(proseBox!.y + proseBox!.height).toBeLessThanOrEqual(stageRail!.y);
+  const screenshotDirectory = path.resolve(
+    process.cwd(),
+    "../artifacts/swiss-style",
+  );
+  await mkdir(screenshotDirectory, { recursive: true });
+  await page.evaluate(() => document.fonts.ready);
+  await page.screenshot({
+    path: path.join(screenshotDirectory, "report-zh.png"),
     fullPage: true,
     animations: "disabled",
   });

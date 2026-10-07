@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 import { LOCALE_COOKIE } from "@/i18n/locale";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import styles from "./entry.module.css";
-import { DesignText } from "./design-text";
 
 export function EntryLanguageSwitcher() {
   const locale = useLocale();
@@ -28,13 +27,7 @@ export function EntryLanguageSwitcher() {
       aria-label={t("languages")}
       onClick={switchLanguage}
     >
-      {locale === "en" ? (
-        <DesignText asset="language-zh" forceVector>
-          简体中文
-        </DesignText>
-      ) : (
-        "English"
-      )}
+      {locale === "en" ? "简体中文" : "English"}
     </button>
   );
 }

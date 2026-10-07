@@ -29,5 +29,6 @@
   "technicalDetails": "技术详情",
   "createTaskForContext": "创建研究任务后，可在此查看证据、论文和执行详情。",
   "switchToDarkTheme": "切换到深色主题",
-  "switchToLightTheme": "切换到浅色主题"
+  "switchToLightTheme": "切换到浅色主题",
+  "local": "本地"
 }

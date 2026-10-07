@@ -211,7 +211,16 @@ function updateStage(
 ): void {
   if (!event.stage) return;
   const previous = state.stages[event.stage];
-  const current = event.event_type === "stage.started" ? {...previous, startedAt: null, completedAt: null, durationMs: null, detail: null} : previous;
+  const current =
+    event.event_type === "stage.started"
+      ? {
+          ...previous,
+          startedAt: null,
+          completedAt: null,
+          durationMs: null,
+          detail: null,
+        }
+      : previous;
   const attempt = numberValue(event.payload.attempt) ?? current.attempt;
   state.currentStage = event.stage;
   state.stages[event.stage] = {
@@ -237,7 +246,13 @@ function updateStage(
 
 function mergeMetrics(state: ReplayState, payload: EventPayload): void {
   if (state.currentStage === "read" && typeof payload.total === "number") {
-    for (const key of ["total", "completed", "succeeded", "degraded", "failed"]) {
+    for (const key of [
+      "total",
+      "completed",
+      "succeeded",
+      "degraded",
+      "failed",
+    ]) {
       setCount(state, `read_${key}`, payload[key]);
     }
   }
@@ -245,9 +260,8 @@ function mergeMetrics(state: ReplayState, payload: EventPayload): void {
   if (!metrics || typeof metrics !== "object" || Array.isArray(metrics)) return;
   for (const [key, value] of Object.entries(metrics)) {
     if (typeof value === "number" && Number.isFinite(value)) {
-      state.metrics[key] = key === "papersRead"
-        ? Math.max(state.metrics[key] ?? 0, value)
-        : value;
+      state.metrics[key] =
+        key === "papersRead" ? Math.max(state.metrics[key] ?? 0, value) : value;
     }
   }
 }

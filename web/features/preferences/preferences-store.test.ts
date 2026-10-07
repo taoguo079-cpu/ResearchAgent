@@ -8,13 +8,22 @@ import {
 
 describe("preferences store", () => {
   it("clamps the old paper limit without losing pet preferences", async () => {
-    localStorage.setItem("research-agent.preferences.v1", JSON.stringify({version:1,state:{
-      ...DEFAULT_APP_PREFERENCES,
-      research:{maxPapers:40,sources:["arxiv"]},
-      pet:{...DEFAULT_APP_PREFERENCES.pet,visible:false},
-    }}));
+    localStorage.setItem(
+      "research-agent.preferences.v1",
+      JSON.stringify({
+        version: 1,
+        state: {
+          ...DEFAULT_APP_PREFERENCES,
+          research: { maxPapers: 40, sources: ["arxiv"] },
+          pet: { ...DEFAULT_APP_PREFERENCES.pet, visible: false },
+        },
+      }),
+    );
     await usePreferencesStore.persist.rehydrate();
-    expect(usePreferencesStore.getState().research).toEqual({maxPapers:15,sources:["arxiv"]});
+    expect(usePreferencesStore.getState().research).toEqual({
+      maxPapers: 15,
+      sources: ["arxiv"],
+    });
     expect(usePreferencesStore.getState().pet.visible).toBe(false);
   });
   beforeEach(() => {

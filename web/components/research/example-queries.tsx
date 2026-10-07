@@ -38,7 +38,7 @@ export function ExampleQueries({
           <button
             key={example.labelKey}
             type="button"
-            className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-xs text-[var(--color-text-muted)] transition-colors hover:border-[var(--color-primary)] hover:bg-[var(--color-primary-subtle)] hover:text-[var(--color-primary-hover)]"
+            className="border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-left text-xs text-[var(--color-text-muted)] transition-colors hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
             onClick={() => onSelect(t(example.queryKey))}
           >
             {t(example.labelKey)}

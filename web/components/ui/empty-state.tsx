@@ -10,8 +10,8 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <section className="flex min-h-48 flex-col items-center justify-center rounded-[var(--radius-panel)] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-surface)] px-6 py-10 text-center">
-      <h2 className="text-base font-semibold text-[var(--color-text)]">
+    <section className="flex min-h-48 flex-col items-start justify-start border-y border-[var(--color-border-strong)] bg-[var(--color-surface)] py-10 text-left">
+      <h2 className="text-[32px] leading-tight font-bold text-[var(--color-text)]">
         {title}
       </h2>
       {description ? (

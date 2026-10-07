@@ -30,7 +30,7 @@ export function TaskTerminalState({
         ) : null}
         <Link
           href="/history"
-          className="inline-flex h-9 items-center rounded-[var(--radius-control)] border border-[var(--color-border-strong)] px-3 text-[13px] font-medium text-[var(--color-text)]"
+          className="inline-flex h-9 items-center border border-[var(--color-border-strong)] px-3 text-[13px] font-normal text-[var(--color-text)]"
         >
           {common("history")}
         </Link>

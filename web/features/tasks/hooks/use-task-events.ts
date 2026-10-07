@@ -1,7 +1,16 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { createContext, createElement, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  createElement,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 
 import { useTask } from "@/features/tasks/hooks/use-task";
 import {
@@ -19,13 +28,27 @@ import { historyQueryKeys } from "@/features/history/history-queries";
 export type TaskConnectionStatus =
   "idle" | "connecting" | "connected" | "reconnecting" | "closed";
 
-const TaskEventsContext = createContext<ReturnType<typeof useTaskEventConnection> | null>(null);
+const TaskEventsContext = createContext<ReturnType<
+  typeof useTaskEventConnection
+> | null>(null);
 
-export function TaskEventsProvider({ taskId, children }: { taskId: string; children: ReactNode }) {
+export function TaskEventsProvider({
+  taskId,
+  children,
+}: {
+  taskId: string;
+  children: ReactNode;
+}) {
   return createElement(TaskEventsOwner, { key: taskId, taskId }, children);
 }
 
-function TaskEventsOwner({ taskId, children }: { taskId: string; children?: ReactNode }) {
+function TaskEventsOwner({
+  taskId,
+  children,
+}: {
+  taskId: string;
+  children?: ReactNode;
+}) {
   const value = useTaskEventConnection(taskId);
   return createElement(TaskEventsContext.Provider, { value }, children);
 }
@@ -33,7 +56,8 @@ function TaskEventsOwner({ taskId, children }: { taskId: string; children?: Reac
 export function useTaskEvents(taskId: string) {
   const state = useContext(TaskEventsContext);
   if (!state) throw new Error("TaskEventsProvider is required");
-  if (state.task && state.task.id !== taskId) throw new Error("Task event scope does not match the task");
+  if (state.task && state.task.id !== taskId)
+    throw new Error("Task event scope does not match the task");
   return state;
 }
 
@@ -70,12 +94,17 @@ function useTaskEventConnection(taskId: string) {
       return;
     }
 
-    queueMicrotask(() => { if (!disposed) setConnectionStatus("connecting"); });
+    queueMicrotask(() => {
+      if (!disposed) setConnectionStatus("connecting");
+    });
     const source = new EventSource(
       `${getApiBaseUrl()}/api/v1/research/tasks/${encodeURIComponent(taskId)}/events?after=${initialState.lastSequence}`,
     );
     sourceRef.current = source;
-    source.onopen = () => { if (!disposed && !stateRef.current?.isTerminal) setConnectionStatus("connected"); };
+    source.onopen = () => {
+      if (!disposed && !stateRef.current?.isTerminal)
+        setConnectionStatus("connected");
+    };
 
     const onEvent = (message: MessageEvent<string>) => {
       if (disposed || stateRef.current?.isTerminal) return;
@@ -119,7 +148,10 @@ function useTaskEventConnection(taskId: string) {
     for (const eventType of allEventTypes) {
       source.addEventListener(eventType, onEvent);
     }
-    source.onerror = () => { if (!disposed && !stateRef.current?.isTerminal) setConnectionStatus("reconnecting"); };
+    source.onerror = () => {
+      if (!disposed && !stateRef.current?.isTerminal)
+        setConnectionStatus("reconnecting");
+    };
 
     return () => {
       disposed = true;
@@ -135,12 +167,16 @@ function useTaskEventConnection(taskId: string) {
 
   // REST cancellation and polling snapshots must advance replay without reopening SSE.
   const snapshotReplay = useMemo(
-    () => taskQuery.data ? snapshotToReplayState(taskQuery.data) : null,
+    () => (taskQuery.data ? snapshotToReplayState(taskQuery.data) : null),
     [taskQuery.data],
   );
   useEffect(() => {
     if (!snapshotReplay) return;
-    if (stateRef.current && snapshotReplay.lastSequence < stateRef.current.lastSequence) return;
+    if (
+      stateRef.current &&
+      snapshotReplay.lastSequence < stateRef.current.lastSequence
+    )
+      return;
     stateRef.current = snapshotReplay;
     usePetRuntimeStore.getState().syncReplayState(snapshotReplay);
     if (snapshotReplay.isTerminal) sourceRef.current?.close();
@@ -153,13 +189,18 @@ function useTaskEventConnection(taskId: string) {
     void queryClient.invalidateQueries({ queryKey: historyQueryKeys.all });
   }, [terminal, queryClient]);
 
-  const replayState = snapshotReplay && (!eventState || snapshotReplay.lastSequence >= eventState.lastSequence)
-    ? snapshotReplay : eventState ?? initialReplayState;
+  const replayState =
+    snapshotReplay &&
+    (!eventState || snapshotReplay.lastSequence >= eventState.lastSequence)
+      ? snapshotReplay
+      : (eventState ?? initialReplayState);
 
   return {
     task: taskQuery.data,
     replayState,
-    connectionStatus: replayState?.isTerminal ? "closed" as const : connectionStatus,
+    connectionStatus: replayState?.isTerminal
+      ? ("closed" as const)
+      : connectionStatus,
     isLoading: taskQuery.isPending,
     error: taskQuery.error,
   };

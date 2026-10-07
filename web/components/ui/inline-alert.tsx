@@ -37,7 +37,7 @@ export function InlineAlert({
       role="alert"
       aria-live="polite"
       className={cn(
-        "flex items-start gap-2 rounded-[var(--radius-panel)] border px-3 py-2.5 text-[13px]",
+        "flex items-start gap-2 border-y py-4 text-[13px]",
         toneStyles[tone],
         className,
       )}

@@ -141,11 +141,11 @@ function RunDetails({
   }
   return (
     <div className="space-y-4">
-      <div className="rounded-[var(--radius-control)] border border-[var(--color-border)] bg-[var(--color-surface-subtle)] p-3">
-        <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--color-text-subtle)]">
+      <div className="border-y border-[var(--color-border)] py-3">
+        <p className="text-xs font-normal text-[var(--color-text-subtle)]">
           {t("task.runDetails")}
         </p>
-        <p className="mt-1 text-sm font-medium text-[var(--color-text)]">
+        <p className="mt-1 text-sm font-normal text-[var(--color-text)]">
           {replayState.currentStage
             ? taskT(taskStageMessageKeys[replayState.currentStage])
             : t("common.notAvailable")}
@@ -176,13 +176,13 @@ function RunDetails({
       </div>
       {replayState.agentTrace.length ? (
         <section className="space-y-2 border-t border-[var(--color-border)] pt-3">
-          <h3 className="text-xs font-medium">{taskT("delegations")}</h3>
+          <h3 className="text-xs font-normal">{taskT("delegations")}</h3>
           {replayState.agentTrace.map((item, index) => (
             <div
               key={`${item.step}-${index}`}
-              className="rounded border border-[var(--color-border)] bg-[var(--color-surface)] p-2 text-xs"
+              className="border-t border-[var(--color-border)] py-3 text-xs"
             >
-              <p className="font-medium">
+              <p className="font-normal">
                 {String(item.step)} · {String(item.next_agent)}
               </p>
               <p className="mt-1 whitespace-pre-wrap">

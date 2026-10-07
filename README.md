@@ -1,6 +1,13 @@
 # ResearchAgent
 
-本地优先的学术研究工作区：Next.js 页面 + FastAPI 持久任务 + Supervisor 动态研究图。支持中英文、SSE 回放、论文/证据联动、历史任务、DeepSeek 设置、明暗主题、宠物和报告追问。
+本地优先的学术研究工作区：Next.js 页面 + FastAPI 持久任务 + Supervisor 动态研究图。支持中英文、SSE 回放、论文/证据联动、历史任务、DeepSeek 设置、固定米白主题和报告追问。
+
+本版本发布于 `轻量化前端` 分支。完整源码包含 Conda / `.venv` 启动器、本地 Inter 字体与许可证、中英文文案、测试和设计记录；[交付清单、截图与验收结果](docs/frontend-swiss/README.md)可直接在仓库查看。克隆该版本：
+
+```powershell
+git clone --branch 轻量化前端 https://github.com/taoguo079-cpu/ResearchAgent.git
+cd ResearchAgent
+```
 
 ## 启动
 
@@ -16,9 +23,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start_agent.ps1
 
 浏览器打开 http://localhost:3000 。首次使用会要求配置 DeepSeek key；默认模型和轻量模型均为 deepseek-flash。DashScope 嵌入可选。请勿同时使用其他目录已启动的 3000/8000 服务。
 
-网站首页是蓝色霓虹 3D 交互开场：进入后立即显示镂空 Research Agent 字体；一次点击屏幕让放大镜和科研机器人从顶部错时落下，双击静止的机器人后点击按钮进入研究工作区，也可随时点击“跳过开场”。每个标签页完成或跳过一次后会记住进度，再次访问首页直接进入工作区。研究工作区也可直接通过 `/workspace`（英文 `/en/workspace`）访问，DeepSeek key 配置在进入工作区后进行。
+前端采用瑞士国际主义风格：黑色、米白和强调红，12 栏网格、左对齐文字及本地 Inter 常规/粗体。首页通过 NEXT 进入功能菜单，菜单可打开新研究、历史和设置；问题输入页保留研究示例、高级参数、中文输入法与 Ctrl/Cmd + Enter 提交。每个标签页进入一次后会跳过首页，直接显示菜单。
 
-开场中的放大镜、机器人、镂空文字和屏幕边界共享 Rapier 物理场景，可相互碰撞、拖动和抛掷；文字受撞后轻晃并回到中央。缓慢把放大镜握柄放到机器人任一手掌附近松手即可手持，再次拖动可取下。拖动会隐藏引导，机器人静止后单击可恢复问候和研究按钮；系统减弱动画时保留拖动、手持，关闭掉落、惯性、弹跳和文字晃动。字体和物理运行资源本地打包；WebGL 不可用时保留静态标题和工作区入口。
+研究工作区保留任务导航、正文与证据面板、编号阶段进度、报告追问、论文/引用联动、执行回放和 Zen 模式。旧深色主题和宠物偏好不会改变界面；机器人、开场动画与悬浮宠物不再加载。桌面设计验收基准为 1366 × 768。
 
 启动脚本拒绝复用已占用的端口；与旧工作区并行运行时，先设置 `$env:RESEARCH_WEB_PORT = '3100'` 和 `$env:RESEARCH_API_PORT = '8100'`，浏览器改用 http://localhost:3100 。
 
@@ -90,11 +97,12 @@ npm --prefix web run api:check
 npm --prefix web run test -- --run
 npm --prefix web run typecheck
 npm --prefix web run lint
+npm --prefix web run format:check
 npm --prefix web run i18n:check
 npm --prefix web run build
-npm --prefix web run pet:build
-npm --prefix web run pet:validate
 ```
+
+旧机器人和宠物素材工具保留为历史实现，不属于当前前端启动或验收流程。当前设计规范见 [DESIGN.md](DESIGN.md)，页面规格见 [web/FRONTEND_DESIGN.md](web/FRONTEND_DESIGN.md)。
 
 ## 使用约束
 
@@ -104,7 +112,6 @@ npm --prefix web run pet:validate
 - SQLite 保存任务、事件、论文、文本块、证据和消息；Chroma 只是可选二级索引。
 - 启动自动顺序执行数据库迁移，包括旧 sessions/messages 导入。升级前自行备份实际数据库。
 - 单机可信使用，无账号和多进程任务接管。Demo 不得用于 production。
-
 
 ### 运行可靠性
 

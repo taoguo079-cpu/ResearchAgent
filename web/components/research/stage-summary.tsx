@@ -15,8 +15,8 @@ export function StageSummary({
   const t = useTranslations("task");
   const snapshot = state.stages[stage];
   return (
-    <div className="rounded-[var(--radius-panel)] border border-[var(--color-border)] bg-[var(--color-surface-subtle)] p-4">
-      <p className="text-xs font-medium uppercase tracking-[0.08em] text-[var(--color-text-subtle)]">
+    <div className="border-y border-[var(--color-border)] py-4">
+      <p className="text-xs font-normal uppercase tracking-[0.08em] text-[var(--color-text-subtle)]">
         {t("stageDetail")}
       </p>
       <p className="mt-1 text-sm text-[var(--color-text)]">

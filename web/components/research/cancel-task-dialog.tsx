@@ -38,16 +38,26 @@ export function CancelTaskDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={(next) => { if (!pending) onOpenChange(next); }}>
-      <DialogContent closeLabel={t("common.close")} onCloseAutoFocus={onCloseAutoFocus}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!pending) onOpenChange(next);
+      }}
+    >
+      <DialogContent
+        closeLabel={t("common.close")}
+        onCloseAutoFocus={onCloseAutoFocus}
+      >
         <DialogTitle>{t("task.cancelConfirmTitle")}</DialogTitle>
         <DialogDescription>
           {t("task.cancelConfirmDescription")}
         </DialogDescription>
         {error ? (
-          <p role="alert" className="mt-3 text-sm text-[var(--color-error)]">{error}</p>
+          <p role="alert" className="mt-3 text-sm text-[var(--color-error)]">
+            {error}
+          </p>
         ) : null}
-        <div className="mt-6 flex justify-end gap-2">
+        <div className="mt-6 flex justify-start gap-2">
           <Button
             type="button"
             variant="secondary"

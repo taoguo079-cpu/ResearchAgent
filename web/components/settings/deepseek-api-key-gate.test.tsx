@@ -67,8 +67,8 @@ describe("DeepSeekApiKeyGate", () => {
       screen.getByRole("link", { name: "Open the DeepSeek API platform" }),
     ).toHaveAttribute("href", "https://platform.deepseek.com/");
     expect(
-      screen.getByRole("button", { name: "Switch to dark theme" }),
-    ).toBeInTheDocument();
+      screen.queryByRole("button", { name: "Switch to dark theme" }),
+    ).not.toBeInTheDocument();
 
     const user = userEvent.setup();
     await user.keyboard("{Escape}");

@@ -15,11 +15,6 @@ vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ replace }),
   usePathname: () => "/",
 }));
-vi.mock("@/components/entry/brand-robot", () => ({
-  BrandRobot: ({ action }: { action: string }) => (
-    <div data-testid="brand-robot" data-action={action} aria-hidden="true" />
-  ),
-}));
 vi.mock("@/components/entry/entry-language-switcher", () => ({
   EntryLanguageSwitcher: () => <button type="button">English</button>,
 }));
@@ -27,7 +22,6 @@ vi.mock("@/components/entry/entry-language-switcher", () => ({
 import { WELCOME_SESSION_KEY } from "@/features/welcome/welcome-state";
 import { EntryTransitionProvider } from "@/components/entry/entry-transition-provider";
 import { getMessages } from "@/i18n/messages";
-import { mockViewTransitions } from "@/test-shims/view-transition";
 import { WelcomePage } from "./welcome-page";
 
 function renderWelcome(locale: "zh-CN" | "en" = "en", animated = false) {
@@ -65,17 +59,16 @@ describe("brand welcome page", () => {
     vi.restoreAllMocks();
   });
 
-  it("shows the brand, research robot and entry button immediately", () => {
+  it("shows the typographic brand and entry button immediately without decorative assets", () => {
     renderWelcome();
     expect(
       screen.getByRole("heading", { name: "Research Agent" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Data")).toBeInTheDocument();
-    expect(screen.getByText("is power")).toBeInTheDocument();
-    expect(screen.getByTestId("brand-robot")).toHaveAttribute(
-      "data-action",
-      "search",
-    );
+    expect(screen.getByText("Research")).toBeInTheDocument();
+    expect(screen.getByText("Agent")).toBeInTheDocument();
+    expect(screen.queryByTestId("brand-robot")).not.toBeInTheDocument();
+    expect(document.querySelector("[data-design-vector]")).toBeNull();
+    expect(document.querySelector("img")).toBeNull();
     expect(screen.getByRole("button", { name: "NEXT" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "English" })).toBeInTheDocument();
     expect(fetch).not.toHaveBeenCalled();
@@ -90,48 +83,23 @@ describe("brand welcome page", () => {
     expect(replace).toHaveBeenCalledExactlyOnceWith("/workspace");
   });
 
-  it("remembers NEXT before the snapshot, navigates once and allows retry after a timeout", async () => {
+  it("remembers NEXT, navigates immediately once and allows retry after a timeout", async () => {
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
-    vi.stubGlobal(
-      "matchMedia",
-      vi.fn(() => ({
-        matches: false,
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-      })),
-    );
-    const native = mockViewTransitions();
     renderWelcome("en", true);
     const next = screen.getByRole("button", { name: "NEXT" });
     fireEvent.click(next);
     fireEvent.click(next);
     expect(sessionStorage.getItem(WELCOME_SESSION_KEY)).toBe("complete");
-    expect(replace).not.toHaveBeenCalled();
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(16);
-    });
     expect(replace).toHaveBeenCalledExactlyOnceWith("/workspace");
     await act(async () => {
-      vi.advanceTimersByTime(5000);
+      await vi.advanceTimersByTimeAsync(5000);
     });
     expect(screen.queryByTestId("entry-transition")).not.toBeInTheDocument();
     fireEvent.click(next);
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(16);
-    });
     expect(replace).toHaveBeenCalledTimes(2);
-    native.restore();
   });
 
-  it("skips a completed welcome without a mask even when animations are enabled", async () => {
-    vi.stubGlobal(
-      "matchMedia",
-      vi.fn(() => ({
-        matches: false,
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-      })),
-    );
+  it("skips a completed welcome without a transition mask", async () => {
     sessionStorage.setItem(WELCOME_SESSION_KEY, "complete");
     renderWelcome("en", true);
     await waitFor(() =>

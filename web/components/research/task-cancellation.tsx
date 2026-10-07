@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { Square } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -15,7 +21,13 @@ const CancellationContext = createContext<{
   open: (trigger: HTMLButtonElement) => void;
 } | null>(null);
 
-export function TaskCancellationProvider({ taskId, children }: { taskId: string; children: ReactNode }) {
+export function TaskCancellationProvider({
+  taskId,
+  children,
+}: {
+  taskId: string;
+  children: ReactNode;
+}) {
   const { data: task } = useTask(taskId);
   const cancellation = useCancelTask(taskId);
   const [open, setOpen] = useState(false);
@@ -24,10 +36,20 @@ export function TaskCancellationProvider({ taskId, children }: { taskId: string;
   const active = task?.status === "queued" || task?.status === "running";
   const stopping = task?.status === "cancelling";
   const pending = cancellation.isPending || stopping;
-  const canCancel = active && Boolean(task?.available_actions?.includes("cancel"));
+  const canCancel =
+    active && Boolean(task?.available_actions?.includes("cancel"));
 
   return (
-    <CancellationContext.Provider value={{ visible: canCancel || stopping, pending, open: (trigger) => { triggerRef.current = trigger; setOpen(true); } }}>
+    <CancellationContext.Provider
+      value={{
+        visible: canCancel || stopping,
+        pending,
+        open: (trigger) => {
+          triggerRef.current = trigger;
+          setOpen(true);
+        },
+      }}
+    >
       {children}
       <CancelTaskDialog
         key={String(open)}
@@ -54,7 +76,11 @@ export function TaskCancellationProvider({ taskId, children }: { taskId: string;
   );
 }
 
-export function StopResearchButton({ prominent = false }: { prominent?: boolean }) {
+export function StopResearchButton({
+  prominent = false,
+}: {
+  prominent?: boolean;
+}) {
   const cancellation = useContext(CancellationContext);
   const t = useTranslations();
   if (!cancellation?.visible) return null;

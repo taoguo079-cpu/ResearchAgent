@@ -17,9 +17,12 @@ export function mergeTaskSnapshot(
     const terminal = ["completed", "failed", "cancelled", "interrupted"];
     if (
       incoming.last_sequence < existing.last_sequence ||
-      (terminal.includes(existing.status) && !terminal.includes(incoming.status)) ||
-      (existing.status === "cancelling" && ["queued", "running"].includes(incoming.status))
-    ) return existing;
+      (terminal.includes(existing.status) &&
+        !terminal.includes(incoming.status)) ||
+      (existing.status === "cancelling" &&
+        ["queued", "running"].includes(incoming.status))
+    )
+      return existing;
   }
   return replaceEqualDeep(existing, incoming);
 }
@@ -55,7 +58,8 @@ export function snapshotToReplayState(
   }
   if (snapshot.status === "cancelled") {
     for (const stage of RESEARCH_STAGES) {
-      if (state.stages[stage].status === "running") state.stages[stage].status = "cancelled";
+      if (state.stages[stage].status === "running")
+        state.stages[stage].status = "cancelled";
     }
   }
   return state;
@@ -78,7 +82,9 @@ export function replayStateToSnapshot(
     status: state.taskStatus,
     available_actions: state.isTerminal
       ? ["retry", "rename", "delete"]
-      : state.taskStatus === "cancelling" ? [] : ["cancel"],
+      : state.taskStatus === "cancelling"
+        ? []
+        : ["cancel"],
     current_stage: state.currentStage,
     last_sequence: Math.max(snapshot.last_sequence, state.lastSequence),
     statistics: { ...snapshot.statistics, ...state.metrics },

@@ -27,23 +27,25 @@ describe("StageStepper", () => {
     );
 
     expect(
-      screen.getByRole("button", { name: /plan.*completed/i }),
+      screen.getByRole("group", { name: /plan.*completed/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /search.*running/i }),
+      screen.getByRole("group", { name: /search.*running/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /select.*warning/i }),
+      screen.getByRole("group", { name: /select.*warning/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /read.*failed/i }),
+      screen.getByRole("group", { name: /read.*failed/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /synthesize.*stopped/i }),
+      screen.getByRole("group", { name: /synthesize.*stopped/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /analyze.*pending/i }),
+      screen.getByRole("group", { name: /analyze.*pending/i }),
     ).toBeInTheDocument();
+    expect(screen.getByText("01")).toBeInTheDocument();
+    expect(screen.getByText("07")).toBeInTheDocument();
   });
 
   it("shows the critic revision attempt and opens the selected stage", async () => {

@@ -10,5 +10,8 @@
   "questionPlaceholder": "在这里输入你的研究问题……",
   "send": "发送给 Agent",
   "backToMenu": "返回菜单",
-  "researchOptions": "示例与研究参数"
+  "researchOptions": "示例与研究参数",
+  "location": "本地",
+  "questionTipsTitle": "从明确的问题开始。",
+  "questionTipsBody": "说明研究主题、需要比较的对象，以及时间范围。可参考示例问题，或在开始前调整来源。"
 }

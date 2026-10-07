@@ -41,7 +41,8 @@ See [[CITE:paper-1]] and [the source](https://example.com/paper).
 describe("ReportView", () => {
   beforeEach(() => resetUiStore());
 
-  it("renders Markdown headings, a GFM table, a stable TOC, and safe citations", () => {
+  it("renders Markdown headings, a GFM table, a stable TOC, and safe citations", async () => {
+    const user = userEvent.setup();
     render(
       <Providers locale="en">
         <ReportView taskId="task-report" result={result} />
@@ -57,6 +58,7 @@ describe("ReportView", () => {
       "findings",
     );
     expect(screen.getByRole("table")).toBeInTheDocument();
+    await user.click(screen.getByText("On this page"));
     expect(screen.getByRole("link", { name: "Overview" })).toHaveAttribute(
       "href",
       "#overview",
@@ -65,13 +67,18 @@ describe("ReportView", () => {
     expect(screen.queryByText("window.__bad = true")).not.toBeInTheDocument();
   });
 
-  it("marks partial results with warnings and secures external links", () => {
+  it("marks partial results, preserves expandable review warnings, and secures external links", async () => {
+    const user = userEvent.setup();
     render(
       <Providers locale="en">
         <ReportView taskId="task-report" result={result} />
       </Providers>,
     );
 
+    const review = screen.getByText("Quality review · Partial result");
+    expect(review.closest("details")).not.toHaveAttribute("open");
+    await user.click(review);
+    expect(review.closest("details")).toHaveAttribute("open");
     expect(screen.getByRole("alert")).toHaveTextContent(
       "Crossref was unavailable",
     );

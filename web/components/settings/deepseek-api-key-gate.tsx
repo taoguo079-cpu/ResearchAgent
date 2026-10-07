@@ -12,11 +12,12 @@ import {
 } from "@/components/ui/dialog";
 import { InlineAlert } from "@/components/ui/inline-alert";
 import { Input } from "@/components/ui/input";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import {
   useDeepSeekSettings,
   useUpdateDeepSeekSettings,
 } from "@/features/settings/use-deepseek-settings";
+
+import styles from "./settings-page.module.css";
 
 const DEEPSEEK_PLATFORM_URL = "https://platform.deepseek.com/";
 
@@ -28,14 +29,9 @@ export function DeepSeekApiKeyGate({ children }: { children: ReactNode }) {
 
   if (settingsQuery.isPending) {
     return (
-      <div className="relative flex min-h-screen items-center justify-center bg-[var(--color-page)] px-6">
-        <div className="absolute right-4 top-4">
-          <ThemeToggle />
-        </div>
-        <p role="status" className="text-sm text-[var(--color-text-muted)]">
-          {t("checking")}
-        </p>
-      </div>
+      <main className={styles.gateLoading}>
+        <p role="status">{t("checking")}</p>
+      </main>
     );
   }
 
@@ -47,7 +43,7 @@ export function DeepSeekApiKeyGate({ children }: { children: ReactNode }) {
         <InlineAlert tone="error" className="mt-4">
           {t("unavailableError")}
         </InlineAlert>
-        <div className="mt-5 flex justify-end">
+        <div className="mt-5 flex justify-start">
           <Button
             type="button"
             disabled={settingsQuery.isFetching}
@@ -81,7 +77,7 @@ export function DeepSeekApiKeyGate({ children }: { children: ReactNode }) {
     <BlockingDialog>
       <DialogTitle>{t("setupTitle")}</DialogTitle>
       <DialogDescription>{t("setupDescription")}</DialogDescription>
-      <div className="mt-4 grid gap-3 rounded-[var(--radius-panel)] bg-[var(--color-surface-subtle)] p-3 text-sm sm:grid-cols-2">
+      <div className={styles.gateMetadata}>
         <MetadataItem label={t("providerLabel")} value="DeepSeek" />
         <MetadataItem
           label={t("defaultModelLabel")}
@@ -91,7 +87,7 @@ export function DeepSeekApiKeyGate({ children }: { children: ReactNode }) {
       <form className="mt-5" onSubmit={(event) => void save(event)}>
         <label
           htmlFor="deepseek-api-key-setup"
-          className="block text-sm font-medium text-[var(--color-text)]"
+          className="block text-sm font-bold text-[var(--color-text)]"
         >
           {t("apiKeyLabel")}
         </label>
@@ -104,6 +100,8 @@ export function DeepSeekApiKeyGate({ children }: { children: ReactNode }) {
           maxLength={1000}
           required
           spellCheck={false}
+          aria-describedby="deepseek-setup-key-note"
+          aria-invalid={updateSettings.isError}
           value={apiKey}
           placeholder={t("setupPlaceholder")}
           onChange={(event) => {
@@ -111,7 +109,7 @@ export function DeepSeekApiKeyGate({ children }: { children: ReactNode }) {
             updateSettings.reset();
           }}
         />
-        <p className="mt-2 text-xs leading-5 text-[var(--color-text-muted)]">
+        <p id="deepseek-setup-key-note" className="mt-2 text-xs leading-5">
           {t("deepSeekOnly")}
         </p>
         {updateSettings.isError ? (
@@ -119,7 +117,7 @@ export function DeepSeekApiKeyGate({ children }: { children: ReactNode }) {
             {t("saveError")}
           </InlineAlert>
         ) : null}
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+        <div className="mt-6 flex flex-wrap items-center gap-6">
           <Button
             type="submit"
             disabled={!apiKey.trim() || updateSettings.isPending}
@@ -130,7 +128,7 @@ export function DeepSeekApiKeyGate({ children }: { children: ReactNode }) {
             href={DEEPSEEK_PLATFORM_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs font-medium text-[var(--color-primary)] hover:underline"
+            className="text-xs font-bold text-[var(--color-primary)] hover:underline"
           >
             {t("openPlatform")}
           </a>
@@ -142,17 +140,15 @@ export function DeepSeekApiKeyGate({ children }: { children: ReactNode }) {
 
 function BlockingDialog({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-[var(--color-page)]">
+    <div className={styles.gatePage}>
       <Dialog open onOpenChange={() => undefined}>
         <DialogContent
+          className={styles.gateDialog}
           showCloseButton={false}
           onEscapeKeyDown={(event) => event.preventDefault()}
           onInteractOutside={(event) => event.preventDefault()}
           onPointerDownOutside={(event) => event.preventDefault()}
         >
-          <div className="absolute right-3 top-3">
-            <ThemeToggle />
-          </div>
           {children}
         </DialogContent>
       </Dialog>
@@ -163,7 +159,7 @@ function MetadataItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="text-xs text-[var(--color-text-subtle)]">{label}</p>
-      <p className="mt-1 font-medium text-[var(--color-text)]">{value}</p>
+      <p className="mt-2 font-bold text-[var(--color-text)]">{value}</p>
     </div>
   );
 }

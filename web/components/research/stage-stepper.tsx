@@ -40,7 +40,7 @@ export function StageStepper({
       className={styles.stages}
       data-variant={variant}
     >
-      {stages.map((stage) => {
+      {stages.map((stage, index) => {
         const snapshot = state.stages[stage];
         return (
           <Item
@@ -59,10 +59,14 @@ export function StageStepper({
             className={styles.stage}
           >
             <span className={styles.stageNode}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
               <StageIcon status={snapshot.status} />
             </span>
             <span className={styles.stageName}>
               {t(taskStageMessageKeys[stage])}
+            </span>
+            <span className={styles.stageStatus}>
+              {t(taskStageStatusMessageKeys[snapshot.status])}
             </span>
             {stage === "critic" && snapshot.attempt > 1 ? (
               <span className={styles.stageAttempt}>
@@ -79,9 +83,7 @@ export function StageStepper({
 function StageIcon({ status }: { status: StageStatus }) {
   switch (status) {
     case "running":
-      return (
-        <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />
-      );
+      return <LoaderCircle aria-hidden="true" className="h-4 w-4" />;
     case "completed":
       return (
         <Check

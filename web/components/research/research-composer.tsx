@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch, type FieldErrors } from "react-hook-form";
 import { z } from "zod";
-import { DesignText } from "@/components/entry/design-text";
+import { ArrowRight } from "lucide-react";
 
 import { AdvancedSettings } from "@/components/research/advanced-settings";
 import { ExampleQueries } from "@/components/research/example-queries";
@@ -138,90 +138,50 @@ export function ResearchComposer({
 
   return (
     <section className={styles.composer} aria-labelledby="new-research-title">
-      <div>
-        <h1 id="new-research-title" className={`entry-pixel ${styles.title}`}>
-          <DesignText asset="question-title" className={styles.titleLabel}>
-            {t("entry.questionTitle")}
-          </DesignText>
-        </h1>
-        <p className={`entry-rounded ${styles.prompt}`}>
-          <DesignText asset="question-prompt" className={styles.promptLabel}>
-            {t("entry.questionPrompt")}
-          </DesignText>
-        </p>
-      </div>
+      <h1 id="new-research-title" className={styles.title}>
+        {t("entry.questionTitle")}
+      </h1>
+      <p className={styles.prompt}>{t("entry.questionPrompt")}</p>
 
       {submitError && conflictTaskId ? (
-        <InlineAlert tone="warning" className="mt-5">
+        <InlineAlert tone="warning" className={styles.alert}>
           {t("composer.conflict")}{" "}
           <Link
-            className="font-medium underline"
+            className="font-bold underline"
             href={`/research/${encodeURIComponent(conflictTaskId)}`}
           >
             {t("composer.returnToActive")}
           </Link>
         </InlineAlert>
       ) : submitError ? (
-        <InlineAlert tone="error" className="mt-5">
+        <InlineAlert tone="error" className={styles.alert}>
           {t("composer.createError")}
         </InlineAlert>
       ) : null}
 
       <form
+        className={styles.form}
         onSubmit={(event) => void form.handleSubmit(onSubmit, onInvalid)(event)}
       >
-        <div className={styles.computer}>
-          <div className={styles.monitor}>
-            <label htmlFor="research-question" className="sr-only">
-              {t("composer.questionLabel")}
-            </label>
-            <div className={styles.questionField}>
-              <textarea
-                id="research-question"
-                rows={4}
-                aria-invalid={Boolean(errors.query)}
-                aria-describedby="research-question-hint"
-                placeholder={t("entry.questionPlaceholder")}
-                className={`entry-rounded ${styles.question} ${locale === "en" ? styles.outlinedPlaceholder : ""}`}
-                {...form.register("query")}
-                onCompositionStart={() => {
-                  isComposing.current = true;
-                }}
-                onCompositionEnd={() => {
-                  isComposing.current = false;
-                }}
-                onKeyDown={handleQueryKeyDown}
-              />
-              {locale === "en" && !queryValue.length ? (
-                <span className={styles.placeholderArtwork} aria-hidden="true">
-                  <DesignText asset="question-placeholder">
-                    {t("entry.questionPlaceholder")}
-                  </DesignText>
-                </span>
-              ) : null}
-            </div>
-            <div className={styles.sendRow}>
-              <button
-                className={`entry-pixel ${styles.send}`}
-                type="submit"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  t("composer.starting")
-                ) : (
-                  <DesignText
-                    asset="question-send"
-                    className={styles.sendLabel}
-                  >
-                    {t("entry.send")}
-                  </DesignText>
-                )}
-              </button>
-            </div>
-          </div>
-          <div className={styles.stand} aria-hidden="true" />
-          <div className={styles.base} aria-hidden="true" />
-        </div>
+        <label htmlFor="research-question" className={styles.questionLabel}>
+          {t("composer.questionLabel")}
+        </label>
+        <textarea
+          id="research-question"
+          rows={4}
+          aria-invalid={Boolean(errors.query)}
+          aria-describedby="research-question-hint"
+          placeholder={t("entry.questionPlaceholder")}
+          className={styles.question}
+          {...form.register("query")}
+          onCompositionStart={() => {
+            isComposing.current = true;
+          }}
+          onCompositionEnd={() => {
+            isComposing.current = false;
+          }}
+          onKeyDown={handleQueryKeyDown}
+        />
         <div className={styles.support}>
           <div className={styles.questionHint}>
             <span id="research-question-hint" aria-live="polite">
@@ -231,7 +191,19 @@ export function ResearchComposer({
                   : t("composer.questionRequired")
                 : t("composer.shortcut")}
             </span>
-            <span>{queryValue.length}/2,000</span>
+            <span className={styles.characterCount}>
+              {queryValue.length}/2,000
+            </span>
+          </div>
+          <div className={styles.sendRow}>
+            <button
+              className={styles.send}
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? t("composer.starting") : t("entry.send")}
+              <ArrowRight aria-hidden="true" size={18} />
+            </button>
           </div>
           <details ref={optionsDisclosure} className={styles.options}>
             <summary className={styles.optionsSummary}>
@@ -274,10 +246,10 @@ export function ResearchComposer({
 export function ResearchComposerSkeleton() {
   return (
     <section className={styles.composer} aria-busy="true">
-      <Skeleton className="h-3 w-24" />
-      <Skeleton className="mt-4 h-8 w-64" />
-      <Skeleton className="mt-3 h-4 w-full max-w-xl" />
-      <Skeleton className="mt-8 h-[388px] w-full rounded-3xl" />
+      <Skeleton className="h-24 w-3/4" />
+      <Skeleton className="mt-6 h-4 w-full max-w-xl" />
+      <Skeleton className="mt-8 h-40 w-full" />
+      <Skeleton className="mt-6 h-14 w-1/3" />
     </section>
   );
 }

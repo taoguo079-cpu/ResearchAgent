@@ -21,7 +21,7 @@ export const DropdownMenuContent = forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        "z-50 min-w-40 rounded-[var(--radius-float)] border border-[var(--color-border)] bg-[var(--color-surface)] p-1 text-[var(--color-text)] shadow-[var(--shadow-float)]",
+        "z-50 min-w-40 border border-[var(--color-border)] bg-[var(--color-surface)] p-1 text-[var(--color-text)]",
         className,
       )}
       {...props}
@@ -37,7 +37,7 @@ export const DropdownMenuItem = forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      "flex cursor-default select-none items-center rounded-[var(--radius-control)] px-2 py-1.5 text-[13px] outline-none focus:bg-[var(--color-surface-subtle)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "flex cursor-default select-none items-center px-2 py-1.5 text-[13px] outline-none focus:bg-[var(--color-text)] focus:text-[var(--color-page)] data-[disabled]:pointer-events-none data-[disabled]:line-through",
       className,
     )}
     {...props}
@@ -53,7 +53,7 @@ export const DropdownMenuCheckboxItem = forwardRef<
     ref={ref}
     checked={checked}
     className={cn(
-      "relative flex cursor-default select-none items-center rounded-[var(--radius-control)] py-1.5 pl-8 pr-2 text-[13px] outline-none focus:bg-[var(--color-surface-subtle)]",
+      "relative flex cursor-default select-none items-center py-1.5 pl-8 pr-2 text-[13px] outline-none focus:bg-[var(--color-text)] focus:text-[var(--color-page)]",
       className,
     )}
     {...props}
@@ -77,7 +77,7 @@ export const DropdownMenuSubTrigger = forwardRef<
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      "flex cursor-default select-none items-center rounded-[var(--radius-control)] px-2 py-1.5 text-[13px] outline-none focus:bg-[var(--color-surface-subtle)]",
+      "flex cursor-default select-none items-center px-2 py-1.5 text-[13px] outline-none focus:bg-[var(--color-text)] focus:text-[var(--color-page)]",
       className,
     )}
     {...props}

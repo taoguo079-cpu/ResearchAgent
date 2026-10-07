@@ -2,7 +2,7 @@
   min-width: 0;
   max-width: 75ch;
   color: var(--color-text);
-  font-family: var(--font-report);
+  font-family: var(--font-ui);
   font-size: 14px;
   font-weight: 400;
   line-height: 1.9;
@@ -10,8 +10,8 @@
 }
 
 .document :is(h1, h2, h3, h4, h5, h6) {
-  font-family: "Quicksand", "Microsoft YaHei", sans-serif;
-  font-weight: 600;
+  font-family: var(--font-ui);
+  font-weight: 700;
   line-height: 1.4;
   scroll-margin-block-start: 16px;
 }
@@ -89,12 +89,12 @@
   padding: 12px;
   overflow-x: auto;
   background: var(--color-surface-subtle);
-  border-radius: 12px;
+  border-radius: 0;
 }
 .document :not(pre) > code {
   padding: 2px 4px;
   background: var(--color-surface-subtle);
-  border-radius: var(--radius-control);
+  border-radius: 0;
 }
 
 .tableContainer {
@@ -116,7 +116,7 @@
   text-align: start;
 }
 .document th {
-  font-weight: 600;
+  font-weight: 700;
   background: var(--color-surface-subtle);
 }
 .document thead tr:last-child th {

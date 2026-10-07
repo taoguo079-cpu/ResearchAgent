@@ -1,79 +1,65 @@
-.page {
-  --color-primary: var(--workspace-action);
-  --color-primary-hover: var(--workspace-action-hover);
-  --color-primary-active: var(--workspace-action-active);
-  display: flex;
-  position: relative;
-  align-items: center;
-  justify-content: center;
-  gap: 32px;
-  min-height: 100dvh;
-  padding: 64px 48px;
-  background: var(--color-page);
-  color: var(--color-text);
-}
-
 .content {
-  width: min(500px, 55%);
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 24px;
+  align-items: start;
+  padding-top: 24px;
 }
 
 .code {
+  grid-column: 1 / 9;
   margin-bottom: 32px;
-  color: var(--color-border-strong);
-  font-family: "Quicksand", sans-serif;
-  font-size: 100px;
-  font-weight: 500;
-  line-height: 1;
+  font-size: 144px;
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
 }
 
 .title {
-  font-size: 32px;
-  font-weight: 500;
-  line-height: 1.4;
-  text-wrap: balance;
+  grid-column: 1 / 9;
+  font-size: 96px;
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  overflow-wrap: anywhere;
 }
 
 .description {
-  margin-top: 16px;
-  color: var(--color-text-muted);
-  font-size: 15px;
-  line-height: 1.8;
+  grid-column: 10 / 13;
+  align-self: end;
+  font-size: 14px;
+  line-height: 1.6;
 }
 
 .actions {
+  grid-column: 1 / 9;
   display: flex;
-  gap: 12px;
-  margin-top: 30px;
+  gap: 24px;
+  margin-top: 24px;
 }
 
 .action {
   min-height: 44px;
-  border-radius: 999px;
-  padding-inline: 24px;
-}
-
-.robot {
-  width: min(380px, 38%);
+  border-radius: 0;
+  padding-inline: 16px;
 }
 
 @media (max-width: 760px) {
-  .page {
-    flex-direction: column-reverse;
-    gap: 20px;
-    padding: 56px 24px;
-  }
-
-  .content {
-    width: 100%;
-    max-width: 500px;
-  }
-
-  .robot {
-    width: 190px;
-  }
-
   .code {
-    font-size: 64px;
-    margin-bottom: 24px;
+    font-size: 96px;
+  }
+
+  .title {
+    grid-column: 1 / -1;
+    font-size: 56px;
+  }
+
+  .description {
+    grid-column: 1 / 10;
+  }
+
+  .actions {
+    grid-column: 1 / -1;
+    flex-wrap: wrap;
   }
 }

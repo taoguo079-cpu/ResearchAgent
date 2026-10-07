@@ -18,14 +18,21 @@ const baseEventSchema = z.object({
   occurred_at: z.string().datetime({ offset: true }),
 });
 
-export const readProgressSchema = z.object({
-  attempt: z.number().int().min(1),
-  total: z.number().int().nonnegative(),
-  completed: z.number().int().nonnegative(),
-  succeeded: z.number().int().nonnegative(),
-  degraded: z.number().int().nonnegative(),
-  failed: z.number().int().nonnegative(),
-}).passthrough().refine(p => p.completed <= p.total && p.completed === p.succeeded + p.degraded + p.failed);
+export const readProgressSchema = z
+  .object({
+    attempt: z.number().int().min(1),
+    total: z.number().int().nonnegative(),
+    completed: z.number().int().nonnegative(),
+    succeeded: z.number().int().nonnegative(),
+    degraded: z.number().int().nonnegative(),
+    failed: z.number().int().nonnegative(),
+  })
+  .passthrough()
+  .refine(
+    (p) =>
+      p.completed <= p.total &&
+      p.completed === p.succeeded + p.degraded + p.failed,
+  );
 
 function eventSchema<T extends EventType>(eventType: T) {
   return baseEventSchema.extend({ event_type: z.literal(eventType) });
@@ -54,11 +61,21 @@ export const eventSchemas = {
   "task.failed": eventSchema("task.failed"),
   "task.interrupted": eventSchema("task.interrupted"),
   "stage.started": eventSchema("stage.started"),
-  "stage.progress": eventSchema("stage.progress").superRefine((event, context) => {
-    if (event.stage === "read" && "total" in event.payload && !readProgressSchema.safeParse(event.payload).success) {
-      context.addIssue({ code: "custom", message: "Invalid read progress counts", path: ["payload"] });
-    }
-  }),
+  "stage.progress": eventSchema("stage.progress").superRefine(
+    (event, context) => {
+      if (
+        event.stage === "read" &&
+        "total" in event.payload &&
+        !readProgressSchema.safeParse(event.payload).success
+      ) {
+        context.addIssue({
+          code: "custom",
+          message: "Invalid read progress counts",
+          path: ["payload"],
+        });
+      }
+    },
+  ),
   "stage.warning": eventSchema("stage.warning"),
   "stage.completed": eventSchema("stage.completed"),
   "stage.failed": eventSchema("stage.failed"),

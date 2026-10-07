@@ -29,5 +29,6 @@
   "technicalDetails": "Technical details",
   "createTaskForContext": "Create a research task to inspect evidence, papers, and execution details here.",
   "switchToDarkTheme": "Switch to dark theme",
-  "switchToLightTheme": "Switch to light theme"
+  "switchToLightTheme": "Switch to light theme",
+  "local": "LOCAL"
 }

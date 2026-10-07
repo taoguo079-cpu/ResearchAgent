@@ -58,7 +58,7 @@ describe("research workspace shell", () => {
     expect(clients).toHaveLength(1);
   });
 
-  it("places the theme toggle before the language switcher", () => {
+  it("uses a fixed paper theme and retains the language switcher", () => {
     render(
       <Providers locale="en">
         <ResearchShell>
@@ -67,16 +67,12 @@ describe("research workspace shell", () => {
       </Providers>,
     );
 
-    const toggle = screen.getByRole("button", {
+    const toggle = screen.queryByRole("button", {
       name: "Switch to dark theme",
     });
-    const language = screen.getByRole("button", { name: "中文" });
-    expect(
-      toggle.compareDocumentPosition(language) &
-        Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
+    expect(toggle).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "中文" })).toBeInTheDocument();
   });
-
 
   it("renders task navigation, central content, and context panel", () => {
     render(
@@ -182,7 +178,10 @@ describe("research workspace shell", () => {
     expect(screen.getByRole("main")).toHaveTextContent("Persistent report");
     expect(
       screen.getAllByRole("button", { name: "Expand context panel" }),
-    ).not.toHaveLength(0);
+    ).toHaveLength(1);
+    expect(
+      screen.queryByRole("complementary", { name: "Context panel" }),
+    ).not.toBeInTheDocument();
   });
 
   it("switches the context panel tab without affecting the central area", async () => {
@@ -215,13 +214,12 @@ describe("research workspace shell", () => {
       "href",
       "/workspace",
     );
-    expect(screen.getByRole("link", { name: /history/i })).toHaveAttribute(
-      "href",
-      "/history",
-    );
+    for (const link of screen.getAllByRole("link", { name: /history/i })) {
+      expect(link).toHaveAttribute("href", "/history");
+    }
     expect(
-      screen.getByRole("button", { name: "Switch to dark theme" }),
-    ).toBeInTheDocument();
+      screen.queryByRole("button", { name: "Switch to dark theme" }),
+    ).not.toBeInTheDocument();
   });
 
   it("keeps ContextPanel independently renderable for route composition", () => {

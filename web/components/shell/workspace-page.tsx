@@ -1,12 +1,10 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ArrowLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { EntryTransitionLink } from "@/components/entry/entry-transition-link";
 import { LanguageSwitcher } from "@/components/shell/language-switcher";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils/cn";
 
@@ -34,7 +32,6 @@ export function WorkspacePage({
           direction="backward"
           className={styles.back}
         >
-          <ArrowLeft aria-hidden="true" size={16} />
           {t("entry.backToMenu")}
         </EntryTransitionLink>
         <div className={styles.links}>
@@ -50,10 +47,12 @@ export function WorkspacePage({
           >
             {t("settings.title")}
           </Link>
-          <div className={styles.preferences}>
-            <ThemeToggle />
-            <LanguageSwitcher />
-          </div>
+        </div>
+        <div className={styles.preferences}>
+          <LanguageSwitcher />
+          <span className={styles.edition}>
+            {new Date().getFullYear()} / {t("common.local")}
+          </span>
         </div>
       </nav>
       <div className={styles.content}>{children}</div>

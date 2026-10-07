@@ -33,7 +33,16 @@ function event(
     sequence,
     event_type: eventType,
     level: "info",
-    payload: eventType === "agent.delegated" ? {step: 1, next_agent: "retrieval", objective: "Search", reason: "Need evidence", ...payload} : payload,
+    payload:
+      eventType === "agent.delegated"
+        ? {
+            step: 1,
+            next_agent: "retrieval",
+            objective: "Search",
+            reason: "Need evidence",
+            ...payload,
+          }
+        : payload,
     occurred_at: `2026-08-19T10:00:${String(sequence).padStart(2, "0")}Z`,
     ...overrides,
   };
@@ -214,11 +223,36 @@ describe("event fixtures", () => {
   });
 });
 
-
 it("keeps cumulative papersRead monotonic while resetting per-round counts", () => {
   const result = replayEvents(taskId, [
-    event("stage.progress", 1, { attempt: 1, succeeded: 3, degraded: 0, failed: 0, total: 3, completed: 3, metrics: { papersRead: 3 } }, { stage: "read" }),
-    event("stage.progress", 2, { attempt: 2, succeeded: 0, degraded: 0, failed: 0, total: 2, completed: 0, metrics: { papersRead: 2 } }, { stage: "read" }),
+    event(
+      "stage.progress",
+      1,
+      {
+        attempt: 1,
+        succeeded: 3,
+        degraded: 0,
+        failed: 0,
+        total: 3,
+        completed: 3,
+        metrics: { papersRead: 3 },
+      },
+      { stage: "read" },
+    ),
+    event(
+      "stage.progress",
+      2,
+      {
+        attempt: 2,
+        succeeded: 0,
+        degraded: 0,
+        failed: 0,
+        total: 2,
+        completed: 0,
+        metrics: { papersRead: 2 },
+      },
+      { stage: "read" },
+    ),
   ]);
   expect(result.metrics.papersRead).toBe(3);
   expect(result.metrics.read_completed).toBe(0);

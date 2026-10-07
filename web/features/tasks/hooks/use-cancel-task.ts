@@ -2,7 +2,10 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { cancelResearchTask, type TaskSnapshotResponse } from "@/lib/api/client";
+import {
+  cancelResearchTask,
+  type TaskSnapshotResponse,
+} from "@/lib/api/client";
 import { taskQueryKeys } from "@/features/tasks/task-queries";
 import { mergeTaskSnapshot } from "@/features/tasks/task-cache";
 import { historyQueryKeys } from "@/features/history/history-queries";

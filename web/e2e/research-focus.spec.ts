@@ -133,15 +133,11 @@ test("folded follow-up and Zen preserve the draft and the task stream", async ({
   const hero = page.getByTestId("task-stage-hero");
 
   await expect(hero).toBeVisible();
-  await expect(hero.getByTestId("research-stage-robot")).toHaveAttribute(
-    "data-research-action",
-    "checklist",
-  );
-  await expect(hero.locator("[data-research-fps]").first()).toHaveAttribute(
-    "data-research-fps",
-    "60",
-  );
-  await expect(hero.locator('[data-research-media="animation"]')).toBeVisible();
+  await expect(
+    hero.getByRole("heading", { name: "Select", exact: true }),
+  ).toBeVisible();
+  await expect(hero.getByRole("status")).toContainText("03 / 07");
+  await expect(hero.getByTestId("research-stage-robot")).toHaveCount(0);
   await expect(input).toBeHidden();
   await expect(expand).toHaveAttribute("aria-expanded", "false");
   await expect(
@@ -192,7 +188,7 @@ test("folded follow-up and Zen preserve the draft and the task stream", async ({
   await expect(
     page.getByRole("complementary", { name: "Context panel" }),
   ).toHaveCount(0);
-  await expect(page.locator("[data-pet-state]")).toBeHidden();
+  await expect(page.locator("[data-pet-state]")).toHaveCount(0);
   await expect(
     composer.getByRole("navigation", { name: "Stage detail" }),
   ).toBeVisible();
@@ -223,15 +219,10 @@ test("folded follow-up and Zen preserve the draft and the task stream", async ({
       stage: "read",
     });
   }, taskId);
-  await expect(zen.getByTestId("research-stage-robot")).toHaveAttribute(
-    "data-research-stage",
-    "read",
-  );
-  await expect(zen.getByTestId("research-stage-robot")).toHaveAttribute(
-    "data-research-action",
-    "guidebook",
-  );
-  await expect(zen.locator('[data-research-media="animation"]')).toBeVisible();
+  await expect(
+    zen.getByRole("heading", { name: "Read", exact: true }),
+  ).toBeVisible();
+  await expect(zen.getByTestId("research-stage-robot")).toHaveCount(0);
   await expect(composer.locator('[aria-current="step"]')).toHaveAttribute(
     "aria-label",
     "Read Running",
@@ -288,7 +279,8 @@ test("folded follow-up and Zen preserve the draft and the task stream", async ({
   );
   await page.goto(`/research/${zhTaskId}`);
   await expect(page.getByRole("button", { name: "进入禅模式" })).toBeVisible();
-  await expect(hero.locator('[data-research-media="animation"]')).toBeVisible();
+  await expect(hero.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(hero.getByTestId("research-stage-robot")).toHaveCount(0);
   await page.evaluate(() => document.fonts.ready);
   await page.screenshot({
     path: test.info().outputPath("research-normal-zh.png"),
@@ -303,6 +295,6 @@ test("folded follow-up and Zen preserve the draft and the task stream", async ({
     animations: "disabled",
   });
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await expect(hero.locator('[data-research-media="poster"]')).toBeVisible();
+  await expect(hero.locator("[data-research-media]")).toHaveCount(0);
   expect(pageErrors).toEqual([]);
 });

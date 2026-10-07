@@ -1,6 +1,6 @@
 {
   "title": "Settings",
-  "description": "Configure the DeepSeek model, defaults for new research tasks, and your research companion.",
+  "description": "Configure the DeepSeek model and defaults for new research tasks.",
   "back": "Back to research",
   "save": "Save settings",
   "restoreDefaults": "Restore defaults",
@@ -58,7 +58,11 @@
     "resetPosition": "Reset to bottom-right",
     "shown": "shown",
     "hidden": "hidden",
-    "sizes": { "small": "Small", "medium": "Medium", "large": "Large" },
+    "sizes": {
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large"
+    },
     "motions": {
       "system": "Follow system",
       "full": "Full",

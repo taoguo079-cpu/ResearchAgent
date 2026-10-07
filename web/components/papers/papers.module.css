@@ -1,24 +1,32 @@
 .list {
+  display: grid;
+  grid-template-columns: subgrid;
   min-width: 0;
-  container: papers / inline-size;
+}
+.list > * {
+  grid-column: 1 / -1;
 }
 
 .filters {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 138px 138px;
+  grid-template-columns: subgrid;
   align-items: end;
-  gap: 14px 12px;
+  gap: 24px;
   border-bottom: 1px solid var(--color-border);
   padding-bottom: 20px;
 }
 
 .search {
+  grid-column: span 3;
   min-width: 0;
+}
+.filters > .field {
+  grid-column: span 2;
 }
 
 .search > input {
   height: 40px;
-  border-radius: 10px;
+  border-radius: 0;
   padding-inline: 13px;
   font-size: 12px;
 }
@@ -26,8 +34,8 @@
 .field {
   min-width: 0;
   color: var(--color-text-muted);
-  font-size: 11px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .control {
@@ -36,7 +44,7 @@
   height: 40px;
   margin-top: 6px;
   border: 1px solid var(--color-border-strong);
-  border-radius: 10px;
+  border-radius: 0;
   background: var(--color-control);
   padding-inline: 10px;
   color: var(--color-text);
@@ -52,14 +60,14 @@
 
 .secondaryFilters {
   grid-column: 1 / -1;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: subgrid;
   align-items: flex-end;
-  gap: 14px 20px;
+  gap: 24px;
 }
 
 .secondaryFilters > .field {
-  width: 96px;
+  grid-column: span 1;
 }
 
 .secondaryFilters .control {
@@ -67,6 +75,7 @@
 }
 
 .flags {
+  grid-column: 3 / -1;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -79,7 +88,7 @@
   align-items: center;
   gap: 7px;
   color: var(--color-text-muted);
-  font-size: 11px;
+  font-size: 12px;
   cursor: pointer;
 }
 
@@ -105,14 +114,18 @@
 .rowButton {
   display: block;
   width: 100%;
-  border-radius: 12px;
-  padding: 20px 14px;
+  border-radius: 0;
+  padding: 24px 0;
   text-align: left;
   cursor: pointer;
 }
 
 .rowButton:hover {
-  background: var(--color-control-hover);
+  background: var(--color-page);
+  color: var(--color-primary);
+}
+.rowButton:hover .rowTitle h3 {
+  color: var(--color-primary);
 }
 
 .rowButton:focus-visible {
@@ -121,7 +134,10 @@
 }
 
 .row[data-selected="true"] .rowButton {
-  background: var(--workspace-mint, #d5eee5);
+  color: var(--color-primary);
+}
+.row[data-selected="true"] h3 {
+  color: var(--color-primary);
 }
 
 .rowTitle {
@@ -138,7 +154,7 @@
   -webkit-line-clamp: 3;
   color: var(--color-text);
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 700;
   line-height: 1.55;
 }
 
@@ -146,7 +162,7 @@
   margin-top: 6px;
   overflow: hidden;
   color: var(--color-text-muted);
-  font-size: 11px;
+  font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -169,7 +185,7 @@
   gap: 7px 12px;
   margin-top: 12px;
   color: var(--color-text-muted);
-  font-size: 11px;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -184,9 +200,9 @@
 
 .detailTitle {
   color: var(--color-text);
-  font-family: "Quicksand", "Microsoft YaHei", sans-serif;
+  font-family: var(--font-ui);
   font-size: 19px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
@@ -207,7 +223,7 @@
 
 .detailMetadata dt {
   color: var(--color-text-muted);
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .detailMetadata dd {
@@ -221,13 +237,13 @@
 .detail h3 {
   margin-bottom: 8px;
   color: var(--color-text);
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .abstract {
   color: var(--color-text-muted);
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.9;
 }
 
@@ -237,11 +253,11 @@
   align-items: center;
   gap: 8px;
   border: 1px solid var(--color-primary-border);
-  border-radius: 999px;
+  border-radius: 0;
   padding: 8px 14px;
   color: var(--color-primary-hover);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .pdf:hover {
@@ -261,10 +277,10 @@
 
 .citationLink {
   border: 1px solid var(--color-primary-border);
-  border-radius: 999px;
+  border-radius: 0;
   padding: 6px 11px;
   color: var(--color-primary-hover);
-  font-size: 11px;
+  font-size: 12px;
   cursor: pointer;
 }
 
@@ -279,7 +295,7 @@
   gap: 16px;
   padding-block: 22px;
   color: var(--color-text-muted);
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.8;
 }
 
@@ -288,22 +304,4 @@
   height: 32px;
   color: var(--color-text-subtle);
   stroke-width: 1.25;
-}
-
-@container papers (max-width: 560px) {
-  .filters {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .search {
-    grid-column: 1 / -1;
-  }
-
-  .secondaryFilters {
-    gap: 12px;
-  }
-
-  .flags {
-    width: 100%;
-  }
 }

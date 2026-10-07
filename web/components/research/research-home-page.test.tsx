@@ -20,12 +20,6 @@ vi.mock("@/features/tasks/hooks/use-active-task", () => ({
   useActiveTask: () => activeTask,
 }));
 
-vi.mock("@/components/entry/brand-robot", () => ({
-  BrandRobot: ({ action, flip }: { action: string; flip: boolean }) => (
-    <div data-testid="brand-robot" data-action={action} data-flip={flip} />
-  ),
-}));
-
 vi.mock("@/components/entry/entry-language-switcher", () => ({
   EntryLanguageSwitcher: () => <button>Language</button>,
 }));
@@ -57,14 +51,7 @@ describe("ResearchHomePage", () => {
     expect(
       screen.queryByRole("button", { name: "Create research" }),
     ).not.toBeInTheDocument();
-    expect(screen.getByTestId("brand-robot")).toHaveAttribute(
-      "data-action",
-      "filter",
-    );
-    expect(screen.getByTestId("brand-robot")).toHaveAttribute(
-      "data-flip",
-      "true",
-    );
+    expect(screen.queryByTestId("brand-robot")).not.toBeInTheDocument();
   });
 
   it("restores a running task with a return link", () => {

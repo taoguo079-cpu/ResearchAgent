@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
-import { useTranslations } from "next-intl";
 
 import { ContextPanel } from "@/components/shell/context-panel";
 import { TaskSidebar } from "@/components/shell/task-sidebar";
 import { WorkspaceHeader } from "@/components/shell/workspace-header";
-import { Button } from "@/components/ui/button";
 import { useUiStore } from "@/stores/ui-store";
 import { TaskConversation } from "@/components/research/task-conversation";
 import { TaskEventsProvider } from "@/features/tasks/hooks/use-task-events";
@@ -42,19 +40,10 @@ function ResearchShellLayout({
   children: ReactNode;
   taskId?: string;
 }) {
-  const t = useTranslations("common");
   const isTaskSidebarOpen = useUiStore((state) => state.isTaskSidebarOpen);
   const isContextPanelOpen = useUiStore((state) => state.isContextPanelOpen);
-  const toggleContextPanel = useUiStore((state) => state.toggleContextPanel);
   const zenTaskId = useUiStore((state) => state.zenTaskId);
   const isZen = Boolean(taskId && zenTaskId === taskId);
-  const gridColumns = [
-    isTaskSidebarOpen ? "222px" : "",
-    "minmax(0,1fr)",
-    isContextPanelOpen ? "310px" : "48px",
-  ]
-    .filter(Boolean)
-    .join(" ");
 
   useEffect(() => {
     void useUiStore.persist.rehydrate();
@@ -85,13 +74,14 @@ function ResearchShellLayout({
     <div
       className={styles.shell}
       data-zen={isZen || undefined}
-      style={{ gridTemplateColumns: isZen ? "minmax(0,1fr)" : gridColumns }}
+      data-sidebar={isTaskSidebarOpen ? "open" : "closed"}
+      data-context={isContextPanelOpen ? "open" : "closed"}
     >
       <div style={{ display: isZen ? "none" : "contents" }}>
         {isTaskSidebarOpen ? <TaskSidebar taskId={taskId} /> : null}
       </div>
       <main className={styles.main}>
-        <div hidden={isZen}>
+        <div hidden={isZen} className={styles.headerSlot}>
           <WorkspaceHeader taskId={taskId} />
         </div>
         {taskId ? (
@@ -99,27 +89,11 @@ function ResearchShellLayout({
             {children}
           </TaskConversation>
         ) : (
-          <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
+          <div className={styles.content}>{children}</div>
         )}
       </main>
       <div style={{ display: isZen ? "none" : "contents" }}>
-        {isContextPanelOpen ? (
-          <ContextPanel taskId={taskId} />
-        ) : (
-          <aside
-            aria-label={t("expandContext")}
-            className={styles.collapsedContext}
-          >
-            <Button
-              aria-label={t("expandContext")}
-              onClick={toggleContextPanel}
-              size="icon"
-              variant="ghost"
-            >
-              <span aria-hidden="true">‹</span>
-            </Button>
-          </aside>
-        )}
+        {isContextPanelOpen ? <ContextPanel taskId={taskId} /> : null}
       </div>
     </div>
   );

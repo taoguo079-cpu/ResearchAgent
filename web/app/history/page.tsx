@@ -1,9 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { ArrowRight, BookOpen, Plus } from "lucide-react";
-
-import { BrandRobot } from "@/components/entry/brand-robot";
 import { HistoryList } from "@/components/history/history-list";
 import { WorkspacePage } from "@/components/shell/workspace-page";
 import { Button } from "@/components/ui/button";
@@ -33,16 +30,12 @@ export default function HistoryPage() {
       <div className={styles.page}>
         <header className={styles.intro}>
           <div className={styles.introContent}>
-            <h1 className={`${styles.title} entry-serif`}>
-              {t("history.title")}
-            </h1>
+            <h1 className={styles.title}>{t("history.title")}</h1>
             <p className={styles.description}>{t("history.description")}</p>
             <Link href="/research/new" className={styles.createLink}>
-              <Plus aria-hidden="true" size={17} />
               {t("navigation.newResearch")}
             </Link>
           </div>
-          <BrandRobot action="idle" className={styles.robot} />
         </header>
         <div className={styles.content}>
           {history.isPending ? (
@@ -81,12 +74,10 @@ export default function HistoryPage() {
           ) : null}
           {!history.isPending && !history.isError && !tasks.length ? (
             <section className={styles.emptyState}>
-              <BookOpen aria-hidden="true" className={styles.emptyIcon} />
               <h2>{t("history.emptyTitle")}</h2>
               <p>{t("history.emptyDescription")}</p>
               <Link href="/research/new" className={styles.emptyLink}>
                 {t("history.createFirst")}
-                <ArrowRight aria-hidden="true" size={17} />
               </Link>
             </section>
           ) : null}

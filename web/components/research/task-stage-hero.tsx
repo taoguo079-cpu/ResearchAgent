@@ -5,28 +5,45 @@ import { useTranslations } from "next-intl";
 
 import { CurrentStagePanel } from "@/components/research/current-stage-panel";
 import { ResearchPlan } from "@/components/research/research-plan";
-import { ResearchStageRobot } from "@/components/research/research-stage-robot";
-import { taskStageMessageKeys } from "@/i18n/task-labels";
-import type { ReplayState } from "@/lib/events/types";
-import { useUiStore } from "@/stores/ui-store";
+import {
+  taskStageMessageKeys,
+  taskStatusMessageKeys,
+} from "@/i18n/task-labels";
+import { RESEARCH_STAGES, type ReplayState } from "@/lib/events/types";
 import styles from "./task-stage-hero.module.css";
 
 export function TaskStageHero({ state }: { state: ReplayState }) {
   const t = useTranslations("task");
-  const isZen = useUiStore((store) => store.zenTaskId === state.taskId);
   return (
     <section
       className={styles.hero}
       data-testid="task-stage-hero"
       aria-label={t("activeResearch")}
     >
-      <div className={styles.robotArea}>
-        <ResearchStageRobot
-          stage={state.currentStage}
-          status={state.taskStatus}
-          paused={isZen}
-          className={styles.robot}
-        />
+      <div className={styles.stageOverview}>
+        <h1 className={styles.stageTitle}>
+          {state.currentStage
+            ? t(taskStageMessageKeys[state.currentStage])
+            : t("waitingToStart")}
+        </h1>
+        <p role="status" className={styles.stageStatus}>
+          <span>
+            {String(
+              Math.max(
+                0,
+                RESEARCH_STAGES.indexOf(state.currentStage ?? "orchestrate"),
+              ) + 1,
+            ).padStart(2, "0")}{" "}
+            / 07
+          </span>
+          <span>{t(taskStatusMessageKeys[state.taskStatus])}</span>
+        </p>
+        <p className={styles.stageDescription}>
+          {state.currentStage
+            ? (state.stages[state.currentStage].detail ??
+              t("progressPlaceholder"))
+            : t("progressPlaceholder")}
+        </p>
       </div>
       <div className={styles.detailsRail}>
         <details

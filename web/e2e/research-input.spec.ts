@@ -3,7 +3,7 @@ import type { CreateTaskRequest } from "../lib/api/client";
 
 import { mockEntryBackend } from "./three-page-helpers";
 
-test("computer textarea accepts new lines and rejects whitespace and questions over 2000 characters", async ({
+test("native textarea accepts new lines and rejects whitespace and questions over 2000 characters", async ({
   page,
 }) => {
   await mockEntryBackend(page);
@@ -30,19 +30,19 @@ test("computer textarea accepts new lines and rejects whitespace and questions o
     "placeholder",
     "Type your research question here...",
   );
-  const outlinedPlaceholder = page.locator(
+  const retiredPlaceholder = page.locator(
     '[data-design-text="question-placeholder"]',
   );
-  await expect(outlinedPlaceholder).toBeVisible();
+  await expect(retiredPlaceholder).toHaveCount(0);
   expect(
     await input.evaluate(
       (element) => getComputedStyle(element, "::placeholder").opacity,
     ),
-  ).toBe("0");
+  ).toBe("1");
   await input.fill("A question");
-  await expect(outlinedPlaceholder).toHaveCount(0);
+  await expect(retiredPlaceholder).toHaveCount(0);
   await input.fill("");
-  await expect(outlinedPlaceholder).toBeVisible();
+  await expect(retiredPlaceholder).toHaveCount(0);
   await input.fill("   ");
   await send.click();
   await expect(input).toHaveAttribute("aria-invalid", "true");

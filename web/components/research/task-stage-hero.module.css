@@ -1,100 +1,91 @@
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 244px;
-  align-items: start;
-  gap: 12px;
-  min-height: calc(100cqh - 12px);
-}
-
-.robotArea {
-  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
   min-width: 0;
-  min-height: calc(100cqh - 12px);
-  place-items: center;
+  min-height: 420px;
+  padding-block: 48px 32px;
+  text-align: left;
 }
-
-.robot {
-  width: 100%;
-  height: clamp(300px, calc(100cqh - 24px), 680px);
+.stageOverview {
+  grid-column: 1 / -1;
+  min-width: 0;
 }
-
-.detailsRail {
-  position: sticky;
-  top: 20px;
+.stageTitle {
+  max-width: 100%;
+  margin: 0 0 24px;
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
+}
+.stageStatus {
   display: flex;
-  flex-direction: column;
-  gap: 28px;
-  margin-top: 32px;
+  flex-wrap: wrap;
+  gap: 24px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-primary);
 }
-
+.stageDescription {
+  max-width: 65ch;
+  margin-top: 32px;
+  font-size: 14px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.detailsRail {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  margin-top: 48px;
+}
 .detailsRail details {
-  overflow: hidden;
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--color-border);
   color: var(--color-text);
 }
-
-.stageDetails {
-  border-radius: 16px;
-  background: var(--workspace-mint);
+.detailsRail details:last-child {
+  border-bottom: 1px solid var(--color-border);
 }
-
-.planDetails {
-  border-block: 1px solid var(--color-border);
-}
-
 .detailsRail summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  min-height: 68px;
-  padding: 20px;
-  font-size: 19px;
-  font-weight: 600;
+  gap: 24px;
+  min-height: 56px;
+  padding-block: 16px;
+  font-size: 14px;
+  font-weight: 700;
   list-style: none;
   cursor: pointer;
 }
-
-.stageDetails summary {
-  font-size: 25px;
-}
-
 .detailsRail summary::-webkit-details-marker {
   display: none;
 }
-
 .detailsRail summary svg {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   flex-shrink: 0;
-  transition: transform 180ms ease-out;
 }
-
 .detailsRail details[open] summary svg {
   transform: rotate(180deg);
 }
-
 .detailsRail summary:hover {
-  color: var(--workspace-action-hover);
+  color: var(--color-primary);
 }
-
 .detailsRail summary:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: -3px;
 }
-
 .detailsRail details > section {
   border: 0;
-  border-radius: 0;
   background: transparent;
-  padding: 0 20px 24px;
+  padding-block: 0 24px;
 }
-
 .detailsRail details > section h2 {
   display: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .detailsRail summary svg {
-    transition: none;
-  }
 }

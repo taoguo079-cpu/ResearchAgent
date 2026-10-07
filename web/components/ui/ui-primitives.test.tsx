@@ -40,7 +40,7 @@ describe("UI primitives", () => {
     expect(screen.getByRole("button", { name: "Primary action" })).toHaveClass(
       "hover:bg-[var(--color-primary-hover)]",
       "active:bg-[var(--color-primary-active)]",
-      "focus-visible:ring-[var(--color-focus)]",
+      "focus-visible:outline-[var(--color-focus)]",
     );
   });
 

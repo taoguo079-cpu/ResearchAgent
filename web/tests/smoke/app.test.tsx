@@ -30,14 +30,16 @@ describe("home page", () => {
     );
 
     expect(
-      screen.getByRole("heading", { name: "Research Agent", level: 1 }),
+      screen.getByRole("heading", { name: "Choose your next step", level: 1 }),
     ).toBeInTheDocument();
     expect(
       screen.getByText("Every discovery begins with a question."),
     ).toBeVisible();
     expect(screen.queryByRole("list")).not.toBeInTheDocument();
-    expect(screen.getByText("Data")).toBeInTheDocument();
-    expect(screen.getByText("is power")).toBeInTheDocument();
+    for (const number of ["01", "02", "03"]) {
+      expect(screen.getByText(number)).toBeVisible();
+    }
+    expect(document.querySelector("[data-design-text]")).toBeNull();
     expect(screen.getByRole("link", { name: /new research/i })).toHaveAttribute(
       "href",
       "/research/new",

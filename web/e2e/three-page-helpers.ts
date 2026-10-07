@@ -21,17 +21,21 @@ export async function mockEntryBackend(page: Page, configured = true) {
   );
 }
 
-export async function expectBrandRobot(
-  page: Page,
-  action: "search" | "idle" | "filter",
-) {
-  const robot = page.getByTestId("brand-robot");
-  await expect(robot).toHaveCount(1);
-  await expect(robot).toBeVisible();
-  await expect(robot).toHaveAttribute("data-brand-action", action);
-  await expect(robot.locator("[data-brand-media]")).toBeVisible();
-  await expect(robot.getByTestId("brand-robot-poster")).toBeVisible();
-  await expect(page.locator("[data-pet-state]")).toHaveCount(0);
+export async function expectSwissEntry(page: Page) {
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await expect(page.locator("main")).toHaveCSS(
+    "background-color",
+    "rgb(250, 249, 244)",
+  );
+  await expect(
+    page.locator(
+      "[data-pet-state], [data-brand-media], [data-research-media], [data-design-text], video, canvas",
+    ),
+  ).toHaveCount(0);
+  await expect(page.getByTestId("brand-robot")).toHaveCount(0);
+  await expect(page.getByTestId("research-stage-robot")).toHaveCount(0);
+  await expectNoHorizontalOverflow(page);
 }
 
 export async function expectNoHorizontalOverflow(page: Page) {

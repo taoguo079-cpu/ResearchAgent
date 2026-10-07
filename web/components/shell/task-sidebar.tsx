@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Bot,
-  Clock3,
-  Home,
-  PanelLeftClose,
-  Plus,
-  Settings2,
-} from "lucide-react";
+import { Home, PanelLeftClose } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -31,9 +24,6 @@ export function TaskSidebar({ taskId }: { taskId?: string }) {
       className={styles.sidebar}
     >
       <div className={styles.brand}>
-        <span className={styles.brandMark}>
-          <Bot aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
-        </span>
         <span className={styles.brandName}>{t("common.brand")}</span>
         <Button
           aria-label={t("navigation.collapseTaskSidebar")}
@@ -53,7 +43,7 @@ export function TaskSidebar({ taskId }: { taskId?: string }) {
             styles.newResearch,
           )}
         >
-          <Plus aria-hidden="true" className="h-4 w-4" />
+          <span className={styles.navIndex}>01</span>
           {t("navigation.newResearch")}
         </Link>
 
@@ -63,7 +53,7 @@ export function TaskSidebar({ taskId }: { taskId?: string }) {
             {t("navigation.home")}
           </Link>
           <Link href="/history" className={styles.navLink}>
-            <Clock3 aria-hidden="true" className="h-4 w-4" />
+            <span className={styles.navIndex}>02</span>
             {t("navigation.history")}
           </Link>
         </nav>
@@ -111,10 +101,12 @@ export function TaskSidebar({ taskId }: { taskId?: string }) {
 
       <div className={styles.footer}>
         <Link href="/settings" className={styles.navLink}>
-          <Settings2 aria-hidden="true" className="h-4 w-4" />
+          <span className={styles.navIndex}>03</span>
           {t("settings.title")}
         </Link>
-        <p>{t("navigation.multiSourceWorkspace")}</p>
+        <p>
+          {new Date().getFullYear()} / {t("common.local")}
+        </p>
       </div>
     </aside>
   );

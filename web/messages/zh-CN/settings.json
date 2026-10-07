@@ -1,6 +1,6 @@
 {
   "title": "设置",
-  "description": "配置 DeepSeek 模型、新研究任务的默认值和科研伙伴。",
+  "description": "配置 DeepSeek 模型与新研究任务的默认参数。",
   "back": "返回研究",
   "save": "保存设置",
   "restoreDefaults": "恢复默认",
@@ -58,7 +58,11 @@
     "resetPosition": "重置到右下角",
     "shown": "显示",
     "hidden": "隐藏",
-    "sizes": { "small": "小", "medium": "中", "large": "大" },
+    "sizes": {
+      "small": "小",
+      "medium": "中",
+      "large": "大"
+    },
     "motions": {
       "system": "跟随系统",
       "full": "完整",

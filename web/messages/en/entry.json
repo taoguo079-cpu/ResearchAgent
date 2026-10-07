@@ -10,5 +10,8 @@
   "questionPlaceholder": "Type your research question here...",
   "send": "SEND TO AGENT",
   "backToMenu": "Back to menu",
-  "researchOptions": "Examples & research options"
+  "researchOptions": "Examples & research options",
+  "location": "LOCAL",
+  "questionTipsTitle": "A precise question.\nA stronger result.",
+  "questionTipsBody": "Name your topic, the comparison you need, and any time limits. Use the examples or adjust sources before starting."
 }

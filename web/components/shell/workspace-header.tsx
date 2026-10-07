@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 
 import { StopResearchButton } from "@/components/research/task-cancellation";
 import { LanguageSwitcher } from "@/components/shell/language-switcher";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTask } from "@/features/tasks/hooks/use-task";
@@ -42,7 +41,7 @@ export function WorkspaceHeader({ taskId }: { taskId?: string }) {
           <div className="flex min-w-0 items-center gap-2">
             <p
               title={title}
-              className="min-w-0 truncate text-[15px] font-semibold text-[var(--color-text)]"
+              className="min-w-0 truncate text-sm font-bold text-[var(--color-text)]"
             >
               {title}
             </p>
@@ -93,7 +92,6 @@ export function WorkspaceHeader({ taskId }: { taskId?: string }) {
             <PanelRightOpen aria-hidden="true" className="h-4 w-4" />
           )}
         </Button>
-        <ThemeToggle />
         <LanguageSwitcher locked={Boolean(taskId)} />
       </div>
     </header>

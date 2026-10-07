@@ -71,12 +71,15 @@ export function ReportView({
   if (!result) {
     if (query.isError)
       return (
-        <div className="p-8">
+        <div className={styles.report}>
           <InlineAlert tone="error">{t("report.noReport")}</InlineAlert>
         </div>
       );
     return (
-      <div className="space-y-4 p-8">
+      <div className={`${styles.report} gap-y-6`}>
+        <p role="status" className="text-xs">
+          {t("common.loading")}
+        </p>
         <Skeleton className="h-8 w-64" />
         <Skeleton className="h-64 w-full" />
       </div>
@@ -92,7 +95,7 @@ export function ReportView({
         </div>
         <ExportMenu taskId={taskId} />
       </header>
-      <Tabs defaultValue="report">
+      <Tabs defaultValue="report" className={styles.tabsRoot}>
         <TabsList aria-label={t("report.views")} className={styles.tabs}>
           <TabsTrigger value="report" className={styles.tab}>
             {t("report.reportTab")}

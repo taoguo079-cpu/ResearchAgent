@@ -1,20 +1,19 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef } from "react";
 
-import { BrandRobot } from "@/components/entry/brand-robot";
 import { EntryLanguageSwitcher } from "@/components/entry/entry-language-switcher";
-import { DesignText } from "@/components/entry/design-text";
 import { useEntryNavigation } from "@/components/entry/entry-transition-provider";
-import designText from "@/public/design-text/manifest.json";
 import { WELCOME_SESSION_KEY } from "@/features/welcome/welcome-state";
 import { useRouter } from "@/i18n/navigation";
 import styles from "./welcome-page.module.css";
 
 export function WelcomePage() {
   const t = useTranslations("welcome");
+  const entryT = useTranslations("entry");
+  const composerT = useTranslations("composer");
   const router = useRouter();
   const { navigate } = useEntryNavigation();
   const navigated = useRef(false);
@@ -55,77 +54,31 @@ export function WelcomePage() {
     });
   }
 
-  function placement(asset: keyof typeof designText.assets) {
-    const glyph = designText.assets[asset];
-    return {
-      position: "absolute" as const,
-      left: `${(glyph.x / 1366) * 100}%`,
-      top: `${(glyph.y / 768) * 100}%`,
-      width: `${(glyph.width / 1366) * 100}%`,
-      height: `${(glyph.height / 768) * 100}%`,
-    };
-  }
-
   return (
     <main className={styles.page} data-entry-page="welcome">
       <div className={styles.canvas}>
-        <div className={styles.partner}>
-          <span className={styles.searchIcon} aria-hidden="true">
-            <Search strokeWidth={1.8} />
-          </span>
-          <p>
-            <DesignText asset="home-partner">{t("partner")}</DesignText>
-          </p>
-        </div>
-        <div className={styles.language}>
-          <EntryLanguageSwitcher />
-        </div>
-
-        <p className={styles.tagline}>
-          <DesignText
-            asset="home-data"
-            forceVector
-            style={placement("home-data")}
-          >
-            Data
-          </DesignText>
-          <DesignText
-            asset="home-power"
-            forceVector
-            style={placement("home-power")}
-          >
-            is power
-          </DesignText>
-        </p>
-
-        <BrandRobot action="search" className={styles.robot} />
-
+        <header className={styles.header}>
+          <p className={styles.partner}>{t("partner")}</p>
+          <div className={styles.language}>
+            <EntryLanguageSwitcher />
+          </div>
+        </header>
         <h1 className={styles.brandTitle} aria-label="Research Agent">
-          <DesignText
-            asset="home-research"
-            forceVector
-            style={placement("home-research")}
-          >
-            Research
-          </DesignText>
-          <DesignText
-            asset="home-agent"
-            forceVector
-            style={placement("home-agent")}
-          >
-            Agent
-          </DesignText>
+          <span>Research</span>
+          <span>Agent</span>
         </h1>
-
-        <button
-          className={`${styles.nextButton} entry-pixel`}
-          type="button"
-          onClick={enter}
-        >
-          <DesignText asset="home-next" className={styles.nextLabel}>
-            {t("next")}
-          </DesignText>
+        <aside className={styles.description}>
+          <p>{composerT("description")}</p>
+          <p>{entryT("tagline")}</p>
+        </aside>
+        <button className={styles.nextButton} type="button" onClick={enter}>
+          {t("next")}
+          <ArrowRight aria-hidden="true" size={20} />
         </button>
+        <footer className={`${styles.metadata} swiss-meta`}>
+          <span>{new Date().getFullYear()}</span>
+          <span>{entryT("location")}</span>
+        </footer>
       </div>
     </main>
   );

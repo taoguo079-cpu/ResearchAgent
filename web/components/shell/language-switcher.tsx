@@ -33,7 +33,7 @@ export function LanguageSwitcher({ locked = false }: { locked?: boolean }) {
   return (
     <div
       aria-label={t("common.languages")}
-      className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-[var(--radius-control)] border border-[var(--color-border)] bg-[var(--color-control)] p-1"
+      className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap border-l border-[var(--color-border)] pl-4"
     >
       <Languages
         aria-hidden="true"
@@ -43,7 +43,7 @@ export function LanguageSwitcher({ locked = false }: { locked?: boolean }) {
         <button
           key={option}
           type="button"
-          className="shrink-0 whitespace-nowrap rounded-[calc(var(--radius-control)-2px)] px-2 py-1 text-xs font-medium text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-control-hover)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-70"
+          className="shrink-0 whitespace-nowrap px-2 py-1 text-xs font-normal text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-control-hover)] hover:text-[var(--color-page)] aria-pressed:text-[var(--color-primary)] aria-pressed:underline aria-pressed:hover:text-[var(--color-page)] disabled:cursor-not-allowed"
           aria-pressed={locale === option}
           aria-describedby={locked ? "task-language-locked" : undefined}
           disabled={locked}

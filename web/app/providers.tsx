@@ -7,9 +7,7 @@ import { usePathname as useRoutePathname } from "next/navigation";
 
 import { DeepSeekApiKeyGate } from "@/components/settings/deepseek-api-key-gate";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { PetOverlay } from "@/components/pet/pet-overlay";
 import { EntryTransitionProvider } from "@/components/entry/entry-transition-provider";
-import { PetRuntimeBridge } from "@/features/pet/pet-runtime-bridge";
 import { PreferencesHydrator } from "@/features/preferences/preferences-hydrator";
 import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale";
 import { getMessages } from "@/i18n/messages";
@@ -69,21 +67,12 @@ function AppContents({
   const isWelcomePage = /^\/(?:en\/?|zh-CN\/?)?$/.test(pathname);
   if (isWelcomePage) return children;
 
-  const isEntryPage = /\/(?:workspace|research\/new)\/?$/.test(pathname);
-
-  const content = (
-    <>
-      {children}
-      {!isEntryPage && <PetOverlay />}
-    </>
-  );
   return (
     <>
-      <PetRuntimeBridge />
       {enforceDeepSeekSetup ? (
-        <DeepSeekApiKeyGate>{content}</DeepSeekApiKeyGate>
+        <DeepSeekApiKeyGate>{children}</DeepSeekApiKeyGate>
       ) : (
-        content
+        children
       )}
     </>
   );

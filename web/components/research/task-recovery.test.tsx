@@ -60,7 +60,9 @@ describe("task recovery states", () => {
     ).toBeInTheDocument();
     await userEvent
       .setup()
-      .click(screen.getAllByRole("button", { name: /start research again/i })[0]);
+      .click(
+        screen.getAllByRole("button", { name: /start research again/i })[0],
+      );
     expect(onRetry).toHaveBeenCalledTimes(1);
   });
 });

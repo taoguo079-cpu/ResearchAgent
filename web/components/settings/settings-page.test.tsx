@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import type { ReactNode } from "react";
@@ -18,10 +18,6 @@ vi.mock("@/components/shell/workspace-page", () => ({
   WorkspacePage: ({ children }: { children: ReactNode }) => (
     <main>{children}</main>
   ),
-}));
-
-vi.mock("@/components/entry/brand-robot", () => ({
-  BrandRobot: () => <div aria-hidden="true" />,
 }));
 
 function renderSettings() {
@@ -59,7 +55,14 @@ describe("SettingsPage", () => {
     resetPreferencesStoreForTests();
   });
 
-  it("saves research and companion preferences independently of the API key form", async () => {
+  it("saves research preferences independently of credentials and legacy companion preferences", async () => {
+    usePreferencesStore.getState().setPetPreferences({
+      visible: true,
+      size: "large",
+      motion: "static",
+      dragLocked: true,
+    });
+    const legacyPet = usePreferencesStore.getState().pet;
     renderSettings();
     await screen.findByText("Configured");
     const user = userEvent.setup();
@@ -67,28 +70,23 @@ describe("SettingsPage", () => {
     await user.type(keyInput, "sk-unsaved-replacement");
     await user.clear(screen.getByLabelText("Maximum papers"));
     await user.type(screen.getByLabelText("Maximum papers"), "7");
-    await user.click(screen.getByLabelText("Show companion"));
-    await user.selectOptions(screen.getByLabelText("Size"), "large");
-    await user.selectOptions(screen.getByLabelText("Motion"), "static");
-    await user.click(screen.getByLabelText("Lock dragging"));
     await user.click(screen.getByRole("button", { name: "Save settings" }));
 
     expect(await screen.findByRole("status")).toHaveTextContent(
       "Settings saved",
     );
     expect(usePreferencesStore.getState().research.maxPapers).toBe(7);
-    expect(usePreferencesStore.getState().pet).toMatchObject({
-      visible: false,
-      size: "large",
-      motion: "static",
-      dragLocked: true,
-    });
+    expect(usePreferencesStore.getState().pet).toEqual(legacyPet);
+    expect(screen.queryByLabelText("Show companion")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Size")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Motion")).not.toBeInTheDocument();
+    expect(screen.queryByRole("img")).not.toBeInTheDocument();
     expect(keyInput).toHaveValue("sk-unsaved-replacement");
     expect(
       vi.mocked(fetch).mock.calls.some(([, init]) => init?.method === "PUT"),
     ).toBe(false);
 
-    await user.selectOptions(screen.getByLabelText("Size"), "small");
+    await user.clear(screen.getByLabelText("Maximum papers"));
     expect(screen.queryByText("Settings saved")).not.toBeInTheDocument();
   });
 
@@ -114,7 +112,7 @@ describe("SettingsPage", () => {
     );
   });
 
-  it("restores all defaults and resets the companion position", async () => {
+  it("restores research defaults while preserving legacy companion values and unsaved credentials", async () => {
     usePreferencesStore
       .getState()
       .setResearchPreferences({ maxPapers: 3, sources: ["arxiv"] });
@@ -125,21 +123,43 @@ describe("SettingsPage", () => {
       dragLocked: true,
     });
     usePreferencesStore.getState().setPetPosition({ xRatio: 0.2, yRatio: 0.3 });
+    const legacyPet = usePreferencesStore.getState().pet;
     renderSettings();
     await screen.findByText("Configured");
     const user = userEvent.setup();
+    const keyInput = screen.getByLabelText("Replace API key");
+    await user.type(keyInput, "sk-unsaved-credential");
     await user.click(screen.getByRole("button", { name: "Restore defaults" }));
 
     await waitFor(() => {
       expect(screen.getByLabelText("Maximum papers")).toHaveValue(15);
-      expect(screen.getByLabelText("Show companion")).toBeChecked();
     });
     expect(usePreferencesStore.getState().research).toEqual(
       DEFAULT_APP_PREFERENCES.research,
     );
-    expect(usePreferencesStore.getState().pet).toEqual(
-      DEFAULT_APP_PREFERENCES.pet,
-    );
+    expect(usePreferencesStore.getState().pet).toEqual(legacyPet);
+    expect(keyInput).toHaveValue("sk-unsaved-credential");
     expect(screen.getByRole("status")).toHaveTextContent("Settings saved");
   });
+
+  it.each(["2", "16"])(
+    "rejects a maximum paper count of %s without overwriting research defaults",
+    async (count) => {
+      renderSettings();
+      await screen.findByText("Configured");
+      const user = userEvent.setup();
+      const paperInput = screen.getByLabelText("Maximum papers");
+      await user.clear(paperInput);
+      await user.type(paperInput, count);
+      // Bypass the browser's native constraint check to exercise schema validation.
+      fireEvent.submit(screen.getByRole("form", { name: "Research defaults" }));
+      expect(
+        await screen.findByText("Enter a whole number from 3 to 15."),
+      ).toBeInTheDocument();
+      expect(usePreferencesStore.getState().research).toEqual(
+        DEFAULT_APP_PREFERENCES.research,
+      );
+      expect(screen.queryByText("Settings saved")).not.toBeInTheDocument();
+    },
+  );
 });

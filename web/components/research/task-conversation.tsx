@@ -9,7 +9,11 @@ import { useTaskResult } from "@/features/tasks/hooks/use-task-result";
 import { useConversation } from "@/features/followup/conversation";
 import { StopResearchButton } from "@/components/research/task-cancellation";
 import { StageStepper } from "@/components/research/stage-stepper";
-import { ResearchStageRobot } from "@/components/research/research-stage-robot";
+import {
+  taskStageMessageKeys,
+  taskStatusMessageKeys,
+} from "@/i18n/task-labels";
+import { RESEARCH_STAGES } from "@/lib/events/types";
 import { useTaskEvents } from "@/features/tasks/hooks/use-task-events";
 import { exitTaskZen } from "@/features/tasks/task-zen-mode";
 import { useUiStore } from "@/stores/ui-store";
@@ -127,11 +131,31 @@ export function TaskConversation({
           data-testid="task-zen-view"
           aria-label={taskT("zen")}
         >
-          <ResearchStageRobot
-            stage={replayState?.currentStage ?? null}
-            status={status}
-            className={styles.zenRobot}
-          />
+          <div className={styles.zenContent}>
+            <h1 className={styles.zenTitle}>
+              {replayState?.currentStage
+                ? taskT(taskStageMessageKeys[replayState.currentStage])
+                : taskT("waitingToStart")}
+            </h1>
+            <p role="status" className={styles.zenStatus}>
+              {String(
+                RESEARCH_STAGES.indexOf(
+                  replayState?.currentStage ?? "orchestrate",
+                ) + 1,
+              ).padStart(2, "0")}{" "}
+              / 07
+              {" — "}
+              {status
+                ? taskT(taskStatusMessageKeys[status])
+                : taskT("waitingToStart")}
+            </p>
+            <p className={styles.zenDescription}>
+              {replayState?.currentStage
+                ? (replayState.stages[replayState.currentStage].detail ??
+                  taskT("progressPlaceholder"))
+                : taskT("progressPlaceholder")}
+            </p>
+          </div>
           <Button
             ref={exitRef}
             className={styles.exitZen}
@@ -162,7 +186,7 @@ export function TaskConversation({
               <Button
                 ref={toggleRef}
                 className={styles.composerToggle}
-                size="icon"
+                size="sm"
                 variant="ghost"
                 aria-label={t(isExpanded ? "collapse" : "expand")}
                 aria-expanded={isExpanded}
@@ -178,6 +202,7 @@ export function TaskConversation({
                 ) : (
                   <ChevronUp aria-hidden="true" />
                 )}
+                {t(isExpanded ? "collapse" : "expand")}
                 {pending ? (
                   <span className={styles.pendingDot} aria-hidden="true" />
                 ) : null}

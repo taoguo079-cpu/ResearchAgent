@@ -19,7 +19,7 @@ export const TooltipContent = forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        "z-50 max-w-64 rounded-[var(--radius-float)] bg-[var(--color-tooltip)] px-2.5 py-1.5 text-xs text-[var(--color-tooltip-foreground)] shadow-[var(--shadow-float)]",
+        "z-50 max-w-64 bg-[var(--color-tooltip)] px-2.5 py-1.5 text-xs text-[var(--color-tooltip-foreground)]",
         className,
       )}
       {...props}

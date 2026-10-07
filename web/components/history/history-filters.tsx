@@ -1,5 +1,5 @@
 import { Input } from "@/components/ui/input";
-import { ChevronDown, Search } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import styles from "./history.module.css";
@@ -27,7 +27,6 @@ export function HistoryFilters({
       <label className={styles.filterLabel}>
         <span>{t("search")}</span>
         <span className={styles.searchField}>
-          <Search aria-hidden="true" className={styles.searchIcon} size={18} />
           <Input
             type="search"
             aria-label={t("search")}

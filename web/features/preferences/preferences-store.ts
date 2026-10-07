@@ -33,7 +33,12 @@ export type AppPreferencesV1 = {
 const appPreferencesSchema = z.object({
   version: z.literal(1),
   research: z.object({
-    maxPapers: z.number().int().min(1).max(50).transform((value) => Math.max(3, Math.min(15, value))),
+    maxPapers: z
+      .number()
+      .int()
+      .min(1)
+      .max(50)
+      .transform((value) => Math.max(3, Math.min(15, value))),
     sources: z.array(z.enum(ACADEMIC_SOURCES)).min(1),
   }),
   pet: z.object({

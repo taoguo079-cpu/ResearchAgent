@@ -2,14 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import {
-  ArrowUpRight,
-  CalendarDays,
-  Files,
-  SearchX,
-  SquarePen,
-  Trash2,
-} from "lucide-react";
 
 import { DeleteTaskDialog } from "@/components/history/delete-task-dialog";
 import {
@@ -78,54 +70,54 @@ export function HistoryList({
         onSortChange={setSort}
       />
       <div className={styles.rows}>
-        {visibleTasks.map((task) => {
+        {visibleTasks.map((task, index) => {
           const isActive =
             task.id === activeTaskId || activeStatuses.has(task.status);
           return (
             <article key={task.id} className={styles.row}>
+              <span className={styles.rowNumber} aria-hidden="true">
+                {String(index + 1).padStart(2, "0")}
+              </span>
               <div className={styles.rowContent}>
                 <Link
                   href={`/research/${encodeURIComponent(task.id)}`}
                   className={styles.taskLink}
                 >
                   {task.title}
-                  <ArrowUpRight aria-hidden="true" size={17} />
                 </Link>
                 <p className={styles.query}>{task.query}</p>
-                <div className={styles.metadata}>
-                  <Badge
-                    variant={
-                      task.status === "completed"
-                        ? "success"
-                        : task.status === "failed"
-                          ? "error"
-                          : activeStatuses.has(task.status)
-                            ? "accent"
-                            : "neutral"
-                    }
-                  >
-                    {taskT(taskStatusMessageKeys[task.status as TaskStatus])}
-                  </Badge>
-                  <span className={styles.metadataItem}>
-                    <CalendarDays aria-hidden="true" size={13} />
-                    {formatDate(task.created_at, locale)}
+              </div>
+              <div className={styles.metadata}>
+                <Badge
+                  variant={
+                    task.status === "completed"
+                      ? "success"
+                      : task.status === "failed"
+                        ? "error"
+                        : activeStatuses.has(task.status)
+                          ? "accent"
+                          : "neutral"
+                  }
+                >
+                  {taskT(taskStatusMessageKeys[task.status as TaskStatus])}
+                </Badge>
+                <span className={styles.metadataItem}>
+                  {formatDate(task.created_at, locale)}
+                </span>
+                <span className={styles.metadataItem}>
+                  {numberFrom(task.statistics?.papers_count) == null
+                    ? t("history.statisticsUnavailable")
+                    : t("history.papersCount", {
+                        count: numberFrom(
+                          task.statistics?.papers_count,
+                        ) as number,
+                      })}
+                </span>
+                {scoreOf(task) ? (
+                  <span className={styles.score}>
+                    {t("history.score", { value: scoreOf(task).toFixed(2) })}
                   </span>
-                  <span className={styles.metadataItem}>
-                    <Files aria-hidden="true" size={13} />
-                    {numberFrom(task.statistics?.papers_count) == null
-                      ? t("history.statisticsUnavailable")
-                      : t("history.papersCount", {
-                          count: numberFrom(
-                            task.statistics?.papers_count,
-                          ) as number,
-                        })}
-                  </span>
-                  {scoreOf(task) ? (
-                    <span className={styles.score}>
-                      {t("history.score", { value: scoreOf(task).toFixed(2) })}
-                    </span>
-                  ) : null}
-                </div>
+                ) : null}
               </div>
               <div className={styles.actions}>
                 <Button
@@ -139,7 +131,6 @@ export function HistoryList({
                     !task.available_actions?.includes("update")
                   }
                 >
-                  <SquarePen aria-hidden="true" size={15} />
                   {t("common.rename")}
                 </Button>
                 <Button
@@ -154,7 +145,6 @@ export function HistoryList({
                     !task.available_actions?.includes("delete")
                   }
                 >
-                  <Trash2 aria-hidden="true" size={15} />
                   {t("common.delete")}
                 </Button>
               </div>
@@ -164,7 +154,6 @@ export function HistoryList({
       </div>
       {!visibleTasks.length ? (
         <div className={styles.noMatches} role="status">
-          <SearchX aria-hidden="true" size={30} />
           <p>{t("history.noMatches")}</p>
         </div>
       ) : null}

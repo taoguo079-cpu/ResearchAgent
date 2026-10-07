@@ -1,96 +1,143 @@
 @import "tailwindcss";
 @import "../styles/tokens.css";
-@import "../styles/entry.css";
 
+@font-face {
+  font-family: Inter;
+  src: url("/fonts/inter/Inter-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: Inter;
+  src: url("/fonts/inter/Inter-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 :root {
   --background: var(--color-page);
   --foreground: var(--color-text);
 }
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-ui);
+  --font-mono: var(--font-ui);
+  --font-weight-light: 400;
+  --font-weight-medium: 400;
+  --font-weight-semibold: 700;
+  --font-weight-extrabold: 700;
+  --font-weight-black: 700;
 }
-
 html {
-  background-color: var(--background);
+  background: var(--background);
   color-scheme: light;
   accent-color: var(--color-primary);
+  scrollbar-color: var(--color-text) var(--color-page);
 }
-
-html[data-theme="dark"] {
-  color-scheme: dark;
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-ui);
   font-size: 14px;
+  font-weight: 400;
   line-height: 1.5;
+  text-align: left;
+  font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
-
 button,
 input,
 textarea,
 select {
   font: inherit;
+  text-align: left;
 }
-
 input,
 textarea {
   caret-color: var(--color-primary);
 }
-
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text);
+  opacity: 1;
+}
 select,
 input[type="checkbox"] {
   accent-color: var(--color-primary);
 }
-
 ::selection {
-  background: var(--color-primary-subtle);
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+button:focus-visible,
+a:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 4px;
+}
+button:disabled,
+input:disabled,
+textarea:disabled,
+select:disabled {
+  cursor: not-allowed;
+}
+button:disabled {
+  background: var(--color-page);
   color: var(--color-text);
+  border: 1px dashed var(--color-border);
 }
-
-html[data-theme="light"] .theme-icon-moon {
-  display: inline-block;
+a {
+  text-underline-offset: 4px;
 }
-
-html[data-theme="light"] .theme-icon-sun {
-  display: none;
+pre,
+code {
+  font-family: var(--font-ui);
 }
-
-html[data-theme="dark"] .theme-icon-moon {
-  display: none;
+.swiss-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--swiss-gutter);
 }
-
-html[data-theme="dark"] .theme-icon-sun {
-  display: inline-block;
+.swiss-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
 }
-
+.swiss-dialog {
+  position: fixed;
+  left: calc(25vw + 30px);
+  top: 120px;
+  z-index: 50;
+  width: calc(50vw - 60px);
+  max-height: calc(100dvh - 168px);
+  overflow-y: auto;
+  border: 1px solid var(--color-border);
+  background: var(--color-page);
+  padding: 32px;
+  outline: none;
+}
 .skeleton {
-  background-color: var(--color-skeleton);
-  background-image: linear-gradient(
-    90deg,
-    var(--color-skeleton) 25%,
-    var(--color-skeleton-highlight) 50%,
-    var(--color-skeleton) 75%
-  );
-  background-size: 200% 100%;
-  animation: skeleton-shimmer 1.6s linear infinite;
+  background: var(--color-skeleton);
+  border: 1px solid var(--color-border);
 }
-
-@keyframes skeleton-shimmer {
-  from {
-    background-position: 200% 0;
+@media (max-width: 1023px) {
+  :root {
+    --swiss-margin: 24px;
   }
-  to {
-    background-position: -200% 0;
+  .swiss-dialog {
+    left: 24px;
+    width: calc(100vw - 48px);
+    top: 48px;
+    max-height: calc(100dvh - 96px);
+    padding: 24px;
   }
 }
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

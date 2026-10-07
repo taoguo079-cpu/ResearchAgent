@@ -32,7 +32,7 @@ export function DeepSeekSettingsSection() {
 
   return (
     <section
-      className={`${styles.section} ${styles.modelSection}`}
+      className={styles.section}
       aria-labelledby="deepseek-model-settings-title"
     >
       <div className={styles.modelHeader}>
@@ -64,7 +64,7 @@ export function DeepSeekSettingsSection() {
           {t("checking")}
         </p>
       ) : settingsQuery.isError ? (
-        <div className={styles.sectionBody}>
+        <div className={styles.modelBody}>
           <InlineAlert tone="error">{t("unavailableError")}</InlineAlert>
           <Button
             className={`${styles.secondaryButton} ${styles.retryButton}`}
@@ -77,7 +77,7 @@ export function DeepSeekSettingsSection() {
           </Button>
         </div>
       ) : (
-        <>
+        <div className={styles.modelBody}>
           <dl className={styles.modelMetadata}>
             <MetadataItem label={t("providerLabel")} value="DeepSeek" />
             <MetadataItem
@@ -104,6 +104,7 @@ export function DeepSeekSettingsSection() {
               required
               spellCheck={false}
               aria-describedby="deepseek-key-security-note"
+              aria-invalid={updateSettings.isError}
               value={apiKey}
               placeholder={t("replaceKeyPlaceholder")}
               onChange={(event) => {
@@ -134,7 +135,7 @@ export function DeepSeekSettingsSection() {
               ) : null}
             </div>
           </form>
-        </>
+        </div>
       )}
     </section>
   );

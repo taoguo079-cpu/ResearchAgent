@@ -49,13 +49,13 @@ export function LiveTaskView({ taskId }: { taskId: string }) {
   if (error) {
     if (error instanceof ApiHttpError && error.status === 404) {
       return (
-        <div className="px-8 py-8">
+        <div className={styles.feedback}>
           <InlineAlert tone="warning">{t("task.notFound")}</InlineAlert>
         </div>
       );
     }
     return (
-      <div className="space-y-3 px-8 py-8">
+      <div className={styles.feedback}>
         <InlineAlert tone="error">{t("task.loadError")}</InlineAlert>
         <details className="text-xs text-[var(--color-text-muted)]">
           <summary className="cursor-pointer">
@@ -69,7 +69,10 @@ export function LiveTaskView({ taskId }: { taskId: string }) {
 
   if (isLoading || !replayState || (task && task.effective_locale !== locale)) {
     return (
-      <div className="space-y-4 px-8 py-8">
+      <div className={styles.feedback}>
+        <p role="status" className="text-xs">
+          {t("common.loading")}
+        </p>
         <Skeleton className="h-8 w-64" />
         <Skeleton className="h-20 w-full" />
         <Skeleton className="h-40 w-full" />

@@ -20,7 +20,7 @@ export function ReplayStepper({
   const taskT = useTranslations("task");
   return (
     <nav aria-label={t("replay.stageJump")} className={styles.stages}>
-      {RESEARCH_STAGES.map((stage) => (
+      {RESEARCH_STAGES.map((stage, index) => (
         <button
           key={stage}
           type="button"
@@ -28,7 +28,10 @@ export function ReplayStepper({
           onClick={() => onStage(stage)}
           className={styles.stage}
         >
-          <span>{taskT(taskStageMessageKeys[stage])}</span>
+          <span>
+            {String(index + 1).padStart(2, "0")}{" "}
+            {taskT(taskStageMessageKeys[stage])}
+          </span>
           <small>
             {taskT(taskStageStatusMessageKeys[state.stages[stage].status])}
           </small>
