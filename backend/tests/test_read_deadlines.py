@@ -63,7 +63,8 @@ async def test_blocking_worker_is_reaped_on_timeout_or_cancel(monkeypatch, tmp_p
         program = "import os,sys,time; from pathlib import Path; Path(sys.argv[1]).write_text(str(os.getpid())); time.sleep(60)"
         process = await original(args[0], "-c", program, str(pid_file), **kwargs)
         async with asyncio.timeout(5):
-            while not pid_file.exists():
+            # exists() can become true between opening and writing the file.
+            while not pid_file.exists() or not pid_file.read_text().isdigit():
                 await asyncio.sleep(0.01)
         assert int(pid_file.read_text()) == process.pid, "Termination must target the interpreter, not a venv redirector"
         processes.append(process)
@@ -71,7 +72,11 @@ async def test_blocking_worker_is_reaped_on_timeout_or_cancel(monkeypatch, tmp_p
     monkeypatch.setattr(asyncio, "create_subprocess_exec", slow_process)
     task = asyncio.create_task(blocking_worker.run_blocking_worker("pdf", {}, 0.05 if not cancel else 60))
     if cancel:
-        while not processes: await asyncio.sleep(0.01)
+        async with asyncio.timeout(5):
+            while not processes:
+                if task.done():
+                    await task
+                await asyncio.sleep(0.01)
         task.cancel()
     with pytest.raises(asyncio.CancelledError if cancel else TimeoutError):
         await task

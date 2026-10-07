@@ -12,6 +12,7 @@ from backend.domain.errors import ResearchPipelineError
 from backend.rag.ingestion import IngestionResult, ingest_paper
 from backend.repositories.chunk_repository import ChunkRepository
 from backend.services.run_context import context_from_state
+from backend.services.provider_retry import chat_completion
 from backend.services.structured_output import (
     PaperClaim,
     PaperInsight,
@@ -42,7 +43,6 @@ async def read_papers(state: ResearchState) -> dict:
     """Complete papers independently; all waits share the read deadline."""
     from backend.api.schemas.tasks import ResearchStage
     from backend.rag.ingestion import index_paper_chunks
-    from backend.services.provider_retry import request_with_retry
 
     limit = min(state.get("max_papers", 15), 15)
     selected = state.get("selected_papers", [])
@@ -101,10 +101,10 @@ async def read_papers(state: ResearchState) -> dict:
                   "Claims use claim_id, paper_id, statement, support_type, chunk_ids, evidence_text. "
                   "Each direct claim must cite an allowed Chunk ID; evidence_text must be a contiguous verbatim substring of that chunk.\n" + excerpts)
         async with asyncio.timeout(settings.read_summary_timeout):
-            response = await request_with_retry(lambda: client.chat.completions.create(
+            response = await chat_completion(client,
                 model=settings.light_model or settings.default_model, max_tokens=1500,
                 messages=[{"role": "system", "content": "Read academic excerpts. Return only JSON using English field names; preserve source metadata and evidence."},
-                          {"role": "user", "content": prompt}]))
+                          {"role": "user", "content": prompt}])
         text = (response.choices[0].message.content or "").strip()
         if not text:
             raise ValueError("Empty summary")

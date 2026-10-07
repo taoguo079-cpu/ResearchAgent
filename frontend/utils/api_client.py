@@ -6,7 +6,7 @@ from contextlib import AbstractContextManager
 import httpx
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(os.getenv("RESEARCH_ENV_FILE"))
 BACKEND = os.getenv("BACKEND_URL", "http://localhost:8000").rstrip("/")
 
 

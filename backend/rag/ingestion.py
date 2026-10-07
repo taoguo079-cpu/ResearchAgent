@@ -56,8 +56,8 @@ async def ingest_paper(
         except Exception:
             warnings.append("PDF_PARSE_FAILED")
     if not chunks:
-        fallback = abstract_chunk(paper_id=paper_id, title=paper.get("title", "").strip(),
-                                  abstract=paper.get("abstract", "").strip())
+        fallback = abstract_chunk(paper_id=paper_id, title=(paper.get("title") or "").strip(),
+                                  abstract=(paper.get("abstract") or "").strip())
         if fallback is None:
             return IngestionResult(paper_id=paper_id, readable=False,
                                    warnings=[*warnings, "PAPER_NO_READABLE_CONTENT"])

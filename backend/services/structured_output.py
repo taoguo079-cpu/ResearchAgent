@@ -112,7 +112,9 @@ def parse_paper_insight_output(
             degraded = True
             continue
         normalized = {**raw, "paper_id": canonical_paper_id}
-        normalized["claim_id"] = raw.get("claim_id") or raw.get("id") or f"{canonical_paper_id}:claim:{number}"
+        # Separate model calls routinely reuse IDs such as c1/claim-1. Own the
+        # identity here so evidence and citation maps cannot join two papers.
+        normalized["claim_id"] = f"{canonical_paper_id}:claim:{number}"
         normalized["statement"] = raw.get("statement") or raw.get("claim") or raw.get("text")
         normalized["chunk_ids"] = raw.get("chunk_ids", raw.get("chunk_id", []))
         normalized["evidence_text"] = raw.get("evidence_text", raw.get("excerpt", raw.get("evidence")))
