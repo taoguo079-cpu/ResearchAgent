@@ -61,7 +61,7 @@ Desktop acceptance is **1366 × 768**, with 48px outside margins, 24px gutters a
 
 The research center owns its scroll region. The follow-up composer and numbered 01–07 stage rail remain below that region rather than obscuring report prose. Panel toggles and Zen preserve the draft, pending question, existing panel preferences and single task event subscription. Escape and the exit control leave Zen and restore keyboard focus.
 
-The 64px report title spans the complete first header row; summary metadata and export occupy the second row. Contents and quality review are initially closed native disclosures, with partial-result status still visible. The first report paragraph remains above the persistent stage rail in the accepted English and Chinese desktop captures. Paper hover keeps authors and metadata legible on paper; replay uses a square red thumb and a black rule rather than the browser's default range styling.
+The 64px report title spans the complete first header row; summary metadata and export occupy the second row. Contents use an initially closed native disclosure, with partial-result status still visible. Quality review results are not displayed on the report page. Live progress uses saved event descriptions, stage-specific messages and paper counts; the research plan lists the published search angles and survives a refresh. The first report paragraph remains above the persistent stage rail in the accepted English and Chinese desktop captures. Paper hover keeps authors and metadata legible on paper; replay uses a square red thumb and a black rule rather than the browser's default range styling.
 
 ## Function and compatibility
 

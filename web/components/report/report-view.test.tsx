@@ -67,31 +67,41 @@ describe("ReportView", () => {
     expect(screen.queryByText("window.__bad = true")).not.toBeInTheDocument();
   });
 
-  it("marks partial results, preserves expandable review warnings, and secures external links", async () => {
-    const user = userEvent.setup();
-    render(
-      <Providers locale="en">
-        <ReportView taskId="task-report" result={result} />
-      </Providers>,
-    );
+  it.each([true, false])(
+    "hides quality review even when partial=%s and secures external links",
+    (partial) => {
+      render(
+        <Providers locale="en">
+          <ReportView
+            taskId="task-report"
+            result={{
+              ...result,
+              partial,
+              warnings: ["Crossref was unavailable", "CRITIQUE_NOT_APPROVED"],
+            }}
+          />
+        </Providers>,
+      );
 
-    const review = screen.getByText("Quality review · Partial result");
-    expect(review.closest("details")).not.toHaveAttribute("open");
-    await user.click(review);
-    expect(review.closest("details")).toHaveAttribute("open");
-    expect(screen.getByRole("alert")).toHaveTextContent(
-      "Crossref was unavailable",
-    );
-    expect(screen.getByRole("link", { name: "the source" })).toHaveAttribute(
-      "target",
-      "_blank",
-    );
-    expect(screen.getByRole("link", { name: "the source" })).toHaveAttribute(
-      "rel",
-      "noreferrer noopener",
-    );
-    expect(screen.getByText(/final round passed/i)).toBeInTheDocument();
-  });
+      expect(screen.queryByText(/quality review/i)).not.toBeInTheDocument();
+      expect(
+        screen.queryByText("Crossref was unavailable"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByText("CRITIQUE_NOT_APPROVED"),
+      ).not.toBeInTheDocument();
+      expect(screen.queryByText(/critic attempt/i)).not.toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "the source" })).toHaveAttribute(
+        "target",
+        "_blank",
+      );
+      expect(screen.getByRole("link", { name: "the source" })).toHaveAttribute(
+        "rel",
+        "noreferrer noopener",
+      );
+      expect(screen.queryByText(/final round passed/i)).not.toBeInTheDocument();
+    },
+  );
 
   it("uses a backend export action for Markdown, BibTeX, and JSON", async () => {
     const user = userEvent.setup();

@@ -59,4 +59,66 @@ describe("durable snapshot replay", () => {
       }).success,
     ).toBe(false);
   });
+
+  it("restores plan contents and progress even when snapshot stage details are absent", () => {
+    const state = snapshotToReplayState(
+      taskSnapshotSchema.parse({
+        ...snapshot,
+        current_stage: "search",
+        last_sequence: 2,
+        stages: [
+          { stage: "search", status: "running", attempt: 1, detail: null },
+        ],
+        replay_events: [
+          {
+            ...event,
+            event_type: "plan.available",
+            stage: "orchestrate",
+            payload: { steps: [{ display_query: "Compare evidence" }] },
+          },
+          {
+            ...event,
+            sequence: 2,
+            event_type: "stage.progress",
+            stage: "search",
+            payload: {
+              message: "Searching academic sources",
+              counts: { raw_papers: 7 },
+            },
+          },
+        ],
+      }),
+    );
+    expect(state.researchPlan).toEqual(["Compare evidence"]);
+    expect(state.stages.search.detail).toBe("Searching academic sources");
+    expect(state.metrics.raw_papers).toBe(7);
+  });
+
+  it("does not restore a previous round's counts from cached statistics", () => {
+    const initial = taskSnapshotSchema.parse({
+      ...snapshot,
+      current_stage: "search",
+      statistics: { raw_papers: 12 },
+      replay_events: [
+        {
+          ...event,
+          event_type: "stage.progress",
+          stage: "search",
+          payload: { counts: { raw_papers: 12 } },
+        },
+      ],
+    });
+    const applied = reduceResearchEvent(snapshotToReplayState(initial), {
+      ...event,
+      sequence: 2,
+      event_type: "stage.started",
+      stage: "search",
+      payload: { attempt: 2 },
+    });
+    if (applied.status !== "applied")
+      throw new Error("Expected an applied event");
+    const cached = replayStateToSnapshot(initial, applied.state, applied.event);
+    expect(cached.statistics?.raw_papers).toBeUndefined();
+    expect(snapshotToReplayState(cached).metrics.raw_papers).toBeUndefined();
+  });
 });

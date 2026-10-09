@@ -37,6 +37,18 @@ export const RESEARCH_STAGES = [
 
 export type ResearchStage = (typeof RESEARCH_STAGES)[number];
 
+export const STAGE_COUNT_METRICS = {
+  search: ["papersDiscovered", "papers_discovered", "raw_papers"],
+  filter: ["papersSelected", "papers_selected", "selected_papers"],
+  read: [
+    "read_total",
+    "read_completed",
+    "read_succeeded",
+    "read_degraded",
+    "read_failed",
+  ],
+} satisfies Partial<Record<ResearchStage, string[]>>;
+
 export type EventLevel = "info" | "warning" | "error";
 export type TaskStatus =
   | "queued"
@@ -93,6 +105,7 @@ export type ReplayArtifacts = {
 
 export type ReplayState = {
   agentTrace: EventPayload[];
+  researchPlan: string[];
   taskId: string;
   lastSequence: number;
   taskStatus: TaskStatus;

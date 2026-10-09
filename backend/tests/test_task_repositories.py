@@ -6,7 +6,7 @@ import pytest_asyncio
 
 from backend.api.schemas.events import EventLevel, EventType
 from backend.api.schemas.results import ResearchTaskResult
-from backend.api.schemas.tasks import TaskSnapshot, TaskStatus
+from backend.api.schemas.tasks import ResearchStage, TaskSnapshot, TaskStatus
 from backend.db.connection import open_database
 from backend.repositories.event_repository import EventRepository
 from backend.repositories.result_repository import ResultRepository
@@ -55,6 +55,33 @@ async def test_create_and_read_task(repositories) -> None:
     assert loaded is not None
     assert loaded.query == task.query
     assert loaded.status is TaskStatus.QUEUED
+
+
+@pytest.mark.asyncio
+async def test_snapshot_preserves_stage_progress_and_resets_it_on_retry(repositories) -> None:
+    tasks, events, _ = repositories
+    await tasks.create(make_task("progress", "progress-request", status=TaskStatus.RUNNING))
+    for event_type, payload in [
+        (EventType.STAGE_STARTED, {"attempt": 1}),
+        (EventType.STAGE_PROGRESS, {"message": "Searching academic sources"}),
+        (EventType.STAGE_COMPLETED, {"duration_ms": 50}),
+    ]:
+        await events.append(task_id="progress", event_type=event_type, stage=ResearchStage.SEARCH, payload=payload)
+    snapshot = await tasks.get("progress")
+    stage = next(item for item in snapshot.stages if item.stage == ResearchStage.SEARCH)
+    assert stage.detail == "Searching academic sources"
+    assert stage.duration_ms == 50
+    assert snapshot.progress.message == stage.detail
+    await events.append(task_id="progress", event_type=EventType.STAGE_STARTED, stage=ResearchStage.SEARCH, payload={"attempt": 2, "detail": "Searching refined queries"})
+    snapshot = await tasks.get("progress")
+    stage = next(item for item in snapshot.stages if item.stage == ResearchStage.SEARCH)
+    assert stage.attempt == 2
+    assert stage.status == "running"
+    assert stage.completed_at is None
+    assert stage.detail == "Searching refined queries"
+    await events.append(task_id="progress", event_type=EventType.STAGE_STARTED, stage=ResearchStage.READ)
+    snapshot = await tasks.get("progress")
+    assert snapshot.progress.message is None
 
 
 @pytest.mark.asyncio

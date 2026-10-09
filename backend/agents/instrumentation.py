@@ -33,7 +33,13 @@ def instrument(node, stage_name, context):
                 "critic": ("critique", EventType.CRITIQUE_COMPLETED)}.get(stage_name)
             if artifact and (result or {}).get(artifact[0]):
                 value = result[artifact[0]]
-                await context._append(artifact[1], stage=stage, payload={"count": len(value), "attempt": context.attempts[stage.value]})
+                payload = {"count": len(value), "attempt": context.attempts[stage.value]}
+                if stage_name == "orchestrate":
+                    payload["steps"] = [
+                        safe_text(item.get("display_query") or item.get("sub_query") or item.get("title") or item.get("retrieval_query"))
+                        for item in value if isinstance(item, dict)
+                    ]
+                await context._append(artifact[1], stage=stage, payload=payload)
             if stage_name == "read":
                 await context.stage_progress(stage, {"metrics": {"papersRead": len((result or {}).get("paper_insights", []))}})
             await context.stage_completed(stage, started, {"legacy": legacy_stage_payload(stage_name, {**state, **(result or {})})})

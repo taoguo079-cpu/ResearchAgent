@@ -1,11 +1,13 @@
 import type { ReplayState } from "@/lib/events/types";
 import { taskStageMessageKeys } from "@/i18n/task-labels";
 import { useTranslations } from "next-intl";
+import { useStageProgress } from "@/features/tasks/hooks/use-stage-progress";
 import styles from "./workspace-task.module.css";
 
 export function CurrentStagePanel({ state }: { state: ReplayState }) {
   const t = useTranslations("task");
   const stage = state.currentStage ? state.stages[state.currentStage] : null;
+  const progress = useStageProgress(state);
   return (
     <section className={styles.currentStage}>
       <h2>
@@ -13,8 +15,9 @@ export function CurrentStagePanel({ state }: { state: ReplayState }) {
           ? t(taskStageMessageKeys[state.currentStage])
           : t("waitingToStart")}
       </h2>
-      <p>{stage?.detail ?? t("progressPlaceholder")}</p>
+      <p>{progress}</p>
       {state.currentStage === "read" &&
+      stage?.detail?.trim() &&
       state.metrics.read_total !== undefined ? (
         <p role="status" className={styles.readProgress}>
           {t("readProgress", {

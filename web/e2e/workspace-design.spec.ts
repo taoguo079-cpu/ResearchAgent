@@ -41,6 +41,9 @@ test("remaining workspace pages keep the entry identity and usable desktop layou
     page.getByRole("heading", { name: "Research synthesis", exact: true }),
   ).toBeVisible({ timeout: 20_000 });
   const reportTabs = page.getByRole("tablist", { name: "Research views" });
+  await expect(
+    page.getByText(/Quality review|Final critic review|Critic attempt/i),
+  ).toHaveCount(0);
   const tabBounds = await Promise.all(
     (await reportTabs.getByRole("tab").all()).map((tab) => tab.boundingBox()),
   );
@@ -276,6 +279,7 @@ test("Chinese report geometry keeps localized prose above the stage rail", async
     page.getByRole("heading", { name: "研究综合报告", exact: true }),
   ).toBeVisible({ timeout: 20_000 });
   const reportTabs = page.getByRole("tablist", { name: "研究视图" });
+  await expect(page.getByText(/质量审查|最终评审|评审未通过/)).toHaveCount(0);
   const tabBounds = await Promise.all(
     (await reportTabs.getByRole("tab").all()).map((tab) => tab.boundingBox()),
   );

@@ -21,14 +21,20 @@ async def project_task(database, task):
             task.current_stage = ResearchStage(name)
             stage = stages.setdefault(name, StageSnapshot(stage=name))
             if kind == "stage.started":
-                stages[name] = StageSnapshot(stage=name, status="running",
+                stage = stages[name] = StageSnapshot(stage=name, status="running",
                     started_at=row["occurred_at"], attempt=payload.get("attempt", stage.attempt))
+                task.progress.message = None
             elif kind == "stage.progress":
+                stage.status = StageStatus.RUNNING
                 task.progress.metrics.update(payload)
             elif kind in {"stage.completed", "stage.failed", "stage.warning"}:
                 stage.status = StageStatus(kind.split(".")[1])
-                if kind == "stage.completed":
+                if kind in {"stage.completed", "stage.failed"}:
                     stage.completed_at = datetime.fromisoformat(row["occurred_at"])
                     stage.duration_ms = payload.get("duration_ms")
+            detail = payload.get("detail") or payload.get("message")
+            if isinstance(detail, str) and detail.strip():
+                stage.detail = detail
+                task.progress.message = detail
     task.stages = list(stages.values())
     return task

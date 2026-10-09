@@ -279,7 +279,7 @@ Seven numbered stages occupy the inherited grid. Each item pairs a bold number w
 
 ### Report / Evidence Controls
 
-The report title occupies the full first header row. Summary metadata and export occupy the second row, avoiding competition with the title. Contents and quality review use native disclosures that start closed. Export is a square outlined control with a flat ruled menu.
+The report title occupies the full first header row. Summary metadata and export occupy the second row, avoiding competition with the title. Contents use a native disclosure that starts closed. Quality review results are not displayed on the report page. Export is a square outlined control with a flat ruled menu.
 
 Report prose remains left aligned at the recorded reading width. Citation markers are small red, underlined superscript buttons; hover inverts them to paper on red. Invalid citations retain an ink warning treatment and explanatory labeling. Activating a citation selects its evidence in the context panel.
 

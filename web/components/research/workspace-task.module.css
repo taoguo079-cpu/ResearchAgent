@@ -119,6 +119,18 @@
   font-size: 14px;
   line-height: 1.8;
 }
+.planSteps {
+  max-width: 65ch;
+  margin: 0;
+  padding-inline-start: 24px;
+  list-style: decimal;
+  font-size: 14px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.planSteps li + li {
+  margin-top: 12px;
+}
 .scrollRegion {
   display: grid;
   grid-template-columns: subgrid;

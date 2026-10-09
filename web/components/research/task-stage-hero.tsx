@@ -4,6 +4,7 @@ import { ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { CurrentStagePanel } from "@/components/research/current-stage-panel";
+import { useStageProgress } from "@/features/tasks/hooks/use-stage-progress";
 import { ResearchPlan } from "@/components/research/research-plan";
 import {
   taskStageMessageKeys,
@@ -14,6 +15,7 @@ import styles from "./task-stage-hero.module.css";
 
 export function TaskStageHero({ state }: { state: ReplayState }) {
   const t = useTranslations("task");
+  const progress = useStageProgress(state);
   return (
     <section
       className={styles.hero}
@@ -38,12 +40,7 @@ export function TaskStageHero({ state }: { state: ReplayState }) {
           </span>
           <span>{t(taskStatusMessageKeys[state.taskStatus])}</span>
         </p>
-        <p className={styles.stageDescription}>
-          {state.currentStage
-            ? (state.stages[state.currentStage].detail ??
-              t("progressPlaceholder"))
-            : t("progressPlaceholder")}
-        </p>
+        <p className={styles.stageDescription}>{progress}</p>
       </div>
       <div className={styles.detailsRail}>
         <details
@@ -68,7 +65,7 @@ export function TaskStageHero({ state }: { state: ReplayState }) {
             <span>{t("researchPlan")}</span>
             <ChevronDown aria-hidden="true" />
           </summary>
-          <ResearchPlan />
+          <ResearchPlan state={state} />
         </details>
       </div>
     </section>

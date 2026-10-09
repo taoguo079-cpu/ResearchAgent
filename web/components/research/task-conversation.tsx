@@ -15,6 +15,7 @@ import {
 } from "@/i18n/task-labels";
 import { RESEARCH_STAGES } from "@/lib/events/types";
 import { useTaskEvents } from "@/features/tasks/hooks/use-task-events";
+import { useStageProgress } from "@/features/tasks/hooks/use-stage-progress";
 import { exitTaskZen } from "@/features/tasks/task-zen-mode";
 import { useUiStore } from "@/stores/ui-store";
 import {
@@ -36,6 +37,7 @@ export function TaskConversation({
   const taskT = useTranslations("task");
   const task = useTask(taskId);
   const { replayState } = useTaskEvents(taskId);
+  const progress = useStageProgress(replayState);
   const isZen = useUiStore((store) => store.zenTaskId === taskId);
   const [isExpanded, setIsExpanded] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -149,12 +151,7 @@ export function TaskConversation({
                 ? taskT(taskStatusMessageKeys[status])
                 : taskT("waitingToStart")}
             </p>
-            <p className={styles.zenDescription}>
-              {replayState?.currentStage
-                ? (replayState.stages[replayState.currentStage].detail ??
-                  taskT("progressPlaceholder"))
-                : taskT("progressPlaceholder")}
-            </p>
+            <p className={styles.zenDescription}>{progress}</p>
           </div>
           <Button
             ref={exitRef}

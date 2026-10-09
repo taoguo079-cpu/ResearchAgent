@@ -262,39 +262,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-.review {
-  border-block: 1px solid var(--color-border);
-  padding-block: 16px;
-  color: var(--color-text);
-  font-size: 14px;
-  line-height: 1.8;
-}
-
-.qualityDisclosure {
-  border-block: 1px solid var(--color-border);
-}
-.qualityDisclosure > summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  min-height: 40px;
-  padding-block: 10px;
-  font-size: 12px;
-  font-weight: 700;
-  list-style: none;
-  cursor: pointer;
-}
-.qualityDisclosure > summary::-webkit-details-marker {
-  display: none;
-}
-.qualityDisclosure > summary:hover {
-  color: var(--color-primary);
-}
-.qualityDisclosure[open] > summary svg {
-  transform: rotate(180deg);
-}
-
 .export {
   position: relative;
   flex-shrink: 0;
