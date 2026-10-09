@@ -143,6 +143,8 @@
   scrollbar-width: thin;
 }
 .scrollRegion[hidden],
+.composer[hidden],
+.conversation[hidden],
 .composerBody[hidden] {
   display: none;
 }

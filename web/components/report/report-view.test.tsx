@@ -1,5 +1,5 @@
 import { userEvent } from "@testing-library/user-event";
-import { render, screen } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Providers } from "@/app/providers";
@@ -140,5 +140,58 @@ describe("ReportView", () => {
 
     expect(useUiStore.getState().selectedObjectId).toBe("paper-1");
     expect(useUiStore.getState().contextTab).toBe("papers");
+    act(() => useUiStore.getState().setZenTaskId("task-report"));
+    expect(screen.getByRole("tab", { name: /papers \(1\)/i })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    expect(
+      screen.getByRole("heading", { name: "Paper one", level: 2 }),
+    ).toBeVisible();
+    await user.click(screen.getByRole("tab", { name: "Report" }));
+    await user.click(screen.getByRole("button", { name: "Exit Zen mode" }));
+    expect(screen.getByRole("tab", { name: /papers \(1\)/i })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    expect(
+      screen.getByRole("heading", { name: "Paper one", level: 2 }),
+    ).toBeVisible();
+    expect(useUiStore.getState().selectedObjectId).toBe("paper-1");
+  });
+
+  it("offers only report and papers in Zen and restores the normal run tab on exit", async () => {
+    const user = userEvent.setup();
+    render(
+      <Providers locale="en">
+        <ReportView taskId="task-report" result={result} />
+      </Providers>,
+    );
+    await user.click(screen.getByRole("tab", { name: "Run details" }));
+    act(() => useUiStore.getState().setZenTaskId("task-report"));
+    const tabs = within(
+      screen.getByRole("tablist", { name: "Research views" }),
+    );
+    expect(tabs.getAllByRole("tab")).toHaveLength(2);
+    expect(tabs.getByRole("tab", { name: "Report" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    expect(screen.getByRole("heading", { name: "Overview" })).toBeVisible();
+    expect(
+      screen.queryByRole("heading", { name: "Research synthesis" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /export report/i }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Exit Zen mode" })).toHaveFocus();
+    await user.click(tabs.getByRole("tab", { name: "Papers (0)" }));
+    await user.click(screen.getByRole("button", { name: "Exit Zen mode" }));
+    expect(screen.getAllByRole("tab")).toHaveLength(3);
+    expect(screen.getByRole("tab", { name: "Run details" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    expect(screen.getByRole("heading", { name: "Run details" })).toBeVisible();
   });
 });

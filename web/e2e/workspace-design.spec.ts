@@ -53,11 +53,15 @@ test("remaining workspace pages keep the entry identity and usable desktop layou
   const prose = page.locator(".report-document > p").first();
   await expect(prose).toBeInViewport();
   const proseBox = await prose.boundingBox();
-  const stageRail = await page
+  await expect(
+    page.getByRole("navigation", { name: "Stage detail" }),
+  ).toHaveCount(0);
+  const reportComposerBox = await page
     .getByTestId("followup-composer")
-    .getByRole("navigation", { name: "Stage detail" })
     .boundingBox();
-  expect(proseBox!.y + proseBox!.height).toBeLessThanOrEqual(stageRail!.y);
+  expect(proseBox!.y + proseBox!.height).toBeLessThanOrEqual(
+    reportComposerBox!.y,
+  );
   await capture("report");
   const shell = page.locator("[data-sidebar][data-context]");
   const main = shell.locator("main");
@@ -276,7 +280,7 @@ test("replay event inspector stays readable above the follow-up composer", async
   });
 });
 
-test("Chinese report geometry keeps localized prose above the stage rail", async ({
+test("Chinese report geometry keeps localized prose above the follow-up control", async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -300,11 +304,11 @@ test("Chinese report geometry keeps localized prose above the stage rail", async
   const prose = page.locator(".report-document > p").first();
   await expect(prose).toBeInViewport();
   const proseBox = await prose.boundingBox();
-  const stageRail = await page
-    .getByTestId("followup-composer")
-    .getByRole("navigation", { name: "阶段详情" })
-    .boundingBox();
-  expect(proseBox!.y + proseBox!.height).toBeLessThanOrEqual(stageRail!.y);
+  await expect(page.getByRole("navigation", { name: "阶段详情" })).toHaveCount(
+    0,
+  );
+  const composerBox = await page.getByTestId("followup-composer").boundingBox();
+  expect(proseBox!.y + proseBox!.height).toBeLessThanOrEqual(composerBox!.y);
   const screenshotDirectory = path.resolve(
     process.cwd(),
     "../artifacts/swiss-style",

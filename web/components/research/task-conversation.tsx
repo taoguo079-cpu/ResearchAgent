@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { ReportDocument } from "@/components/report/report-document";
@@ -18,6 +24,7 @@ import { useTaskEvents } from "@/features/tasks/hooks/use-task-events";
 import { useStageProgress } from "@/features/tasks/hooks/use-stage-progress";
 import { exitTaskZen } from "@/features/tasks/task-zen-mode";
 import { useUiStore } from "@/stores/ui-store";
+import { useReportNavigation } from "@/features/report/report-navigation";
 import {
   ChevronDown,
   ChevronUp,
@@ -39,13 +46,16 @@ export function TaskConversation({
   const { replayState } = useTaskEvents(taskId);
   const progress = useStageProgress(replayState);
   const isZen = useUiStore((store) => store.zenTaskId === taskId);
+  const isReportPage = Boolean(useReportNavigation()?.report);
+  const isReportZen = isZen && isReportPage;
+  const isLiveZen = isZen && !isReportPage;
   const [isExpanded, setIsExpanded] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const exitRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
-    if (isZen) exitRef.current?.focus();
-  }, [isZen]);
+    if (isLiveZen) exitRef.current?.focus();
+  }, [isLiveZen]);
   const status = task.data?.status;
   const { query, submit, cancel } = useConversation(taskId, status);
   const result = useTaskResult(taskId, status === "completed");
@@ -54,11 +64,29 @@ export function TaskConversation({
     null,
   );
   const scrollRegion = useRef<HTMLDivElement>(null);
+  const normalScrollTop = useRef(0);
+  const wasReportZen = useRef(false);
+  useLayoutEffect(() => {
+    const shouldRestore = wasReportZen.current && !isReportZen;
+    wasReportZen.current = isReportZen;
+    const region = scrollRegion.current;
+    if (!region) return;
+    if (isReportZen) region.scrollTop = 0;
+    else if (shouldRestore) {
+      const savedTop = normalScrollTop.current;
+      // Wait for the restored Radix tab content to mount before setting its scroll.
+      const frame = requestAnimationFrame(() => {
+        region.scrollTop = savedTop;
+      });
+      return () => cancelAnimationFrame(frame);
+    }
+  }, [isReportZen]);
   const previousMessageCount = useRef<number | null>(null);
   const messageCount = query.data?.messages.length;
   useEffect(() => {
     if (messageCount !== undefined) {
       if (
+        !isZen &&
         previousMessageCount.current !== null &&
         messageCount > previousMessageCount.current
       ) {
@@ -69,7 +97,7 @@ export function TaskConversation({
       }
       previousMessageCount.current = messageCount;
     }
-  }, [messageCount]);
+  }, [messageCount, isZen]);
   const pending = query.data?.pending;
   const unavailable =
     !status ||
@@ -97,12 +125,16 @@ export function TaskConversation({
     <>
       <div
         ref={scrollRegion}
-        hidden={isZen}
+        hidden={isLiveZen}
+        onScroll={(event) => {
+          if (!isZen) normalScrollTop.current = event.currentTarget.scrollTop;
+        }}
         className={styles.scrollRegion}
         data-testid="task-scroll-region"
       >
         {children}
         <section
+          hidden={isReportZen}
           aria-label={t("history")}
           className={styles.conversation}
           style={!messageCount ? { padding: 0 } : undefined}
@@ -127,7 +159,7 @@ export function TaskConversation({
           ))}
         </section>
       </div>
-      {isZen ? (
+      {isLiveZen ? (
         <section
           className={styles.zenView}
           data-testid="task-zen-view"
@@ -166,6 +198,7 @@ export function TaskConversation({
         </section>
       ) : null}
       <section
+        hidden={isReportZen}
         aria-label={t("composer")}
         data-testid="followup-composer"
         className={styles.composer}
@@ -173,7 +206,7 @@ export function TaskConversation({
       >
         <div className={styles.composerInner}>
           <div className={styles.progressRow}>
-            {replayState ? (
+            {replayState && !isReportPage ? (
               <StageStepper
                 state={replayState}
                 variant={isZen ? "zen" : "default"}

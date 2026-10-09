@@ -34,6 +34,9 @@
 .shell[data-zen] .main {
   grid-template-rows: minmax(0, 1fr) auto;
 }
+.shell[data-zen][data-report] .main {
+  grid-template-rows: minmax(0, 1fr);
+}
 
 .headerSlot,
 .content {

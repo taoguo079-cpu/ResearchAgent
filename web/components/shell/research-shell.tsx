@@ -88,6 +88,7 @@ function ResearchShellLayout({
     <div
       className={styles.shell}
       data-zen={isZen || undefined}
+      data-report={Boolean(navigation?.report) || undefined}
       data-sidebar={isTaskSidebarOpen ? "open" : "closed"}
       data-left-rail={isReportReading || isTaskSidebarOpen ? "open" : "closed"}
       data-context={isContextPanelOpen ? "open" : "closed"}

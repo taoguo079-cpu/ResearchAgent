@@ -4,6 +4,8 @@ Modes: Operate (workspace, form, history, settings), Read (report), with a typog
 
 Report refinement, 2026-10-09: Report contents replace the task rail with an always-open vertical list. Opening tasks covers that list in place; closing or Escape restores directory scroll and focus. Papers and Run details restore normal task navigation. Task-scoped report navigation resets on entry and refresh without changing saved live-workspace preferences. The shared task header omits its query subtitle and ID, and locked language controls are hidden. Desktop acceptance remains 1366 × 768.
 
+Report reading refinement, 2026-10-09: Center the 75ch prose block horizontally inside its reading area while keeping all prose left aligned. Hide the seven-stage rail across the report page; normal mode retains follow-up. Report Zen displays only Report/Papers tabs, the active report or paper list/detail, and an exit control. Hide surrounding tools, side regions, run details and conversation. Restore the normal tab, scroll and draft on exit; retain the selected paper. Live-research Zen keeps stage progress and transitions into report reading when results arrive, without reconnecting the task stream.
+
 ## Direction contract
 
 THESIS: A research workspace whose hierarchy is explicit through typography, alignment and numbered stages.

@@ -160,7 +160,7 @@ The theme is fixed cream with black structure and signal red for actions, curren
 - Left-aligned type on an inherited twelve-column grid.
 - Square controls and one-pixel structural rules.
 - Flat surfaces with explicit state changes.
-- Numbered navigation and a persistent seven-stage rail.
+- Numbered navigation and a seven-stage rail during live research.
 
 This record describes the active Next.js implementation in `web/styles/tokens.css`, `web/app/globals.css`, the shared UI primitives, and the welcome, entry, research, report, shell, history, and settings components. The user-approved direction is recorded in `PRODUCT.md` and `.impeccable/surfaces/frontend.md`.
 
@@ -221,6 +221,8 @@ The workspace occupies the viewport and divides navigation, research body, and e
 
 The Report tab keeps the two-column left rail occupied by a vertical contents list. Task navigation opens over that rail without moving or resizing the research body. Papers and Run details use the ordinary collapsible task rail; returning to Report restores contents. The contents list scrolls independently and shares stable heading IDs with the document. Locked language controls and the shared task header's query subtitle and ID are omitted.
 
+Report prose uses a horizontally centered reading block with a maximum width of 75ch; text inside remains left aligned. The stage rail is hidden throughout the report page, including Papers, Run details, loading and errors. Normal report reading retains the follow-up control. Report Zen uses the full grid and displays only Report/Papers tabs, the active reading content and Exit Zen; the title/summary/export tools, side regions, run details and conversation are hidden. Its temporary tab selection does not change the normal view. Exiting restores the normal tab, scroll position and draft; papers selected while reading remain selected. Live-research Zen continues to show stage progress and automatically switches to report reading when a result becomes available.
+
 The grid governs recurring alignment; a surface's particular composition remains in its surface brief. Welcome, menu, and composer use full-width ruled headers. History rows and settings sections align their labels, content, metadata, and actions by inherited columns.
 
 The spacing scale is recorded in frontmatter. Small steps organize labels and controls; larger steps separate sections and establish page breathing room. Regions scroll internally where the viewport is fixed. Long user text wraps inside regions instead of pushing neighboring columns out of alignment.
@@ -277,7 +279,7 @@ Left-aligned links use numbered indexes where order matters. Ruled rows change t
 
 ### Seven-Stage Rail
 
-Seven numbered stages occupy the inherited grid. Each item pairs a bold number with a functional state icon, a stage name, and metadata. Running and failed stages use red; the running stage also changes its top rule to red. Interactive items expose hover and focus states. The rail stays attached to the workspace composer while the main content scrolls.
+Seven numbered stages occupy the inherited grid. Each item pairs a bold number with a functional state icon, a stage name, and metadata. Running and failed stages use red; the running stage also changes its top rule to red. Interactive items expose hover and focus states. During live research, the rail stays attached to the workspace composer while the main content scrolls. Report pages omit this rail.
 
 ### Report / Evidence Controls
 

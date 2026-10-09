@@ -109,7 +109,25 @@ async function mockReport(page: Page, locale: "en" | "zh-CN") {
         ),
     });
   });
-  return { snapshot, repeated, id };
+  return { snapshot, repeated, id, report };
+}
+
+async function expectCenteredReport(page: Page) {
+  const document = page.locator(".report-document");
+  await expect(document).toBeVisible();
+  await expect(document).toHaveCSS("text-align", "left");
+  const geometry = await document.evaluate((element) => {
+    const body = element.parentElement!.getBoundingClientRect();
+    const prose = element.getBoundingClientRect();
+    return {
+      left: prose.left - body.left,
+      right: body.right - prose.right,
+      width: prose.width,
+      maximum: parseFloat(getComputedStyle(element).maxWidth),
+    };
+  });
+  expect(Math.abs(geometry.left - geometry.right)).toBeLessThan(2);
+  expect(geometry.width).toBeLessThanOrEqual(geometry.maximum + 1);
 }
 
 for (const locale of ["en", "zh-CN"] as const) {
@@ -120,6 +138,9 @@ for (const locale of ["en", "zh-CN"] as const) {
     const { snapshot, repeated, id } = await mockReport(page, locale);
     const chinese = locale === "zh-CN";
     const labels = {
+      stages: chinese ? "阶段详情" : "Stage detail",
+      synthesis: chinese ? "研究综合报告" : "Research synthesis",
+      export: chinese ? "导出报告" : "Export report",
       toc: chinese ? "本页内容" : "On this page",
       tasks: chinese ? "任务导航" : "Task navigation",
       expand: chinese ? "展开任务侧栏" : "Expand task sidebar",
@@ -142,6 +163,11 @@ for (const locale of ["en", "zh-CN"] as const) {
         ),
       )
       .toBe(1);
+    await expect(
+      page.getByRole("navigation", { name: labels.stages }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: labels.enterZen }).click();
+    await expect(page.getByTestId("task-zen-view")).toBeVisible();
     snapshot.status = "completed";
     snapshot.last_sequence = 1;
     await page.evaluate(
@@ -151,6 +177,14 @@ for (const locale of ["en", "zh-CN"] as const) {
         ).finishReport(taskId),
       id,
     );
+    await expect(
+      page.getByRole("tablist", { name: labels.views }).getByRole("tab"),
+    ).toHaveCount(2);
+    await expect(page.getByTestId("task-zen-view")).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: labels.exitZen }),
+    ).toBeFocused();
+    await page.getByRole("button", { name: labels.exitZen }).click();
     const toc = page.getByRole("navigation", { name: labels.toc });
     const tasks = page.getByRole("complementary", { name: labels.tasks });
     const main = page.getByRole("main");
@@ -173,6 +207,10 @@ for (const locale of ["en", "zh-CN"] as const) {
     const railBox = (await toc.boundingBox())!;
     expect(railBox.x + railBox.width).toBeLessThan(bodyBox.x);
     await page.evaluate(() => document.fonts.ready);
+    await expectCenteredReport(page);
+    await expect(
+      page.getByRole("navigation", { name: labels.stages }),
+    ).toHaveCount(0);
     await page.screenshot({
       path: test.info().outputPath(`report-directory-${locale}.png`),
       animations: "disabled",
@@ -232,12 +270,18 @@ for (const locale of ["en", "zh-CN"] as const) {
 
     const tabs = page.getByRole("tablist", { name: labels.views });
     await tabs.getByRole("tab", { name: labels.papers, exact: true }).click();
+    await expect(
+      page.getByRole("navigation", { name: labels.stages }),
+    ).toHaveCount(0);
     await expect(toc).toHaveCount(0);
     await expect(tasks).toBeVisible();
     await page.getByRole("button", { name: labels.collapse }).click();
     await expect(tasks).toHaveCount(0);
     await page.getByRole("button", { name: labels.expand }).click();
     await tabs.getByRole("tab", { name: labels.run, exact: true }).click();
+    await expect(
+      page.getByRole("navigation", { name: labels.stages }),
+    ).toHaveCount(0);
     await expect(tasks).toBeVisible();
     await tabs.getByRole("tab", { name: labels.report, exact: true }).click();
     await expect(toc).toBeVisible();
@@ -251,10 +295,55 @@ for (const locale of ["en", "zh-CN"] as const) {
     await input.fill("Keep my question while toggling navigation.");
     await page.getByRole("button", { name: labels.expand }).click();
     await page.getByRole("button", { name: labels.collapse }).click();
+    const scroll = page.getByTestId("task-scroll-region");
+    await scroll.evaluate((element) => {
+      element.scrollTop = 360;
+    });
+    await expect
+      .poll(() => scroll.evaluate((element) => element.scrollTop))
+      .toBe(360);
     await page.getByRole("button", { name: labels.enterZen }).click();
     await expect(toc).toBeHidden();
+    await expect(page.getByTestId("task-zen-view")).toHaveCount(0);
+    await expect(page.getByTestId("followup-composer")).toBeHidden();
+    await expect(
+      page.getByRole("heading", { name: labels.synthesis, exact: true }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: labels.export, exact: true }),
+    ).toHaveCount(0);
+    await expect(tabs.getByRole("tab")).toHaveCount(2);
+    await expect(
+      page.getByRole("button", { name: labels.exitZen }),
+    ).toBeFocused();
+    await expectCenteredReport(page);
+    await page.screenshot({
+      path: test.info().outputPath(`report-zen-${locale}.png`),
+      animations: "disabled",
+    });
+    await tabs.getByRole("tab", { name: labels.papers, exact: true }).click();
+    await expect(
+      page.getByRole("complementary", {
+        name: chinese ? "上下文面板" : "Context panel",
+      }),
+    ).toHaveCount(0);
     await page.getByRole("button", { name: labels.exitZen }).click();
     await expect(toc).toBeVisible();
+    await expect(tabs.getByRole("tab")).toHaveCount(3);
+    await expect(
+      tabs.getByRole("tab", { name: labels.report, exact: true }),
+    ).toHaveAttribute("aria-selected", "true");
+    await expect(
+      page.getByRole("button", { name: labels.enterZen }),
+    ).toBeFocused();
+    await expect
+      .poll(() => scroll.evaluate((element) => element.scrollTop))
+      .toBe(360);
+    await page.getByRole("button", { name: labels.enterZen }).click();
+    await page.keyboard.press("Escape");
+    await expect(
+      page.getByRole("button", { name: labels.enterZen }),
+    ).toBeFocused();
     await expect(input).toHaveValue(
       "Keep my question while toggling navigation.",
     );
@@ -292,5 +381,140 @@ for (const locale of ["en", "zh-CN"] as const) {
         { timeout: 1000 },
       );
     }).toPass({ timeout: 15_000, intervals: [500, 1000] });
+  });
+}
+
+test("report Zen retains paper inspection and restores the normal tab", async ({
+  page,
+}) => {
+  const { snapshot, id, report } = await mockReport(page, "en");
+  snapshot.status = "completed";
+  report.papers = [
+    {
+      paper_id: "paper-1",
+      title: "Paper one",
+      source: "arxiv",
+      source_id: "demo-paper",
+      authors: ["Researcher"],
+      abstract: "Paper abstract",
+      selected: true,
+      full_text_status: "abstract_only",
+      pdf_url: "https://example.com/paper.pdf",
+    },
+  ];
+  const columns = Array.from(
+    { length: 24 },
+    (_, index) => `Benchmark ${index + 1}`,
+  );
+  report.report_markdown += `\n\n| ${columns.join(" | ")} |\n| ${columns.map(() => "---").join(" | ")} |\n| ${columns.map(() => "Long measurement").join(" | ")} |`;
+  await page.goto(`/en/research/${id}`);
+  await page.evaluate(() => document.fonts.ready);
+  await expectCenteredReport(page);
+  const table = page.getByRole("table");
+  expect(
+    await table.evaluate(
+      (element) =>
+        element.parentElement!.scrollWidth > element.parentElement!.clientWidth,
+    ),
+  ).toBe(true);
+  const tabs = page.getByRole("tablist", { name: "Research views" });
+  await tabs.getByRole("tab", { name: "Run details", exact: true }).click();
+  await page.getByRole("button", { name: "Enter Zen mode" }).click();
+  await expect(
+    tabs.getByRole("tab", { name: "Report", exact: true }),
+  ).toHaveAttribute("aria-selected", "true");
+  await expectCenteredReport(page);
+  await tabs.getByRole("tab", { name: "Papers (1)", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Paper: Paper one", exact: true })
+    .click();
+  await expect(
+    page
+      .getByRole("main")
+      .getByRole("heading", { name: "Paper one", level: 2 }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Open PDF", exact: true }),
+  ).toHaveAttribute("href", "https://example.com/paper.pdf");
+  await page.screenshot({
+    path: test.info().outputPath("report-zen-papers.png"),
+    animations: "disabled",
+  });
+  await page.getByRole("button", { name: "Exit Zen mode" }).click();
+  await expect(
+    tabs.getByRole("tab", { name: "Run details", exact: true }),
+  ).toHaveAttribute("aria-selected", "true");
+  await tabs.getByRole("tab", { name: "Papers (1)", exact: true }).click();
+  await expect(
+    page
+      .getByRole("main")
+      .getByRole("heading", { name: "Paper one", level: 2 }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Enter Zen mode" }).click();
+  await expect(
+    tabs.getByRole("tab", { name: "Papers (1)", exact: true }),
+  ).toHaveAttribute("aria-selected", "true");
+  await tabs.getByRole("tab", { name: "Report", exact: true }).click();
+  await page.keyboard.press("Escape");
+  await expect(
+    tabs.getByRole("tab", { name: "Papers (1)", exact: true }),
+  ).toHaveAttribute("aria-selected", "true");
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(1366);
+});
+
+for (const state of ["loading", "error"] as const) {
+  test(`report ${state} hides the stage rail and can exit Zen`, async ({
+    page,
+  }) => {
+    const { snapshot, id, report } = await mockReport(page, "en");
+    snapshot.status = "completed";
+    let releaseResult!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      releaseResult = resolve;
+    });
+    await page.route(`**/api/v1/research/tasks/${id}/result`, async (route) => {
+      if (state === "loading") await gate;
+      await route.fulfill(
+        state === "loading"
+          ? { json: report }
+          : { status: 500, json: { detail: "Fixture report unavailable" } },
+      );
+    });
+    try {
+      await page.goto(`/en/research/${id}`);
+      await expect(page.locator("[data-sidebar][data-report]")).toHaveAttribute(
+        "data-report",
+        "true",
+      );
+      if (state === "error")
+        await expect(
+          page.getByTestId("task-scroll-region").getByRole("alert"),
+        ).toBeVisible();
+      await expect(
+        page.getByRole("navigation", { name: "Stage detail" }),
+      ).toHaveCount(0);
+      await page.getByRole("button", { name: "Enter Zen mode" }).click();
+      await expect(
+        page.getByRole("button", { name: "Exit Zen mode" }),
+      ).toBeFocused();
+      await expect(page.getByTestId("followup-composer")).toBeHidden();
+      await expect(page.getByTestId("task-scroll-region")).toBeVisible();
+      await page.keyboard.press("Escape");
+      await expect(
+        page.getByRole("button", { name: "Enter Zen mode" }),
+      ).toBeFocused();
+      await expect(page.getByTestId("followup-composer")).toBeVisible();
+      await expect(
+        page.getByRole("navigation", { name: "Stage detail" }),
+      ).toHaveCount(0);
+    } finally {
+      releaseResult();
+    }
+    if (state === "loading")
+      await expect(
+        page.getByRole("heading", { name: "Research synthesis", exact: true }),
+      ).toBeVisible();
   });
 }

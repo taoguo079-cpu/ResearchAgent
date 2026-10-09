@@ -27,6 +27,29 @@
   row-gap: 16px;
   padding-bottom: 24px;
 }
+.header[hidden] {
+  display: none;
+}
+
+.readingToolbar {
+  display: grid;
+  grid-template-columns: subgrid;
+  align-items: start;
+}
+.readingToolbar .tabs {
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+.exitZen {
+  grid-column: -4 / -1;
+  grid-row: 1;
+  justify-self: end;
+  min-height: 40px;
+  gap: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-page);
+  color: var(--color-text);
+}
 .header > div:first-child {
   display: contents;
 }
@@ -115,6 +138,12 @@
 
 .readingBody {
   min-width: 0;
+}
+
+.readingBody > :global(.report-document) {
+  width: 100%;
+  margin-inline: auto;
+  text-align: left;
 }
 
 .readingBody > * + * {
