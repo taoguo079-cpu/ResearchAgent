@@ -11,13 +11,16 @@ cd ResearchAgent
 
 ## 启动
 
-在本仓库根目录执行（不要覆盖已有 .env）：
+安装 Python 3.11 或更新版本（推荐 3.12，安装时启用 Python Launcher 或加入 PATH）和 Node.js 20.9 或更新版本后，双击仓库根目录的 `ResearchAgent-启动.bat`。
+
+首次启动会自动创建 `.venv`、安装 `requirements.txt` 和前端依赖，并在 `.env` 不存在时从 `.env.example` 创建；准备成功后自动启动服务。首次安装需要联网，安装进度显示在启动窗口中。
+
+后续启动会跳过已完成的安装；Python 或前端依赖清单内容变化时自动重新安装对应依赖，删除 `.venv` 或 `web/node_modules` 后也会重新准备。安装失败会停止启动，解决网络等问题后再次双击即可重试。已有 `.env` 不会被覆盖。
+
+也可以在本仓库根目录通过 PowerShell 准备并启动：
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-npm --prefix web ci
-if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/prepare_agent.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start_agent.ps1
 ```
 
