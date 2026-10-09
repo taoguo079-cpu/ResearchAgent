@@ -49,10 +49,10 @@ const snapshot: TaskSnapshotResponse = {
 
 type StreamMetrics = { created: number; active: number; peak: number };
 
-async function mockRunningResearch(page: Page) {
+async function mockRunningResearch(page: Page, taskSnapshot = snapshot) {
   await mockEntryBackend(page);
   await page.route(`**/api/v1/research/tasks/${taskId}`, (route) =>
-    route.fulfill({ json: snapshot }),
+    route.fulfill({ json: taskSnapshot }),
   );
   await page.route(`**/api/v1/research/tasks/${taskId}/messages`, (route) =>
     route.fulfill({
@@ -120,6 +120,77 @@ function streamMetrics(page: Page) {
   );
 }
 
+test("Chinese progress and the published plan update live and survive a refresh", async ({
+  page,
+}) => {
+  const restored: TaskSnapshotResponse = {
+    ...snapshot,
+    effective_locale: "zh-CN",
+    current_stage: "search",
+    statistics: {},
+    stages: [{ stage: "search", status: "running", attempt: 1, detail: null }],
+    replay_events: [
+      {
+        ...snapshot.replay_events![0],
+        payload: {
+          steps: [
+            {
+              display_query: "比较多来源检索的证据",
+              retrieval_query: "multi-source retrieval evidence",
+            },
+            { sub_query: "分析现有方法的局限" },
+          ],
+        },
+      },
+    ],
+  };
+  await mockRunningResearch(page, restored);
+  await page.goto(`/research/${taskId}`);
+  const hero = page.getByTestId("task-stage-hero");
+  const progress = "已从所选学术来源检索到 12 篇论文。";
+  await expect(hero).toContainText("正在所选学术来源中检索相关论文。");
+  const update = {
+    schema_version: 1,
+    task_id: taskId,
+    sequence: 13,
+    event_type: "stage.progress",
+    stage: "search",
+    level: "info",
+    occurred_at: "2026-10-09T00:00:00Z",
+    payload: { counts: { raw_papers: 12 } },
+  };
+  await expect.poll(async () => (await streamMetrics(page)).active).toBe(1);
+  await page.evaluate((event) => {
+    (
+      window as unknown as {
+        dispatchResearchEvent: (event: Record<string, unknown>) => void;
+      }
+    ).dispatchResearchEvent(event);
+  }, update);
+  const stage = page.getByTestId("current-stage-details");
+  await stage.locator("summary").click();
+  await expect(stage).toContainText(progress);
+  const plan = page.getByTestId("research-plan-details");
+  await plan.locator("summary").click();
+  await expect(plan.getByRole("listitem")).toHaveCount(2);
+  await expect(plan).toContainText("比较多来源检索的证据");
+  await expect(hero).not.toContainText("研究 Agent 会在此发布进度。");
+  await expect(plan).not.toContainText("规划 Agent 发布计划后");
+  await page.evaluate(() => document.fonts.ready);
+  await page.screenshot({
+    path: test.info().outputPath("research-progress-zh.png"),
+    animations: "disabled",
+  });
+  restored.replay_events!.push(update);
+  restored.last_sequence = 13;
+  await page.reload();
+  await expect(hero).toContainText(progress);
+  await plan.locator("summary").click();
+  await expect(plan).toContainText("比较多来源检索的证据");
+  await expect(plan).toContainText("分析现有方法的局限");
+  await expect.poll(async () => (await streamMetrics(page)).active).toBe(1);
+});
+
 test("folded follow-up and Zen preserve the draft and the task stream", async ({
   page,
 }) => {
@@ -149,10 +220,7 @@ test("folded follow-up and Zen preserve the draft and the task stream", async ({
   ).toBeVisible();
   for (const [name, content] of [
     ["Select", "Selecting the most relevant attention research."],
-    [
-      "Research plan",
-      "The plan will appear when the orchestrator publishes it.",
-    ],
+    ["Research plan", "Compare efficient attention methods"],
   ]) {
     const detail = page.locator("details").filter({
       has: page.locator("summary", { hasText: new RegExp(`^${name}$`) }),

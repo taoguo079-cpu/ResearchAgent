@@ -1,6 +1,7 @@
 import { parseResearchEvent } from "@/lib/events/schemas";
 import {
   RESEARCH_STAGES,
+  STAGE_COUNT_METRICS,
   type EventPayload,
   type ResearchEvent,
   type ResearchStage,
@@ -32,6 +33,7 @@ export function createInitialReplayState(taskId: string): ReplayState {
 
   return {
     agentTrace: [],
+    researchPlan: [],
     taskId,
     lastSequence: 0,
     taskStatus: "queued",
@@ -147,6 +149,12 @@ function applyEvent(state: ReplayState, event: ResearchEvent): ReplayState {
       break;
     case "stage.started":
       updateStage(next, event, "running");
+      if (event.stage && event.stage in STAGE_COUNT_METRICS) {
+        for (const key of STAGE_COUNT_METRICS[
+          event.stage as keyof typeof STAGE_COUNT_METRICS
+        ])
+          delete next.metrics[key];
+      }
       break;
     case "stage.progress":
       updateStage(next, event, "running");
@@ -158,6 +166,13 @@ function applyEvent(state: ReplayState, event: ResearchEvent): ReplayState {
       break;
     case "stage.completed":
       updateStage(next, event, "completed");
+      if (event.stage === "orchestrate") {
+        const legacy = event.payload.legacy;
+        if (legacy && typeof legacy === "object" && "sub_queries" in legacy) {
+          const plan = normalizePlan(legacy.sub_queries);
+          if (plan.length) next.researchPlan = plan;
+        }
+      }
       break;
     case "stage.failed":
       updateStage(next, event, "failed");
@@ -165,6 +180,9 @@ function applyEvent(state: ReplayState, event: ResearchEvent): ReplayState {
       break;
     case "plan.available":
       next.artifacts.planAvailable = true;
+      if (Array.isArray(event.payload.steps)) {
+        next.researchPlan = normalizePlan(event.payload.steps);
+      }
       break;
     case "papers.discovered":
       next.artifacts.papersDiscovered = true;
@@ -211,7 +229,16 @@ function updateStage(
 ): void {
   if (!event.stage) return;
   const previous = state.stages[event.stage];
-  const current = event.event_type === "stage.started" ? {...previous, startedAt: null, completedAt: null, durationMs: null, detail: null} : previous;
+  const current =
+    event.event_type === "stage.started"
+      ? {
+          ...previous,
+          startedAt: null,
+          completedAt: null,
+          durationMs: null,
+          detail: null,
+        }
+      : previous;
   const attempt = numberValue(event.payload.attempt) ?? current.attempt;
   state.currentStage = event.stage;
   state.stages[event.stage] = {
@@ -237,19 +264,48 @@ function updateStage(
 
 function mergeMetrics(state: ReplayState, payload: EventPayload): void {
   if (state.currentStage === "read" && typeof payload.total === "number") {
-    for (const key of ["total", "completed", "succeeded", "degraded", "failed"]) {
+    for (const key of [
+      "total",
+      "completed",
+      "succeeded",
+      "degraded",
+      "failed",
+    ]) {
       setCount(state, `read_${key}`, payload[key]);
     }
   }
-  const metrics = payload.metrics;
-  if (!metrics || typeof metrics !== "object" || Array.isArray(metrics)) return;
-  for (const [key, value] of Object.entries(metrics)) {
-    if (typeof value === "number" && Number.isFinite(value)) {
-      state.metrics[key] = key === "papersRead"
-        ? Math.max(state.metrics[key] ?? 0, value)
-        : value;
+  for (const metrics of [payload.counts, payload.metrics]) {
+    if (!metrics || typeof metrics !== "object" || Array.isArray(metrics))
+      continue;
+    for (const [key, value] of Object.entries(metrics)) {
+      if (typeof value === "number" && Number.isFinite(value)) {
+        state.metrics[key] =
+          key === "papersRead"
+            ? Math.max(state.metrics[key] ?? 0, value)
+            : value;
+      }
     }
   }
+}
+
+function normalizePlan(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item: unknown) => {
+    if (typeof item === "string") return item.trim() ? [item.trim()] : [];
+    if (!item || typeof item !== "object") return [];
+    for (const key of [
+      "display_query",
+      "sub_query",
+      "title",
+      "retrieval_query",
+    ]) {
+      if (key in item) {
+        const text = (item as Record<string, unknown>)[key];
+        if (typeof text === "string" && text.trim()) return [text.trim()];
+      }
+    }
+    return [];
+  });
 }
 
 function setCount(state: ReplayState, key: string, value: unknown): void {

@@ -40,6 +40,7 @@ test("remaining workspace pages keep the entry identity and usable desktop layou
   await expect(
     page.getByRole("heading", { name: "Research synthesis", exact: true }),
   ).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByText(/Quality review|Final critic review|Critic attempt/i)).toHaveCount(0);
   await capture("report");
   const composerBox = await page.getByTestId("followup-composer").boundingBox();
   const contentBox = await page.getByTestId("task-scroll-region").boundingBox();

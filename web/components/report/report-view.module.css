@@ -196,14 +196,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-.review {
-  border-radius: 12px;
-  background: var(--color-surface-subtle);
-  padding: 16px 20px;
-  color: var(--color-text-muted);
-  font-size: 13px;
-  line-height: 1.8;
-}
 
 .export {
   position: relative;

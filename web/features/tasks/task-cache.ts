@@ -3,6 +3,7 @@ import { replaceEqualDeep } from "@tanstack/react-query";
 import { replayEvents } from "@/lib/events/reducer";
 import {
   RESEARCH_STAGES,
+  STAGE_COUNT_METRICS,
   type ReplayState,
   type ResearchStage,
   type StageStatus,
@@ -38,7 +39,17 @@ export function snapshotToReplayState(
     "interrupted",
   ].includes(snapshot.status);
   for (const [key, value] of Object.entries(snapshot.statistics ?? {})) {
-    if (typeof value === "number" && Number.isFinite(value))
+    const metricStage = Object.entries(STAGE_COUNT_METRICS).find(([, keys]) =>
+      keys.includes(key),
+    )?.[0];
+    const hasStageEvents =
+      metricStage &&
+      snapshot.replay_events?.some(
+        (event) =>
+          event.stage === metricStage &&
+          String(event.event_type).startsWith("stage."),
+      );
+    if (typeof value === "number" && Number.isFinite(value) && !hasStageEvents)
       state.metrics[key] = value;
   }
   for (const stage of snapshot.stages ?? []) {
@@ -49,7 +60,7 @@ export function snapshotToReplayState(
       startedAt: stage.started_at ?? null,
       completedAt: stage.completed_at ?? null,
       durationMs: stage.duration_ms ?? null,
-      detail: stage.detail ?? null,
+      detail: stage.detail ?? state.stages[stageName].detail,
       attempt: stage.attempt ?? 1,
     };
   }
@@ -81,7 +92,16 @@ export function replayStateToSnapshot(
       : state.taskStatus === "cancelling" ? [] : ["cancel"],
     current_stage: state.currentStage,
     last_sequence: Math.max(snapshot.last_sequence, state.lastSequence),
-    statistics: { ...snapshot.statistics, ...state.metrics },
+    statistics: {
+      ...Object.fromEntries(
+        Object.entries(snapshot.statistics ?? {}).filter(
+          ([key]) =>
+            !Object.values(STAGE_COUNT_METRICS).flat().includes(key) ||
+            key in state.metrics,
+        ),
+      ),
+      ...state.metrics,
+    },
     stages: RESEARCH_STAGES.map((stage) => {
       const current = state.stages[stage];
       return {

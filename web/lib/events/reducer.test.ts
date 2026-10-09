@@ -161,6 +161,52 @@ describe("research event replay reducer", () => {
     expect(state.stages.critic.attempt).toBe(2);
   });
 
+  it("retains plans from live events and legacy orchestration completion", () => {
+    const state = replayEvents(taskId, [
+      event("plan.available", 1, {
+        steps: [
+          "First angle",
+          { title: "Second angle" },
+          null,
+          { display_query: "Visible angle", retrieval_query: "Internal query" },
+          { sub_query: "Older angle" },
+          { title: "   " },
+        ],
+      }),
+    ]);
+    expect(state.researchPlan).toEqual([
+      "First angle",
+      "Second angle",
+      "Visible angle",
+      "Older angle",
+    ]);
+    const legacy = reduceResearchEvent(
+      state,
+      event(
+        "stage.completed",
+        2,
+        { legacy: { sub_queries: ["Revised angle"] } },
+        { stage: "orchestrate" },
+      ),
+    );
+    expect(legacy.state.researchPlan).toEqual(["Revised angle"]);
+    expect(state.researchPlan).toHaveLength(4);
+  });
+
+  it("retains counts from real runner events and clears old counts on another attempt", () => {
+    const state = replayEvents(taskId, [
+      event(
+        "stage.progress",
+        1,
+        { counts: { raw_papers: 12 }, metrics: { papersDiscovered: 12 } },
+        { stage: "search" },
+      ),
+      event("stage.started", 2, { attempt: 2 }, { stage: "search" }),
+    ]);
+    expect(state.metrics.raw_papers).toBeUndefined();
+    expect(state.metrics.papersDiscovered).toBeUndefined();
+  });
+
   it.each([
     ["task.completed", "completed"],
     ["task.failed", "failed"],

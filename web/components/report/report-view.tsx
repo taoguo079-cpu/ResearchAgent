@@ -9,7 +9,6 @@ import { ExportMenu } from "@/components/report/export-menu";
 import { ReportDocument } from "@/components/report/report-document";
 import { ReportSummary } from "@/components/report/report-summary";
 import { ReportToc } from "@/components/report/report-toc";
-import { QualityReview } from "@/components/report/quality-review";
 import { AgentReplay } from "@/components/replay/agent-replay";
 import { InlineAlert } from "@/components/ui/inline-alert";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -29,8 +28,6 @@ const statisticLabels = {
   selected_papers_count: "report.statistics.selectedPapersCount",
   paper_insights_count: "report.statistics.paperInsightsCount",
   papers_read: "report.statistics.papersRead",
-  critique_score: "report.statistics.critiqueScore",
-  critique_round: "report.statistics.critiqueRound",
   paper_claims_count: "report.statistics.paperClaimsCount",
   analysis_findings_count: "report.statistics.analysisFindingsCount",
   duration_ms: "report.statistics.durationMs",
@@ -108,7 +105,6 @@ export function ReportView({
           <div className={styles.readingLayout}>
             <ReportToc headings={headingIndex.headings} />
             <div className={styles.readingBody}>
-              <QualityReview result={result} />
               <ReportDocument
                 markdown={result.report_markdown}
                 headingIndex={headingIndex}
@@ -142,20 +138,29 @@ export function ReportView({
           <section className={styles.run}>
             <h2>{t("report.runTab")}</h2>
             <dl className={styles.statistics}>
-              {Object.entries(result.statistics ?? {}).map(([key, value]) => (
-                <div key={key} className={styles.statistic}>
-                  <dt>
-                    {key in statisticLabels
-                      ? t(statisticLabels[key as keyof typeof statisticLabels])
-                      : key}
-                  </dt>
-                  <dd>
-                    {typeof value === "string" || typeof value === "number"
-                      ? String(value)
-                      : t("common.notAvailable")}
-                  </dd>
-                </div>
-              ))}
+              {Object.entries(result.statistics ?? {})
+                .filter(
+                  ([key]) =>
+                    !["critique_score", "critique_round"].includes(key),
+                )
+                .map(([key, value]) => (
+                  <div key={key} className={styles.statistic}>
+                    <dt>
+                      {key in statisticLabels
+                        ? t(
+                            statisticLabels[
+                              key as keyof typeof statisticLabels
+                            ],
+                          )
+                        : key}
+                    </dt>
+                    <dd>
+                      {typeof value === "string" || typeof value === "number"
+                        ? String(value)
+                        : t("common.notAvailable")}
+                    </dd>
+                  </div>
+                ))}
             </dl>
             <details className={styles.replayDisclosure}>
               <summary>{t("report.runReplay")}</summary>

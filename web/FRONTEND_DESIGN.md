@@ -101,3 +101,7 @@ This task revision passed that one browser scenario, one strict asset validation
 The desktop capture workflow is `e2e/workspace-design.spec.ts`; evidence is stored in `../.impeccable/review/`, including selected evidence and expanded replay. Validation passed: 226 unit/component tests, 28 browser tests across the relevant suites, TypeScript, ESLint, translation parity, and the final production build. Changed-file Prettier checks passed; repository-wide `format:check` still reports existing unrelated warnings.
 
 The Impeccable context and detector launchers were each attempted once and returned `cache_directory_failed`; those tools were unavailable. A fresh independent review identified overlap, an opaque dark-theme preview, pending-versus-legacy evidence copy, and primary-label contrast issues. Its final ship verdict confirmed all four fixes as resolved, with no observed regressions from that fix batch. This verdict is scoped to those four findings and the supplemental selected-evidence and expanded-replay captures.
+
+## Report and progress update — 2026-10-09
+
+Quality review results, review warnings and critique scores are no longer displayed on the report page. Stage details use saved event descriptions, stage-specific messages and paper counts. The research plan lists the published search angles and survives a refresh. The existing main-branch layout, robot, theme and typography are retained.

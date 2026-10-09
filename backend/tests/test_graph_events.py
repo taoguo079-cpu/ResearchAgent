@@ -9,6 +9,8 @@ from backend.domain.errors import ResearchPipelineError
 from backend.services.event_recorder import EventRecorder
 from backend.services.run_context import ResearchRunContext
 from backend.services.task_runner import TaskRunner
+from backend.agents.instrumentation import instrument
+from backend.config import settings
 
 
 class RecordingSink:
@@ -124,3 +126,20 @@ async def test_run_context_cancellation_is_checked_between_nodes() -> None:
 
     with pytest.raises(asyncio.CancelledError):
         context.raise_if_cancelled()
+
+
+@pytest.mark.asyncio
+async def test_orchestration_publishes_visible_plan_steps_without_credentials(monkeypatch) -> None:
+    monkeypatch.setattr(settings, "deepseek_api_key", "private-test-key")
+    sink = RecordingSink()
+    context = ResearchRunContext(task_id="task-1", event_recorder=sink, cancel_event=asyncio.Event())
+
+    async def plan(state):
+        return {"research_plan": [
+            {"display_query": "比较科研证据", "retrieval_query": "Compare scientific evidence"},
+            {"sub_query": "Limitations private-test-key"},
+        ]}
+
+    await instrument(plan, "orchestrate", context)({})
+    event = next(item for item in sink.events if item["event_type"] == EventType.PLAN_AVAILABLE)
+    assert event["payload"] == {"count": 2, "attempt": 1, "steps": ["比较科研证据", "Limitations [redacted]"]}

@@ -14,10 +14,6 @@ export function ReportSummary({
     typeof result.statistics?.papers_read === "number"
       ? result.statistics.papers_read
       : (result.papers?.length ?? 0);
-  const criticAttempt =
-    typeof result.critique?.attempt === "number"
-      ? result.critique.attempt
-      : null;
 
   return (
     <div className={styles.summary}>
@@ -27,14 +23,6 @@ export function ReportSummary({
           <FileWarning aria-hidden="true" className="h-3.5 w-3.5" />{" "}
           {t("partialResult")}
         </span>
-      ) : null}
-      {result.warnings?.includes("CRITIQUE_NOT_APPROVED") ? (
-        <span className="text-[var(--color-warning)]">
-          {t("critiqueNotApproved")}
-        </span>
-      ) : null}
-      {criticAttempt ? (
-        <span>{t("criticAttempt", { attempt: criticAttempt })}</span>
       ) : null}
     </div>
   );

@@ -51,7 +51,7 @@ export function TaskStageHero({ state }: { state: ReplayState }) {
             <span>{t("researchPlan")}</span>
             <ChevronDown aria-hidden="true" />
           </summary>
-          <ResearchPlan />
+          <ResearchPlan state={state} />
         </details>
       </div>
     </section>

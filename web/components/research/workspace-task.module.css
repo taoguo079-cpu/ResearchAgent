@@ -151,6 +151,20 @@
   line-height: 1.8;
 }
 
+.planSteps {
+  max-width: 65ch;
+  margin: 0;
+  padding-inline-start: 24px;
+  list-style: decimal;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.planSteps li + li {
+  margin-top: 12px;
+}
+
 .scrollRegion {
   min-width: 0;
   min-height: 0;
