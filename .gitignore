@@ -62,3 +62,6 @@ data/
 /artifacts/
 /web/artifacts/
 /.impeccable/review/
+
+# Machine-specific Windows shortcuts
+/*.lnk
