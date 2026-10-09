@@ -61,3 +61,6 @@ data/
 /web/public/pets/research-bot/qa/
 /artifacts/
 /web/artifacts/
+
+# Machine-specific Windows shortcuts
+/*.lnk
