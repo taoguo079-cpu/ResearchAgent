@@ -64,19 +64,30 @@ test("remaining workspace pages keep the entry identity and usable desktop layou
   const columnWidth = (1270 - 24 * 11) / 12;
   const spanWidth = (span: number) => columnWidth * span + 24 * (span - 1);
   expect((await main.boundingBox())!.width).toBeCloseTo(spanWidth(7), 0);
+  await expect(
+    page.getByRole("navigation", { name: "On this page" }),
+  ).toBeVisible();
+  await expect(shell).toHaveAttribute("data-sidebar", "closed");
+  await page.getByRole("button", { name: "Expand task sidebar" }).click();
+  await expect(
+    page.getByRole("complementary", { name: "Task navigation" }),
+  ).toBeVisible();
+  expect((await main.boundingBox())!.width).toBeCloseTo(spanWidth(7), 0);
+  await capture("report-task-overlay");
   await page.getByRole("button", { name: "Collapse task sidebar" }).click();
   await expect(shell).toHaveAttribute("data-sidebar", "closed");
-  expect((await main.boundingBox())!.width).toBeCloseTo(spanWidth(9), 0);
+  expect((await main.boundingBox())!.width).toBeCloseTo(spanWidth(7), 0);
   await capture("report-navigation-collapsed");
   await page.getByRole("button", { name: "Collapse context panel" }).click();
   await expect(shell).toHaveAttribute("data-context", "closed");
-  expect((await main.boundingBox())!.width).toBeCloseTo(spanWidth(12), 0);
+  expect((await main.boundingBox())!.width).toBeCloseTo(spanWidth(10), 0);
   await capture("report-panels-collapsed");
   await page.getByRole("button", { name: "Expand task sidebar" }).click();
   expect((await main.boundingBox())!.width).toBeCloseTo(spanWidth(10), 0);
   await capture("report-evidence-collapsed");
   await page.getByRole("button", { name: "Expand context panel" }).click();
   expect((await main.boundingBox())!.width).toBeCloseTo(spanWidth(7), 0);
+  await page.getByRole("button", { name: "Collapse task sidebar" }).click();
   const composerBox = await page.getByTestId("followup-composer").boundingBox();
   const contentBox = await page.getByTestId("task-scroll-region").boundingBox();
   expect(composerBox!.y + composerBox!.height).toBeLessThanOrEqual(769);

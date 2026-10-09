@@ -219,6 +219,8 @@ Desktop acceptance is **1366 × 768**. Page canvases use outside margins (48px),
 
 The workspace occupies the viewport and divides navigation, research body, and evidence into **2 / 7 / 3 columns**. Closing navigation expands the body to **9 / 3**; closing evidence produces **2 / 10**; closing both uses all **12** columns. Focused reading hides both side regions and uses the same complete grid. The shared stream provider surrounds the layout so panel and reading-mode changes preserve the research stream.
 
+The Report tab keeps the two-column left rail occupied by a vertical contents list. Task navigation opens over that rail without moving or resizing the research body. Papers and Run details use the ordinary collapsible task rail; returning to Report restores contents. The contents list scrolls independently and shares stable heading IDs with the document. Locked language controls and the shared task header's query subtitle and ID are omitted.
+
 The grid governs recurring alignment; a surface's particular composition remains in its surface brief. Welcome, menu, and composer use full-width ruled headers. History rows and settings sections align their labels, content, metadata, and actions by inherited columns.
 
 The spacing scale is recorded in frontmatter. Small steps organize labels and controls; larger steps separate sections and establish page breathing room. Regions scroll internally where the viewport is fixed. Long user text wraps inside regions instead of pushing neighboring columns out of alignment.

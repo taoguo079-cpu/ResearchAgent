@@ -41,8 +41,7 @@ See [[CITE:paper-1]] and [the source](https://example.com/paper).
 describe("ReportView", () => {
   beforeEach(() => resetUiStore());
 
-  it("renders Markdown headings, a GFM table, a stable TOC, and safe citations", async () => {
-    const user = userEvent.setup();
+  it("renders stable Markdown headings, a GFM table, and safe citations without an inline TOC", () => {
     render(
       <Providers locale="en">
         <ReportView taskId="task-report" result={result} />
@@ -58,11 +57,9 @@ describe("ReportView", () => {
       "findings",
     );
     expect(screen.getByRole("table")).toBeInTheDocument();
-    await user.click(screen.getByText("On this page"));
-    expect(screen.getByRole("link", { name: "Overview" })).toHaveAttribute(
-      "href",
-      "#overview",
-    );
+    expect(
+      screen.queryByRole("navigation", { name: "On this page" }),
+    ).not.toBeInTheDocument();
     expect(screen.getByText("Citation: paper-1")).toBeInTheDocument();
     expect(screen.queryByText("window.__bad = true")).not.toBeInTheDocument();
   });

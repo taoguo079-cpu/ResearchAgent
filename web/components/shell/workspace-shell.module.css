@@ -21,13 +21,13 @@
   overflow: hidden;
 }
 
-.shell[data-sidebar="closed"] .main {
+.shell[data-left-rail="closed"] .main {
   grid-column: 1 / span 9;
 }
 .shell[data-context="closed"] .main {
   grid-column: 3 / span 10;
 }
-.shell[data-sidebar="closed"][data-context="closed"] .main,
+.shell[data-left-rail="closed"][data-context="closed"] .main,
 .shell[data-zen] .main {
   grid-column: 1 / -1;
 }
@@ -77,6 +77,31 @@
   gap: 8px;
   min-height: 76px;
   border-bottom: 1px solid var(--color-border);
+}
+
+.reportSidebar {
+  grid-column: 1 / span 2;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
+.reportTocSlot {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+}
+
+.reportTaskOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  background: var(--color-page);
+}
+
+.reportTaskOverlay > .sidebar {
+  width: 100%;
 }
 
 .brandName {

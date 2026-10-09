@@ -2,6 +2,8 @@
 
 Modes: Operate (workspace, form, history, settings), Read (report), with a typographic brand entry. Audience and product truth inherit PRODUCT.md. Target: web/app, related targets web/components and web/styles.
 
+Report refinement, 2026-10-09: Report contents replace the task rail with an always-open vertical list. Opening tasks covers that list in place; closing or Escape restores directory scroll and focus. Papers and Run details restore normal task navigation. Task-scoped report navigation resets on entry and refresh without changing saved live-workspace preferences. The shared task header omits its query subtitle and ID, and locked language controls are hidden. Desktop acceptance remains 1366 × 768.
+
 ## Direction contract
 
 THESIS: A research workspace whose hierarchy is explicit through typography, alignment and numbered stages.

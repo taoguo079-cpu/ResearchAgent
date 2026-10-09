@@ -18,10 +18,11 @@ export function LanguageSwitcher({ locked = false }: { locked?: boolean }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const lockedDescription = t("task.languageLocked");
+
+  if (locked) return null;
 
   function switchLocale(nextLocale: AppLocale) {
-    if (locked || nextLocale === locale) return;
+    if (nextLocale === locale) return;
     // eslint-disable-next-line react-hooks/immutability -- locale persistence is an intentional browser side effect.
     document.cookie = `${LOCALE_COOKIE}=${nextLocale}; Path=/; Max-Age=31536000; SameSite=Lax`;
     const query = searchParams.toString();
@@ -45,18 +46,11 @@ export function LanguageSwitcher({ locked = false }: { locked?: boolean }) {
           type="button"
           className="shrink-0 whitespace-nowrap px-2 py-1 text-xs font-normal text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-control-hover)] hover:text-[var(--color-page)] aria-pressed:text-[var(--color-primary)] aria-pressed:underline aria-pressed:hover:text-[var(--color-page)] disabled:cursor-not-allowed"
           aria-pressed={locale === option}
-          aria-describedby={locked ? "task-language-locked" : undefined}
-          disabled={locked}
           onClick={() => switchLocale(option)}
         >
           {labels[option]}
         </button>
       ))}
-      {locked ? (
-        <span id="task-language-locked" className="sr-only">
-          {lockedDescription}
-        </span>
-      ) : null}
     </div>
   );
 }

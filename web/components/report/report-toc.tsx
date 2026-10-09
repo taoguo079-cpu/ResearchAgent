@@ -1,21 +1,47 @@
+"use client";
+
 import { useTranslations } from "next-intl";
-import { ChevronDown } from "lucide-react";
+import { PanelLeftOpen } from "lucide-react";
 
 import type { ReportHeading } from "@/lib/markdown/report-headings";
-import type { CSSProperties } from "react";
-import styles from "./report-view.module.css";
+import type { CSSProperties, Ref } from "react";
+import { Button } from "@/components/ui/button";
+import styles from "./report-toc.module.css";
 
-export function ReportToc({ headings }: { headings: ReportHeading[] }) {
-  const t = useTranslations("report");
-  if (!headings.length) return null;
+export function ReportToc({
+  headings,
+  loading,
+  onExpandTaskSidebar,
+  expandButtonRef,
+}: {
+  headings: ReportHeading[];
+  loading: boolean;
+  onExpandTaskSidebar: () => void;
+  expandButtonRef?: Ref<HTMLButtonElement>;
+}) {
+  const t = useTranslations();
   return (
-    <nav aria-label={t("contents")} className={styles.toc}>
-      <details>
-        <summary>
-          <span>{t("contents")}</span>
-          <ChevronDown aria-hidden="true" className="h-4 w-4" />
-        </summary>
-        <ol>
+    <nav aria-label={t("report.contents")} className={styles.toc}>
+      <div className={styles.header}>
+        <Button
+          ref={expandButtonRef}
+          aria-label={t("navigation.expandTaskSidebar")}
+          aria-expanded={false}
+          aria-controls="task-sidebar"
+          onClick={onExpandTaskSidebar}
+          size="icon"
+          variant="ghost"
+        >
+          <PanelLeftOpen aria-hidden="true" className="h-4 w-4" />
+        </Button>
+        <h2>{t("report.contents")}</h2>
+      </div>
+      {loading ? (
+        <p role="status" className={styles.empty}>
+          {t("common.loading")}
+        </p>
+      ) : headings.length ? (
+        <ol className={styles.headings} data-testid="report-toc-list">
           {headings.map((heading) => (
             <li
               key={heading.id}
@@ -29,7 +55,9 @@ export function ReportToc({ headings }: { headings: ReportHeading[] }) {
             </li>
           ))}
         </ol>
-      </details>
+      ) : (
+        <p className={styles.empty}>{t("report.noContents")}</p>
+      )}
     </nav>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { PaperDetail } from "@/components/papers/paper-detail";
@@ -8,7 +8,6 @@ import { PaperList } from "@/components/papers/paper-list";
 import { ExportMenu } from "@/components/report/export-menu";
 import { ReportDocument } from "@/components/report/report-document";
 import { ReportSummary } from "@/components/report/report-summary";
-import { ReportToc } from "@/components/report/report-toc";
 import { AgentReplay } from "@/components/replay/agent-replay";
 import { InlineAlert } from "@/components/ui/inline-alert";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,6 +20,10 @@ import {
 import type { ResearchTaskResultResponse } from "@/lib/api/client";
 import { useUiStore } from "@/stores/ui-store";
 import { buildReportHeadingIndex } from "@/lib/markdown/report-headings";
+import {
+  useReportNavigation,
+  type ReportTab,
+} from "@/features/report/report-navigation";
 import styles from "./report-view.module.css";
 
 const statisticLabels = {
@@ -42,6 +45,12 @@ export function ReportView({
 }) {
   const query = useTaskResult(taskId, !providedResult);
   const result = providedResult ?? query.data;
+  const navigation = useReportNavigation();
+  const publishReport = navigation?.publishReport;
+  const clearReport = navigation?.clearReport;
+  const [localTab, setLocalTab] = useState<ReportTab>("report");
+  const activeTab = navigation?.activeTab ?? localTab;
+  const setActiveTab = navigation?.setActiveTab ?? setLocalTab;
   const headingIndex = useMemo(
     () => buildReportHeadingIndex(result?.report_markdown ?? ""),
     [result?.report_markdown],
@@ -56,6 +65,11 @@ export function ReportView({
   const [selectedPaper, setSelectedPaper] = useState<ResearchPaper | null>(
     null,
   );
+  const loading = !result && !query.isError;
+  useLayoutEffect(() => {
+    publishReport?.({ headingIndex, loading });
+  }, [publishReport, headingIndex, loading]);
+  useLayoutEffect(() => () => clearReport?.(), [clearReport]);
   const selectObject = useUiStore((state) => state.selectObject);
   const setContextTab = useUiStore((state) => state.setContextTab);
   const t = useTranslations();
@@ -92,7 +106,11 @@ export function ReportView({
         </div>
         <ExportMenu taskId={taskId} />
       </header>
-      <Tabs defaultValue="report" className={styles.tabsRoot}>
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => setActiveTab(value as ReportTab)}
+        className={styles.tabsRoot}
+      >
         <TabsList aria-label={t("report.views")} className={styles.tabs}>
           <TabsTrigger value="report" className={styles.tab}>
             {t("report.reportTab")}
@@ -106,7 +124,6 @@ export function ReportView({
         </TabsList>
         <TabsContent value="report" className={styles.content}>
           <div className={styles.readingLayout}>
-            <ReportToc headings={headingIndex.headings} />
             <div className={styles.readingBody}>
               <ReportDocument
                 markdown={result.report_markdown}

@@ -23,6 +23,7 @@
   "unverifiedCitation": "未经验证的引用",
   "citationFallback": "引用：{id}",
   "contents": "本页内容",
+  "noContents": "暂无目录。",
   "partialDescription": "这是部分结果，现有发现仍可阅读和导出。",
   "criticReview": "最终评审意见",
   "exportMenu": "导出报告",

@@ -193,65 +193,6 @@
   outline-offset: 3px;
 }
 
-.toc {
-  min-width: 0;
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: 0;
-}
-
-.toc summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  min-height: 24px;
-  color: var(--color-text);
-  font-size: 12px;
-  font-weight: 700;
-  list-style: none;
-  cursor: pointer;
-}
-.toc summary::-webkit-details-marker {
-  display: none;
-}
-.toc summary:hover {
-  color: var(--color-primary);
-}
-.toc details[open] summary svg {
-  transform: rotate(180deg);
-}
-
-.toc ol {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 22px;
-  margin-block: 12px 16px;
-}
-
-.toc li {
-  padding-left: 0 !important;
-}
-
-.toc a {
-  display: block;
-  color: var(--color-text-muted);
-  font-size: 12px;
-  line-height: 1.6;
-  text-decoration: underline;
-  text-decoration-color: var(--color-border-strong);
-  text-underline-offset: 4px;
-}
-
-.toc a:hover {
-  color: var(--color-primary);
-  text-decoration-color: currentColor;
-}
-
-.toc a:focus-visible {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 3px;
-}
-
 .summary {
   display: flex;
   flex-wrap: wrap;

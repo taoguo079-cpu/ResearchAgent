@@ -2,6 +2,7 @@
 
 import { Home, PanelLeftClose } from "lucide-react";
 import { useTranslations } from "next-intl";
+import type { Ref } from "react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useHistory } from "@/features/history/hooks/use-history";
@@ -11,7 +12,15 @@ import { Link } from "@/i18n/navigation";
 import { useUiStore } from "@/stores/ui-store";
 import styles from "./workspace-shell.module.css";
 
-export function TaskSidebar({ taskId }: { taskId?: string }) {
+export function TaskSidebar({
+  taskId,
+  onCollapse,
+  collapseButtonRef,
+}: {
+  taskId?: string;
+  onCollapse?: () => void;
+  collapseButtonRef?: Ref<HTMLButtonElement>;
+}) {
   const t = useTranslations();
   const history = useHistory(20);
   const taskQuery = useTask(taskId ?? "");
@@ -20,14 +29,16 @@ export function TaskSidebar({ taskId }: { taskId?: string }) {
 
   return (
     <aside
+      id="task-sidebar"
       aria-label={t("navigation.taskNavigation")}
       className={styles.sidebar}
     >
       <div className={styles.brand}>
         <span className={styles.brandName}>{t("common.brand")}</span>
         <Button
+          ref={collapseButtonRef}
           aria-label={t("navigation.collapseTaskSidebar")}
-          onClick={toggleTaskSidebar}
+          onClick={onCollapse ?? toggleTaskSidebar}
           size="icon"
           variant="ghost"
         >

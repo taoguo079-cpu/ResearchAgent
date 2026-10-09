@@ -8,14 +8,27 @@ import { LanguageSwitcher } from "@/components/shell/language-switcher";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTask } from "@/features/tasks/hooks/use-task";
+import { useReportNavigation } from "@/features/report/report-navigation";
 import { useUiStore } from "@/stores/ui-store";
 import styles from "./workspace-shell.module.css";
 
 export function WorkspaceHeader({ taskId }: { taskId?: string }) {
   const t = useTranslations();
-  const isTaskSidebarOpen = useUiStore((state) => state.isTaskSidebarOpen);
+  const storedTaskSidebarOpen = useUiStore((state) => state.isTaskSidebarOpen);
+  const navigation = useReportNavigation();
+  const isReportReading = Boolean(
+    navigation?.report && navigation.activeTab === "report",
+  );
+  const isTaskSidebarOpen = navigation?.report
+    ? navigation.isTaskSidebarOpen
+    : storedTaskSidebarOpen;
   const isContextPanelOpen = useUiStore((state) => state.isContextPanelOpen);
-  const toggleTaskSidebar = useUiStore((state) => state.toggleTaskSidebar);
+  const storedToggleTaskSidebar = useUiStore(
+    (state) => state.toggleTaskSidebar,
+  );
+  const toggleTaskSidebar = navigation?.report
+    ? navigation.toggleTaskSidebar
+    : storedToggleTaskSidebar;
   const toggleContextPanel = useUiStore((state) => state.toggleContextPanel);
   const setZenTaskId = useUiStore((state) => state.setZenTaskId);
   const taskQuery = useTask(taskId ?? "");
@@ -26,7 +39,7 @@ export function WorkspaceHeader({ taskId }: { taskId?: string }) {
   return (
     <header className={styles.header}>
       <div className="flex min-w-0 flex-1 items-center gap-2">
-        {!isTaskSidebarOpen ? (
+        {!isTaskSidebarOpen && !isReportReading ? (
           <Button
             aria-label={t("navigation.expandTaskSidebar")}
             onClick={toggleTaskSidebar}
@@ -51,14 +64,6 @@ export function WorkspaceHeader({ taskId }: { taskId?: string }) {
               </Badge>
             ) : null}
           </div>
-          {taskId ? (
-            <p className="truncate text-xs text-[var(--color-text-muted)]">
-              {taskQuery.data?.query ?? taskId}
-              <span className="ml-2 text-[var(--color-text-subtle)]">
-                {t("common.taskId")}: {taskId}
-              </span>
-            </p>
-          ) : null}
         </div>
       </div>
 

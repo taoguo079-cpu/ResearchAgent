@@ -23,6 +23,7 @@
   "unverifiedCitation": "Unverified citation",
   "citationFallback": "Citation: {id}",
   "contents": "On this page",
+  "noContents": "No section headings.",
   "partialDescription": "This is a partial result. Existing findings can still be read and exported.",
   "criticReview": "Final critic review",
   "exportMenu": "Export report",
