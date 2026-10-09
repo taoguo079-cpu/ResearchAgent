@@ -59,13 +59,13 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start_conda.ps1 -Env
 
 ## Windows 启动快捷方式
 
-仓库根目录包含 `ResearchAgent-新版.lnk`，与 `ResearchAgent-启动.bat` 配套。快捷方式会记录生成时的目录；克隆到其他位置后，请先在新仓库根目录执行以下命令，使它指向当前目录：
+需要快捷方式时，在当前仓库根目录执行以下命令，生成指向本机目录的 `ResearchAgent-新版.lnk`：
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/create_shortcut.ps1
 ```
 
-随后双击 `ResearchAgent-新版.lnk` 启动。需要放到桌面时，可将重新生成的快捷方式复制过去；它的目标、工作目录和图标都取自当前仓库。
+随后双击 `ResearchAgent-新版.lnk` 启动。需要放到桌面时，可将生成的快捷方式复制过去；它的目标、工作目录和图标都取自当前仓库。快捷方式仅在本机使用，不提交到仓库。
 
 ## 离线演示与验收
 
@@ -107,7 +107,6 @@ npm --prefix web run pet:validate
 - SQLite 保存任务、事件、论文、文本块、证据和消息；Chroma 只是可选二级索引。
 - 启动自动顺序执行数据库迁移，包括旧 sessions/messages 导入。升级前自行备份实际数据库。
 - 单机可信使用，无账号和多进程任务接管。Demo 不得用于 production。
-
 
 ### 运行可靠性
 
