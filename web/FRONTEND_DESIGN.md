@@ -23,7 +23,7 @@ acceptance:
 
 The current Next.js frontend implements the user-approved Swiss International Typographic Style. The release branch is `轻量化前端`. This document replaces the earlier white/purple/blue/mint workspace-extension handoff; that visual system, its dark theme and its animated robot presentation are retired.
 
-The active design sources are [the root design system](../DESIGN.md), [the product brief](../PRODUCT.md) and [the frontend surface record](../.impeccable/surfaces/frontend.md). Semantic tokens live in `styles/tokens.css`; local Inter is declared in `app/globals.css`; page compositions use CSS modules. [The final validation record and tracked screenshots](../docs/frontend-swiss/README.md) provide the release evidence.
+The active design sources are [the root design system](../DESIGN.md), [the product brief](../PRODUCT.md) and [the frontend surface record](../.impeccable/surfaces/frontend.md). Semantic tokens live in `styles/tokens.css`; local Inter and Chinese fonts are declared in `app/globals.css`; page compositions use CSS modules. [The final validation record and tracked screenshots](../docs/frontend-swiss/README.md) provide the release evidence.
 
 The three entry routes remain the welcome page (`/`), workspace menu (`/workspace`) and question composer (`/research/new`), with their existing locale routes. NEXT stores tab-scoped welcome completion and opens the menu; subsequent visits in the same tab skip the welcome page. Entry navigation dispatches immediately while retaining duplicate-click protection and timeout recovery.
 
@@ -31,11 +31,12 @@ The three entry routes remain the welcome page (`/`), workspace menu (`/workspac
 
 Only black `#000000`, cream paper `#FAF9F4` and signal red `#DA291C` are used. The theme is fixed to paper even when the browser prefers dark mode or old theme preferences remain in storage. Red communicates primary actions, active states, errors, citations and focus; text and functional icons also identify each state.
 
-Inter Regular (400) and Bold (700) are self-hosted in `public/fonts/inter/`, with their official source record and SIL Open Font License. Chinese falls back to PingFang SC, Microsoft YaHei and sans-serif. No runtime external font request is required. All text is left aligned, with an uneven right edge.
+Inter Regular (400) and Bold (700) are self-hosted in `public/fonts/inter/`. Chinese uses the user-selected Source Han Sans CN, packaged as WOFF2 under the derivative family name Research Agent Han in `public/fonts/source-han-sans/`. Both families retain their source records and SIL Open Font Licenses. PingFang SC, Microsoft YaHei and sans-serif remain fallbacks. No runtime external font request is required. All text is left aligned, with an uneven right edge.
 
 | Type role                                   | Desktop size  |
 | ------------------------------------------- | ------------- |
 | Two-line welcome brand                      | 144px, bold   |
+| Welcome right-column description            | 20px, regular |
 | Menu, composer, history and settings titles | 96px, bold    |
 | Research stage, report and Zen titles       | 64px, bold    |
 | Body and question input                     | 14px, regular |

@@ -15,6 +15,21 @@
   font-style: normal;
   font-display: swap;
 }
+@font-face {
+  font-family: "Research Agent Han";
+  src: url("/fonts/source-han-sans/ResearchAgentHan-Regular.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Research Agent Han";
+  src: url("/fonts/source-han-sans/ResearchAgentHan-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 :root {
   --background: var(--color-page);
   --foreground: var(--color-text);

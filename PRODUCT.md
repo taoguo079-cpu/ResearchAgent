@@ -17,3 +17,5 @@ The three entry routes are the welcome page, workspace menu, and research questi
 
 User-approved 2026-10-06: Swiss International Typographic Style across the entire frontend, fixed cream theme, black #000000 / cream #FAF9F4 / red #DA291C, local Inter 400 and 700, 12-column grid. All text left aligned. Remove robot, decorative animation, and floating pet presentation. Preserve old research preference storage; old theme/pet settings do not alter presentation.
 Desktop acceptance is 1366 × 768. Mobile screenshot matching is excluded.
+
+User-approved 2026-10-09: select typography option A, Source Han Sans CN for Chinese, and increase the welcome-page right-column description to 20px. Preserve local Inter for Latin, the two weights (400/700), and the existing hierarchy elsewhere. Chinese fonts are self-hosted as WOFF2 with their SIL license; the derivative family is named Research Agent Han to respect Adobe's reserved font name.

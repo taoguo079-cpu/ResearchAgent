@@ -7,53 +7,58 @@ colors:
   paper: "#FAF9F4"
 typography:
   display-brand:
-    fontFamily: 'Inter, "PingFang SC", "Microsoft YaHei", sans-serif'
+    fontFamily: 'Inter, "Research Agent Han", "PingFang SC", "Microsoft YaHei", sans-serif'
     fontSize: "144px"
     fontWeight: 700
     lineHeight: 0.95
     letterSpacing: "-0.04em"
   headline-page:
-    fontFamily: 'Inter, "PingFang SC", "Microsoft YaHei", sans-serif'
+    fontFamily: 'Inter, "Research Agent Han", "PingFang SC", "Microsoft YaHei", sans-serif'
     fontSize: "96px"
     fontWeight: 700
     letterSpacing: "-0.04em"
   headline-workspace:
-    fontFamily: 'Inter, "PingFang SC", "Microsoft YaHei", sans-serif'
+    fontFamily: 'Inter, "Research Agent Han", "PingFang SC", "Microsoft YaHei", sans-serif'
     fontSize: "64px"
     fontWeight: 700
     lineHeight: 1
     letterSpacing: "-0.03em"
   title-dialog:
-    fontFamily: 'Inter, "PingFang SC", "Microsoft YaHei", sans-serif'
+    fontFamily: 'Inter, "Research Agent Han", "PingFang SC", "Microsoft YaHei", sans-serif'
     fontSize: "32px"
     fontWeight: 700
   title-section:
-    fontFamily: 'Inter, "PingFang SC", "Microsoft YaHei", sans-serif'
+    fontFamily: 'Inter, "Research Agent Han", "PingFang SC", "Microsoft YaHei", sans-serif'
     fontSize: "24px"
     fontWeight: 700
     lineHeight: 1.2
   body:
-    fontFamily: 'Inter, "PingFang SC", "Microsoft YaHei", sans-serif'
+    fontFamily: 'Inter, "Research Agent Han", "PingFang SC", "Microsoft YaHei", sans-serif'
     fontSize: "14px"
     fontWeight: 400
     lineHeight: 1.5
+  body-home:
+    fontFamily: 'Inter, "Research Agent Han", "PingFang SC", "Microsoft YaHei", sans-serif'
+    fontSize: "20px"
+    fontWeight: 400
+    lineHeight: 1.55
   body-research:
-    fontFamily: 'Inter, "PingFang SC", "Microsoft YaHei", sans-serif'
+    fontFamily: 'Inter, "Research Agent Han", "PingFang SC", "Microsoft YaHei", sans-serif'
     fontSize: "14px"
     fontWeight: 400
     lineHeight: 1.8
   body-report:
-    fontFamily: 'Inter, "PingFang SC", "Microsoft YaHei", sans-serif'
+    fontFamily: 'Inter, "Research Agent Han", "PingFang SC", "Microsoft YaHei", sans-serif'
     fontSize: "14px"
     fontWeight: 400
     lineHeight: 1.9
   control:
-    fontFamily: 'Inter, "PingFang SC", "Microsoft YaHei", sans-serif'
+    fontFamily: 'Inter, "Research Agent Han", "PingFang SC", "Microsoft YaHei", sans-serif'
     fontSize: "14px"
     fontWeight: 400
     lineHeight: 1.5
   metadata:
-    fontFamily: 'Inter, "PingFang SC", "Microsoft YaHei", sans-serif'
+    fontFamily: 'Inter, "Research Agent Han", "PingFang SC", "Microsoft YaHei", sans-serif'
     fontSize: "12px"
     fontWeight: 400
     lineHeight: 1.5
@@ -147,7 +152,7 @@ components:
 
 ResearchAgent follows the user-approved Swiss International Typographic Style. Large type establishes the page, inherited columns align the work, and numbered rows expose order. The workspace is precise, restrained, and dense enough for research without making every region compete for attention.
 
-The theme is fixed cream with black structure and signal red for actions, current states, errors, links, and focus. Latin text uses local Inter; Chinese text falls back to the established CJK stack. Content stays left aligned. Hierarchy comes from type, whitespace, and rules rather than imagery or decorative motion.
+The theme is fixed cream with black structure and signal red for actions, current states, errors, links, and focus. Latin text uses local Inter; Chinese text uses the user-selected Source Han Sans CN, self-hosted under the OFL-compliant derivative name Research Agent Han. Content stays left aligned. Hierarchy comes from type, whitespace, and rules rather than imagery or decorative motion.
 
 **Key Characteristics:**
 
@@ -180,11 +185,11 @@ Success, warning, and information remain black on cream. Red is an additional cu
 
 ## Typography
 
-**Display Font:** Inter, with PingFang SC, Microsoft YaHei, and sans-serif fallbacks.
+**Display Font:** Inter for Latin and Research Agent Han (Source Han Sans CN) for Chinese, with PingFang SC, Microsoft YaHei, and sans-serif fallbacks.
 
 **Body Font:** The same stack, including report prose and code.
 
-**Character:** A single sans-serif family gives the whole workspace one voice. Scale, weight, line length, and whitespace distinguish brand, operation, and reading.
+**Character:** Coordinated Latin and Chinese sans-serif faces give the workspace one voice. Scale, weight, line length, and whitespace distinguish brand, operation, and reading.
 
 ### Hierarchy
 
@@ -194,6 +199,7 @@ Success, warning, and information remain black on cream. Red is an additional cu
 - **Dialog title** (`title-dialog`): dialogs, recovery messages, and substantial empty states; line height is set by the component.
 - **Section title** (`title-section`): settings sections, research details, and history task links.
 - **Body** (`body`): UI explanations and form content. Research passages use `body-research` and a maximum line length of 65–75ch; reports use `body-report` and a maximum width of 75ch.
+- **Home description** (`body-home`): welcome-page right-column explanations use 20px regular type and a 1.55 line height, selected by the user on 2026-10-09. The brand stays at 144px and compact UI text stays at 14px.
 - **Control** (`control`): the compact native shared button inherits body typography. Surface CSS modules can explicitly set bold action labels.
 - **Metadata** (`metadata`): labels, factual dates, counts, statuses, and numbered indexes. Numeric data uses tabular figures where present.
 
@@ -201,9 +207,11 @@ Report document headings retain their local semantic hierarchy from h1 through h
 
 Inter Regular and Bold are self-hosted in `web/public/fonts/inter/`. [Font provenance](web/public/fonts/inter/README.md) records the official source and retrieval date; [SIL Open Font License](web/public/fonts/inter/LICENSE.txt) accompanies the files. No runtime external font request is made.
 
+Chinese Regular and Bold are self-hosted as WOFF2 in `web/public/fonts/source-han-sans/`, with full original character coverage. [Chinese font provenance](web/public/fonts/source-han-sans/README.md) records the Adobe source, conversion, and renamed derivative; the accompanying [SIL Open Font License](web/public/fonts/source-han-sans/LICENSE.txt) retains the upstream license. Glyph designs remain the selected Source Han Sans. All faces use `font-display: swap`.
+
 ### Named Rules
 
-**The Two Weights Rule.** Use regular for reading, metadata, and inherited shared controls; use bold for hierarchy and action labels explicitly styled by their surface. Inter is bundled only at 400 and 700, and font synthesis is disabled.
+**The Two Weights Rule.** Use regular for reading, metadata, and inherited shared controls; use bold for hierarchy and action labels explicitly styled by their surface. Both Latin and Chinese faces are bundled only at 400 and 700, and font synthesis is disabled.
 
 ## Layout
 

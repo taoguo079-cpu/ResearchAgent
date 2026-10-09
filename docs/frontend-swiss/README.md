@@ -5,10 +5,10 @@
 ## 包含内容
 
 - 前端源码、英文／中文文案、组件与浏览器测试，保留路由、研究任务、追问、证据、论文、历史、设置、导出、执行回放、恢复与 SSE 协议。
-- 黑／米白／红的瑞士风格视觉系统、12 栏网格、本地 Inter 400／700 及 SIL 字体许可证。
+- 黑／米白／红的瑞士风格视觉系统、12 栏网格、本地 Inter 和思源黑体 400／700 及 SIL 字体许可证；首页右侧说明为 20px（2026-10-09 用户选定 A + 20px）。
 - [产品说明](../../PRODUCT.md)、[设计系统](../../DESIGN.md)、[页面规格](../../web/FRONTEND_DESIGN.md)与 [impeccable 设计记录](../../.impeccable/design.json)。
 - 可移植的 [ResearchAgent-Conda.bat](../../ResearchAgent-Conda.bat) 与 [scripts/start_conda.ps1](../../scripts/start_conda.ps1)，以及它们调用的 [start_agent.ps1](../../scripts/start_agent.ps1)、[owned_process.py](../../scripts/owned_process.py)、[serve_backend.py](../../scripts/serve_backend.py)。
-- [requirements.txt](../../requirements.txt)、[web/package-lock.json](../../web/package-lock.json)、[.env.example](../../.env.example)、离线 Demo 启动器、24 张最终桌面验收截图。
+- [requirements.txt](../../requirements.txt)、[web/package-lock.json](../../web/package-lock.json)、[.env.example](../../.env.example)、离线 Demo 启动器及桌面验收截图。
 
 本包使用源代码安装依赖，不包含 `.env`、API 密钥、本地数据库、日志、虚拟环境、`node_modules` 或编译缓存。
 
@@ -66,6 +66,10 @@ Conda 启动链与 `.venv` 启动链共用单进程后端和退出管理。关�
 | 错误页         | [任务不存在](screenshots/not-found.png)                                                                                                                                 |
 
 ## 复现检查
+
+2026-10-09 字体调整：用户选定 **A（思源黑体）+ 首页右侧 20px**。中文全站使用本地 WOFF2 常规／粗体，英文继续使用 Inter。转换前后的 30,926 个字符映射、字形指令及排版表一致；保留上游 SIL 许可证。复核了 1366 × 768 中英文首页和中文问题输入页，无横向溢出。首页 8 项测试、typecheck、lint、format:check 和生产构建通过。
+
+更新后的首页截图：[中文 A + 20px](screenshots/welcome-zh-A20.jpg)／[英文 20px](screenshots/welcome-en-A20.jpg)。上方 2026-10-06 的截图保留为原始验收记录。
 
 ```powershell
 conda activate research-agent
