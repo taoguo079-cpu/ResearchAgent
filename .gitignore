@@ -62,3 +62,12 @@ data/
 /artifacts/
 /web/artifacts/
 /.impeccable/review/
+
+# Machine-specific Windows shortcuts
+/*.lnk
+
+# Local design records
+/DESIGN.md
+/PRODUCT.md
+/.impeccable/surfaces/frontend.md
+/docs/frontend-swiss/README.md

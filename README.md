@@ -2,7 +2,7 @@
 
 本地优先的学术研究工作区：Next.js 页面 + FastAPI 持久任务 + Supervisor 动态研究图。支持中英文、SSE 回放、论文/证据联动、历史任务、DeepSeek 设置、固定米白主题和报告追问。
 
-本版本发布于 `轻量化前端` 分支。完整源码包含 Conda / `.venv` 启动器、本地 Inter 字体与许可证、中英文文案、测试和设计记录；[交付清单、截图与验收结果](docs/frontend-swiss/README.md)可直接在仓库查看。克隆该版本：
+本版本发布于 `轻量化前端` 分支。完整源码包含 Conda / `.venv` 启动器、本地 Inter 字体与许可证、中英文文案和测试。克隆该版本：
 
 ```powershell
 git clone --branch 轻量化前端 https://github.com/taoguo079-cpu/ResearchAgent.git
@@ -66,13 +66,13 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start_conda.ps1 -Env
 
 ## Windows 启动快捷方式
 
-仓库根目录包含 `ResearchAgent-新版.lnk`，与 `ResearchAgent-启动.bat` 配套。快捷方式会记录生成时的目录；克隆到其他位置后，请先在新仓库根目录执行以下命令，使它指向当前目录：
+需要快捷方式时，在当前仓库根目录执行以下命令，生成指向本机目录的 `ResearchAgent-新版.lnk`：
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/create_shortcut.ps1
 ```
 
-随后双击 `ResearchAgent-新版.lnk` 启动。需要放到桌面时，可将重新生成的快捷方式复制过去；它的目标、工作目录和图标都取自当前仓库。
+随后双击 `ResearchAgent-新版.lnk` 启动。需要放到桌面时，可将生成的快捷方式复制过去；它的目标、工作目录和图标都取自当前仓库。快捷方式仅在本机使用，不提交到仓库。
 
 ## 离线演示与验收
 
@@ -105,7 +105,7 @@ npm --prefix web run i18n:check
 npm --prefix web run build
 ```
 
-旧机器人和宠物素材工具保留为历史实现，不属于当前前端启动或验收流程。当前设计规范见 [DESIGN.md](DESIGN.md)，页面规格见 [web/FRONTEND_DESIGN.md](web/FRONTEND_DESIGN.md)。
+旧机器人和宠物素材工具保留为历史实现，不属于当前前端启动或验收流程。
 
 ## 使用约束
 
