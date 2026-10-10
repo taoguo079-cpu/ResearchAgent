@@ -18,6 +18,7 @@ vi.mock("@/i18n/navigation", () => ({
 vi.mock("@/components/entry/entry-language-switcher", () => ({
   EntryLanguageSwitcher: () => <button type="button">English</button>,
 }));
+vi.mock("./welcome-waves", () => ({ WelcomeWaves: () => null }));
 
 import { WELCOME_SESSION_KEY } from "@/features/welcome/welcome-state";
 import { EntryTransitionProvider } from "@/components/entry/entry-transition-provider";
@@ -59,7 +60,7 @@ describe("brand welcome page", () => {
     vi.restoreAllMocks();
   });
 
-  it("shows the typographic brand and entry button immediately without decorative assets", () => {
+  it("shows the typographic brand and entry button immediately without remote assets", () => {
     renderWelcome();
     expect(
       screen.getByRole("heading", { name: "Research Agent" }),

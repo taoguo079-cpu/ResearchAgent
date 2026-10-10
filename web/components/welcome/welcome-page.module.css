@@ -1,10 +1,14 @@
 .page {
+  position: relative;
+  isolation: isolate;
   min-height: 100svh;
   background: var(--color-page);
   color: var(--color-text);
 }
 
 .canvas {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   grid-template-rows: 96px 1fr 80px 64px;
@@ -34,6 +38,7 @@
 
 .brandTitle {
   grid-column: 1 / 10;
+  grid-row: 2;
   align-self: start;
   margin: 72px 0 0;
   font-size: 144px;
@@ -47,7 +52,9 @@
 }
 
 .description {
+  color: var(--color-text);
   grid-column: 10 / -1;
+  grid-row: 2;
   align-self: start;
   margin-top: 80px;
   font-size: 20px;
@@ -56,6 +63,14 @@
 
 .description p {
   margin: 0 0 32px;
+}
+
+.waves {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 0;
+  z-index: 0;
 }
 
 .nextButton {
@@ -105,6 +120,7 @@
 
   .description {
     grid-column: 1 / 9;
+    grid-row: auto;
     margin-block: 32px;
   }
 

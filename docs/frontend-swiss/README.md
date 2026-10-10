@@ -53,7 +53,7 @@ Conda 启动链与 `.venv` 启动链共用单进程后端和退出管理。关�
 
 | 页面／状态     | 截图                                                                                                                                                                    |
 | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 首页           | [英文](screenshots/welcome-en.png) / [中文](screenshots/welcome-zh-CN.png)                                                                                              |
+| 首页           | [英文](screenshots/welcome-waves-en.png) / [中文](screenshots/welcome-waves-zh-CN.png)                                                                                  |
 | 功能菜单       | [英文](screenshots/menu-en.png) / [中文](screenshots/menu-zh-CN.png)                                                                                                    |
 | 问题输入       | [英文](screenshots/question-en.png) / [中文](screenshots/question-zh-CN.png) / [初始研究页](screenshots/reference-research.png)                                         |
 | 运行中研究     | [阶段进度](screenshots/task-live.png)                                                                                                                                   |
@@ -70,6 +70,8 @@ Conda 启动链与 `.venv` 启动链共用单进程后端和退出管理。关�
 2026-10-09 字体调整：用户选定 **A（思源黑体）+ 首页右侧 20px**。中文全站使用本地 WOFF2 常规／粗体，英文继续使用 Inter。转换前后的 30,926 个字符映射、字形指令及排版表一致；保留上游 SIL 许可证。复核了 1366 × 768 中英文首页和中文问题输入页，无横向溢出。首页 8 项测试、typecheck、lint、format:check 和生产构建通过。
 
 更新后的首页截图：[中文 A + 20px](screenshots/welcome-zh-A20.jpg)／[英文 20px](screenshots/welcome-en-A20.jpg)。上方 2026-10-06 的截图保留为原始验收记录。
+
+2026-10-10 波纹优化：首页保持原排版，使用 Canvas 2D 和原生 rAF，每帧按 8 条线一批完整绘制，不设置帧率上限。时间归一化的黑点和弹性、真实 Chrome 全屏测量、验证与最新中英文截图见 [首页波纹记录](home-waves.md)；上方首页索引指向本次版本，其余旧截图保留为历史记录。
 
 ```powershell
 conda activate research-agent

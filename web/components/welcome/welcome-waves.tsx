@@ -1,0 +1,71 @@
+"use client";
+
+import { useEffect, useRef, type RefObject } from "react";
+import {
+  registerWelcomeWaves,
+  type WelcomeWaveElement,
+} from "@/features/welcome/wave-element";
+import styles from "./welcome-waves.module.css";
+
+export function WelcomeWaves({
+  className,
+  interactionRef,
+  topBoundaryRef,
+  bottomBoundaryRef,
+}: {
+  className: string;
+  interactionRef: RefObject<HTMLElement | null>;
+  topBoundaryRef: RefObject<HTMLElement | null>;
+  bottomBoundaryRef: RefObject<HTMLElement | null>;
+}) {
+  const host = useRef<WelcomeWaveElement>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const viewport = host.current;
+    const surface = canvas.current;
+    const page = interactionRef.current;
+    const topBoundary = topBoundaryRef.current;
+    const bottomBoundary = bottomBoundaryRef.current;
+    if (!viewport || !surface || !page || !topBoundary || !bottomBoundary)
+      return;
+
+    const updateBounds = () => {
+      const bounds = page.getBoundingClientRect();
+      const top = Math.max(
+        0,
+        topBoundary.getBoundingClientRect().bottom - bounds.top,
+      );
+      const bottom = Math.max(
+        top,
+        Math.min(
+          bounds.height,
+          bottomBoundary.getBoundingClientRect().top - bounds.top,
+        ),
+      );
+      viewport.style.top = `${top}px`;
+      viewport.style.height = `${bottom - top}px`;
+    };
+
+    updateBounds();
+    registerWelcomeWaves();
+    viewport.startWaves(surface, page);
+    const boundaries = new ResizeObserver(updateBounds);
+    for (const element of [page, topBoundary, bottomBoundary])
+      boundaries.observe(element);
+    return () => {
+      boundaries.disconnect();
+      viewport.stopWaves();
+    };
+  }, [interactionRef, topBoundaryRef, bottomBoundaryRef]);
+  return (
+    <a-waves
+      ref={host}
+      className={`${styles.waves} ${className}`}
+      data-testid="welcome-waves"
+      aria-hidden="true"
+    >
+      <canvas ref={canvas} data-welcome-wave-canvas />
+    </a-waves>
+  );
+}

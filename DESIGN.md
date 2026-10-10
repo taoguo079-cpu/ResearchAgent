@@ -166,6 +166,14 @@ This record describes the active Next.js implementation in `web/styles/tokens.cs
 
 ## Colors
 
+### Welcome motion exception — 2026-10-10
+
+User-approved Canvas optimization, 2026-10-10 (supersedes the earlier SVG rendering and per-tick timing): keep the native `a-waves` Web Component, Perlin noise, existing polylines and 8px CSS transform dot. Use transparent Canvas 2D with bounded batches of eight independent polylines, drawing the complete field per native requestAnimationFrame callback; no FPS cap, skipped frames, GSAP ticker limit or distant 30fps branch. Retain 10px line spacing, 32px sampling, 0.1px coordinate rounding, endpoint rules, 1px #AAA9A3 strokes, 32/16px noise amplitudes and the full-width header/footer divider band. Keep the original cream, black right-column copy, typography, grid, content and red #DA291C NEXT. Normalize 0.1 easing and pointer speed against elapsed time; use a fractional power of the original 60Hz spring matrix (tension .005, friction .925, strength 2, limit ±100px), substeps at most 16.7ms and a 50ms elapsed-time guard. This 60Hz reference calibrates motion, not rendering frequency. Keep last movement direction while residual force decays. GSAP handles the original edge-staggered entrance through a paused timeline manually advanced by the same rAF; partial polyline arc length replaces DrawSVG. DPR backing scale is capped at 2 and reacts to resolution changes. Retain passive foreground input, reduced-motion static contours, touch exclusion, hidden/offscreen suspension and complete resource cleanup. Canvas unavailability leaves the foreground usable. No new dependencies, controls, copy, API or route changes. Desktop acceptance is 1366 × 768; source, Chrome measurements, screenshots and finish review are in docs/frontend-swiss/home-waves.md.
+
+Historical SVG path batching, 2026-10-10: eight adjacent lines shared one path after DrawSVG entrance. This step preceded and is superseded by the Canvas optimization above; current rendering has no SVG path groups.
+
+Homepage restoration, 2026-10-10: revert the compact redesign and preserve the previous 12-column composition and full-width divider band. The intermediate SVG version drew local groups every tick and the remaining background about 30 times per second. That rendering strategy is superseded by the Canvas optimization above; the restored layout remains.
+
 The palette combines paper, ink, and one signal accent; semantic aliases do not create additional pigments.
 
 ### Primary

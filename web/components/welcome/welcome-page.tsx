@@ -8,6 +8,7 @@ import { EntryLanguageSwitcher } from "@/components/entry/entry-language-switche
 import { useEntryNavigation } from "@/components/entry/entry-transition-provider";
 import { WELCOME_SESSION_KEY } from "@/features/welcome/welcome-state";
 import { useRouter } from "@/i18n/navigation";
+import { WelcomeWaves } from "./welcome-waves";
 import styles from "./welcome-page.module.css";
 
 export function WelcomePage() {
@@ -17,6 +18,9 @@ export function WelcomePage() {
   const router = useRouter();
   const { navigate } = useEntryNavigation();
   const navigated = useRef(false);
+  const pageRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
+  const footerRef = useRef<HTMLElement>(null);
   const goToWorkspace = useCallback(() => {
     if (navigated.current) return;
     navigated.current = true;
@@ -55,9 +59,15 @@ export function WelcomePage() {
   }
 
   return (
-    <main className={styles.page} data-entry-page="welcome">
-      <div className={styles.canvas}>
-        <header className={styles.header}>
+    <main ref={pageRef} className={styles.page} data-entry-page="welcome">
+      <WelcomeWaves
+        className={styles.waves}
+        interactionRef={pageRef}
+        topBoundaryRef={headerRef}
+        bottomBoundaryRef={footerRef}
+      />
+      <div className={styles.canvas} data-entry-canvas>
+        <header ref={headerRef} className={styles.header}>
           <p className={styles.partner}>{t("partner")}</p>
           <div className={styles.language}>
             <EntryLanguageSwitcher />
@@ -75,7 +85,7 @@ export function WelcomePage() {
           {t("next")}
           <ArrowRight aria-hidden="true" size={20} />
         </button>
-        <footer className={`${styles.metadata} swiss-meta`}>
+        <footer ref={footerRef} className={`${styles.metadata} swiss-meta`}>
           <span>{new Date().getFullYear()}</span>
           <span>{entryT("location")}</span>
         </footer>

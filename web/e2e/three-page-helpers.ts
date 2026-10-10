@@ -30,7 +30,7 @@ export async function expectSwissEntry(page: Page) {
   );
   await expect(
     page.locator(
-      "[data-pet-state], [data-brand-media], [data-research-media], [data-design-text], video, canvas",
+      "[data-pet-state], [data-brand-media], [data-research-media], [data-design-text], video, canvas:not([data-welcome-wave-canvas])",
     ),
   ).toHaveCount(0);
   await expect(page.getByTestId("brand-robot")).toHaveCount(0);

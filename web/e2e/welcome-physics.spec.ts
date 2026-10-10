@@ -33,7 +33,9 @@ for (const locale of ["en", "zh-CN"] as const) {
       await expect(control).toBeVisible();
       await page.evaluate(() => document.fonts.ready);
       await expectSwissEntry(page);
-      const grid = page.locator("main > div").first();
+      const grid = page
+        .locator(name === "welcome" ? "[data-entry-canvas]" : "main > div")
+        .first();
       const bounds = await grid.boundingBox();
       expect(bounds?.x).toBe(48);
       expect(bounds?.width).toBe(1270);
